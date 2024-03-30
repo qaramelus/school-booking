@@ -1,0 +1,7 @@
+{
+  "login": "Login",
+  "emailAddress": "E-Mail Address",
+  "password": "Password",
+  "signIn": "Sign In",
+  "invalidCredentials": "Invalid login credentials"
+}

@@ -43,18 +43,24 @@ export default {
         });
 
         localStorage.setItem('user-token', response.data.token);
-        localStorage.setItem('user-role', response.data.role); 
+        localStorage.setItem('user-role', response.data.role);
 
-
-        if (response.data.role === 'parent') {
-          this.$router.push({ name: 'ParentOverview' });
-        } else if (response.data.role === 'child') {
-          this.$router.push({ name: 'ChildOverview' });
-        } else {
-          console.error('User role is not recognized or missing');
+        // Redirect based on the user's role
+        switch (response.data.role) {
+          case 'parent':
+            this.$router.push({ name: 'ParentOverview' });
+            break;
+          case 'child':
+            this.$router.push({ name: 'ChildOverview' });
+            break;
+          case 'admin':
+            this.$router.push({ name: 'AdminOverview' }); // Redirect admin to AdminOverview
+            break;
+          default:
+            console.error('User role is not recognized or missing');
         }
       } catch (error) {
-        this.errorMessage = 'Invalid login credentials';
+        this.errorMessage = this.$t("invalidCredentials");
         console.error(error);
       }
     },

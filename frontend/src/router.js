@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LoginPage from './views/LoginPage.vue';
 import ParentOverview from './views/ParentOverview.vue';
 import ChildOverview from './views/ChildOverview.vue';
+import AdminOverview from './views/AdminOverview.vue';
 
 // Define routes
 const routes = [
@@ -19,6 +20,11 @@ const routes = [
     path: '/child-overview',
     name: 'ChildOverview',
     component: ChildOverview
+  },
+  {
+    path: '/admin-overview',
+    name: 'AdminOverview', // Use 'AdminOverview' for navigation
+    component: AdminOverview
   }
 ];
 

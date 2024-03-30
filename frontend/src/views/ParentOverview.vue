@@ -1,18 +1,19 @@
 <template>
     <div class="parent-overview">
       <h1>You logged on successfully</h1>
-      <button @click="logout">Logout</button>
+      <button @click="performLogout">Logout</button>
     </div>
-  </template>
+</template>
   
   <script>
+  import { logout } from '@/services/logout'; 
+  
   export default {
     name: "ParentOverview",
     methods: {
-        logout() {
-            localStorage.removeItem('user-token'); // Clear the token
-            this.$router.push({ name: 'LoginPage' }); // Redirect to login
-        }
+      performLogout() {
+        logout(this.$router);
+      }
     }
   };
   </script>

@@ -4,14 +4,14 @@
     <button @click="performLogout">Logout</button>
     <div class="activities">
       <h2>Activities</h2>
-      <ul>
-        <!-- Iterate over activities and display them -->
-        <li v-for="activity in activities" :key="activity._id">
+      <div class="activity-cards">
+        <!-- Iterate over activities and display them as cards -->
+        <div class="activity-card" v-for="activity in activities" :key="activity._id">
           <h3>{{ activity.name }}</h3>
           <p>{{ activity.description }}</p>
           <p>Date: {{ new Date(activity.date).toLocaleDateString() }}</p>
-        </li>
-      </ul>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -55,7 +55,34 @@ export default {
   margin: 0 auto;
   text-align: center;
 }
+
 .activities {
   margin-top: 20px;
+}
+
+.activity-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.activity-card {
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+  width: 30%;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  padding: 2px 16px;
+  background-color: white;
+}
+
+.activity-card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+@media (max-width: 768px) {
+  .activity-card {
+    width: 100%;
+  }
 }
 </style>

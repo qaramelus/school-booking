@@ -1,21 +1,31 @@
 <template>
-    <div class="admin-overview">
-      <h1>Admin Dashboard</h1>
-      <button class="plus-button" @click="addActivity">+</button>
-      <button @click="performLogout">Logout</button>
-    </div>
+  <div class="admin-overview">
+    <h1>Admin Dashboard</h1>
+    <button class="plus-button" @click="showModal = true">+</button>
+    <button @click="performLogout">Logout</button>
+    <ActivityModal :isVisible="showModal" @close="showModal = false" @activityAdded="handleActivityAdded" />
+  </div>
 </template>
 
 <script>
-import { logout } from '@/services/logout'; 
+import { logout } from '@/services/logout';
+import ActivityModal from './ActivityModal.vue'; // Adjust the import path as necessary
 
 export default {
   name: "AdminOverview",
+  components: {
+    ActivityModal
+  },
+  data() {
+    return {
+      showModal: false,
+    };
+  },
   methods: {
-    addActivity() {
-      // Placeholder for adding activity logic
-      alert("Add new activity here.");
-      // Here, you could open a modal, redirect to a form page, etc.
+    handleActivityAdded(activity) {
+      console.log('Activity added:', activity);
+      // Implement the logic to add the new activity to the list or refresh the activities list
+      this.showModal = false;
     },
     performLogout() {
       logout(this.$router);
@@ -42,5 +52,5 @@ export default {
   cursor: pointer;
 }
 
-/* Add more styles as needed */
+/* Add more styles as needed, including modal styling if not included in ActivityModal.vue */
 </style>

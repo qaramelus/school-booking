@@ -15,11 +15,7 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).send("Unauthorized: User not found");
     }
     
-    // Check if the user has the admin role
-    if (user.role !== 'admin') {
-      return res.status(403).send("Forbidden: Requires admin role");
-    }
-
+    // No role check - all logged-in users are allowed
     req.user = user;
     next();
   } catch (error) {

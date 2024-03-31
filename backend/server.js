@@ -3,13 +3,15 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth');
+const activityRoutes = require('./routes/activityRoutes');
 
 const app = express();
 dotenv.config();
 
 // Middlewares
 app.use(cors());
-app.use(express.json()); // For parsing application/json
+app.use(express.json()); 
+app.use('/api/activities', activityRoutes);
 
 require('dotenv').config(); // Ensure this is at the top of your file
 

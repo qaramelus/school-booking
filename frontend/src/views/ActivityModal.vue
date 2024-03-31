@@ -60,10 +60,10 @@ export default {
 <style scoped>
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  inset-block-end: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -74,19 +74,19 @@ export default {
   background-color: white;
   padding: 20px;
   border-radius: 5px;
-  width: 80%;
-  max-width: 500px;
+  inline-size: 80%;
+  max-inline-size: 500px;
 }
 
 .close {
-  float: right;
+  float: inline-end;
   font-size: 28px;
   font-weight: bold;
   cursor: pointer;
 }
 
 .form-group {
-  margin-bottom: 10px;
+  margin-block-end: 10px;
 }
 
 .form-group label {
@@ -96,9 +96,9 @@ export default {
 .form-group input[type="text"],
 .form-group input[type="date"],
 .form-group textarea {
-  width: 100%;
+  inline-size: 100%;
   padding: 8px;
-  margin-top: 5px;
+  margin-block-start: 5px;
   box-sizing: border-box;
 }
 

@@ -16,7 +16,7 @@ exports.createActivity = async (req, res) => {
   }
 };
 
-// New function to fetch all Activities
+// Function to fetch all Activities
 exports.fetchActivities = async (req, res) => {
   try {
     const activities = await Activity.find({}); // Fetches all activities
@@ -25,3 +25,14 @@ exports.fetchActivities = async (req, res) => {
     res.status(500).send({ message: "Error fetching activities", error: error.message });
   }
 };
+
+// Function to delete an activity
+exports.deleteActivity = async (req, res) => {
+    try {
+      // Add authentication and authorization checks here
+      await Activity.findByIdAndDelete(req.params.id);
+      res.status(200).send({ message: 'Activity deleted successfully' });
+    } catch (error) {
+      res.status(500).send({ message: 'Failed to delete activity', error: error.toString() });
+    }
+  };

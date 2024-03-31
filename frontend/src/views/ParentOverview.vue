@@ -1,27 +1,29 @@
 <template>
   <div class="parent-overview">
-    <h1>You logged on successfully</h1>
     <button @click="performLogout">Logout</button>
     <div class="activities">
       <h2>Activities</h2>
       <div class="activity-cards">
-        <!-- Iterate over activities and display them as cards -->
-        <div class="activity-card" v-for="activity in activities" :key="activity._id">
+        <card-component v-for="activity in activities" :key="activity._id" @onClick="() => handleCardClick(activity)">
           <h3>{{ activity.name }}</h3>
           <p>{{ activity.description }}</p>
           <p>Date: {{ new Date(activity.date).toLocaleDateString() }}</p>
-        </div>
+        </card-component>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import API from '@/services/api'; // Import the API instance from your services
+import API from '@/services/api'; 
 import { logout } from '@/services/logout';
+import CardComponent from '@/components/CardComponent.vue'; 
 
 export default {
   name: "ParentOverview",
+  components: {
+    CardComponent,
+  },
   data() {
     return {
       activities: [], // Initialize activities array to store fetched activities
@@ -41,6 +43,10 @@ export default {
           console.error("There was an error fetching the activities:", error);
         });
     },
+    handleCardClick(activity) {
+      // Handle card click if necessary
+      console.log('Card clicked:', activity);
+    },
   },
   created() {
     this.fetchActivities(); // Fetch activities when component is created
@@ -57,32 +63,12 @@ export default {
 }
 
 .activities {
-  margin-top: 20px;
+  margin-block-start: 20px;
 }
 
 .activity-cards {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
-}
-
-.activity-card {
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-  transition: 0.3s;
-  width: 30%;
-  margin-bottom: 20px;
-  border-radius: 5px;
-  padding: 2px 16px;
-  background-color: white;
-}
-
-.activity-card:hover {
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-}
-
-@media (max-width: 768px) {
-  .activity-card {
-    width: 100%;
-  }
 }
 </style>

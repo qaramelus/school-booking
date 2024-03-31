@@ -78,11 +78,14 @@ const authController = {
           }
         );
 
-        // save user token
-        user.token = token;
-
         // user
-        res.status(200).json(user);
+        res.status(200).json({
+          _id: user._id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          token: token // Explicitly include the token in the response
+        });
       } else {
         res.status(400).send("Invalid Credentials");
       }

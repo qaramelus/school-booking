@@ -2,11 +2,23 @@
   <div class="admin-user-overview">
     <admin-navbar />
     <h1>User List</h1>
-    <div v-for="user in users" :key="user._id" class="user">
-      <p>{{ user.username }} ({{ user.role }})</p>
-    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="user in users" :key="user._id" @click="navigateToUser(user._id)" style="cursor: pointer;">
+          <td>{{ user.username }}</td>
+          <td>{{ user.role }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
+
 
 <script>
 import AdminNavbar from '@/components/AdminNavbar.vue';
@@ -34,7 +46,10 @@ export default {
         console.error("There was an error fetching the users:", error.message);
         // Optionally redirect to login or show an error message
       }
-    }
+    },
+    navigateToUser(userId) {
+    this.$router.push({ name: 'UserDetail', params: { userId } });
+  }
   }
 };
 </script>
@@ -45,7 +60,23 @@ export default {
   text-align: center;
 }
 
-.user {
-  margin-block-start: 10px;
+table {
+  inline-size: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: start;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+th {
+  background-color: #2c3e50;
+  color: white;
 }
 </style>
+

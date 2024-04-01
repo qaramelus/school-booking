@@ -47,6 +47,14 @@ const routes = [
         next('/login'); 
       }
     }
+  },
+  {
+    path: '/users/:userId',
+    name: 'UserDetail',
+    component: () => import('@/views/UserDetail.vue'), // Adjust path as needed
+    meta: {
+      requiresAdmin: true // Custom flag to check for admin role
+    }
   }
 ];
 

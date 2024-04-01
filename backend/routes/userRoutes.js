@@ -5,5 +5,7 @@ const { isAdmin } = require('../middlewares/authMiddleware');
 
 router.get('/', isAdmin, userController.fetchAllUsers);
 router.get('/:userId', isAdmin, userController.fetchUserDetails); 
+router.post('/:parentId/children', isAdmin, userController.createChildUser);
+
 
 module.exports = router;

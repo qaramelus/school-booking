@@ -1,15 +1,16 @@
 <template>
   <div class="admin-overview">
+    <admin-navbar />
     <h1>Admin Dashboard</h1>
-    <button class="plus-button" @click="showModal = true">+</button>
-    <button @click="performLogout">Logout</button>
-    <ActivityModal :isVisible="showModal" @close="showModal = false" @activityAdded="handleActivityAdded" />
+    <button class="plus-button" @click="prepareNewActivity">+</button>
+    <ActivityModal :isVisible="showModal" :editingActivity="editingActivity" @close="handleModalClose" @activityAdded="handleActivityAdded" @activityUpdated="fetchActivities" />
     <div class="activities">
       <h2>Activities</h2>
       <div class="activity-cards">
-        <card-component v-for="activity in activities" :key="activity._id" @onClick="() => handleCardClick(activity)">
+        <card-component v-for="activity in activities" :key="activity._id">
           <template v-slot:delete-icon>
             <img :src="trashIcon" class="delete-icon" @click.stop="confirmDelete(activity._id)">
+            <img :src="editIcon" class="edit-icon" @click.stop="() => editActivity(activity)">
           </template>
           <h3>{{ activity.name }}</h3>
           <p>{{ activity.description }}</p>
@@ -22,14 +23,16 @@
 
 <script>
 import API from '@/services/api';
-import { logout } from '@/services/logout';
 import CardComponent from '@/components/CardComponent.vue';
 import ActivityModal from './ActivityModal.vue';
-import trashIcon from '@/assets/trashicon.jpeg'; 
+import trashIcon from '@/assets/trashicon.jpeg';
+import editIcon from '@/assets/editicon.png';
+import AdminNavbar from '@/components/AdminNavbar.vue';
 
 export default {
   name: "AdminOverview",
   components: {
+    AdminNavbar,
     CardComponent,
     ActivityModal
   },
@@ -37,13 +40,12 @@ export default {
     return {
       activities: [],
       showModal: false,
+      editingActivity: null,
       trashIcon,
+      editIcon,
     };
   },
   methods: {
-    performLogout() {
-      logout(this.$router);
-    },
     fetchActivities() {
       API.get('activities')
         .then(response => {
@@ -53,13 +55,14 @@ export default {
           console.error("There was an error fetching the activities:", error);
         });
     },
-    handleActivityAdded(activity) {
+    handleActivityAdded() {
       this.fetchActivities();
-      console.log('Activity added:', activity);
       this.showModal = false;
+      this.editingActivity = null;
     },
-    handleCardClick(activity) {
-      console.log('Card clicked:', activity);
+    handleModalClose() {
+      this.showModal = false;
+      this.editingActivity = null; // Reset the editing activity
     },
     confirmDelete(activityId) {
       if (window.confirm("Are you sure you want to delete this activity?")) {
@@ -76,6 +79,14 @@ export default {
           console.error("There was an error deleting the activity:", error);
         });
     },
+    editActivity(activity) {
+      this.editingActivity = activity;
+      this.showModal = true;
+    },
+    prepareNewActivity() {
+      this.editingActivity = null; // Ensure modal is in "add new" state
+      this.showModal = true;
+    }
   },
   created() {
     this.fetchActivities();
@@ -85,7 +96,7 @@ export default {
 
 <style scoped>
 .admin-overview {
-  max-inline-size: 600px;
+
   margin: 0 auto;
   text-align: center;
 }
@@ -111,13 +122,17 @@ export default {
   justify-content: space-around;
 }
 
-.delete-icon {
+.delete-icon, .edit-icon {
   cursor: pointer;
   position: absolute;
-  top: 5px; 
-  right: 5px; 
-  width: 20px; 
-  height: 20px; 
+  inset-block-start: 5px;
+  inset-inline-end: 5px;
+  inline-size: 20px;
+  block-size: 20px;
 }
 
+.edit-icon {
+  inset-inline-end: 35px;
+}
 </style>
+

@@ -36,3 +36,14 @@ exports.deleteActivity = async (req, res) => {
       res.status(500).send({ message: 'Failed to delete activity', error: error.toString() });
     }
   };
+
+  // Function to update an activity
+exports.updateActivity = async (req, res) => {
+    try {
+      const updatedActivity = await Activity.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      res.status(200).json(updatedActivity);
+    } catch (error) {
+      res.status(500).send({ message: 'Failed to update activity', error: error.toString() });
+    }
+  };
+  

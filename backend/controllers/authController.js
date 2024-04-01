@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // Environment variable for JWT
-const JWT_SECRET = "739353f1537874c2700b8f39fa626ce39d10b5f0dad36e0b4b7761105892ff95";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const authController = {
   // User Registration
@@ -72,7 +72,7 @@ const authController = {
         // Create token
         const token = jwt.sign(
           { user_id: user._id, email, role: user.role },
-          JWT_SECRET,
+          process.env.JWT_SECRET,
           {
             expiresIn: "2h",
           }

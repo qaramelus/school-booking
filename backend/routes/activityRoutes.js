@@ -11,4 +11,7 @@ router.get('/', activityController.fetchActivities);
 // DELETE request to delete an Activity
 router.delete('/:id', activityController.deleteActivity);
 
+// PUT request to update an Activity
+router.put('/:id', activityController.updateActivity);
+
 module.exports = router;

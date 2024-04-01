@@ -28,7 +28,7 @@ export default {
   background-color: white;
   cursor: pointer;
   position: relative; 
-  text-align: left; 
+  text-align: start; 
 }
 
 .card:hover {

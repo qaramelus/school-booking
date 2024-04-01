@@ -23,11 +23,11 @@
 </template>
 
 <script>
-import API from '@/services/api'; 
+import API from '@/services/api'; // Ensure this path correctly points to your API service
 
 export default {
   name: "ActivityModal",
-  props: ['isVisible'],
+  props: ['isVisible', 'editingActivity'],
   data() {
     return {
       activity: {
@@ -37,21 +37,48 @@ export default {
       }
     };
   },
+  watch: {
+    editingActivity: {
+      immediate: true,
+      handler(activity) {
+        if (activity) {
+          // If editing an activity, fill the form with its data
+          this.activity = { ...activity };
+        } else {
+          // Reset the form if not editing (i.e., adding a new activity)
+          this.activity = {
+            name: '',
+            description: '',
+            date: ''
+          };
+        }
+      }
+    }
+  },
   methods: {
     closeModal() {
       this.$emit('close');
     },
     submitActivity() {
-      API.post('/activities', this.activity)
-        .then(response => {
-          console.log('Activity added:', response.data);
-          this.$emit('activityAdded', response.data);
-          this.closeModal();
-        })
-        .catch(error => {
-          console.error('Error adding activity:', error);
-          // Handle the error (e.g., show an error message)
-        });
+      if (this.editingActivity) {
+        API.put(`/activities/${this.editingActivity._id}`, this.activity)
+          .then(() => { 
+            this.$emit('activityUpdated');
+            this.closeModal();
+          })
+          .catch(error => {
+            console.error('Error updating activity:', error);
+          });
+      } else {
+        API.post('/activities', this.activity)
+          .then(() => { 
+            this.$emit('activityAdded');
+            this.closeModal();
+          })
+          .catch(error => {
+            console.error('Error adding activity:', error);
+          });
+      }
     }
   }
 };
@@ -68,6 +95,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000; 
 }
 
 .modal-content {
@@ -76,6 +104,7 @@ export default {
   border-radius: 5px;
   inline-size: 80%;
   max-inline-size: 500px;
+  z-index: 2; 
 }
 
 .close {

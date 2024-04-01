@@ -3,17 +3,18 @@ import LoginPage from './views/LoginPage.vue';
 import ParentOverview from './views/ParentOverview.vue';
 import ChildOverview from './views/ChildOverview.vue';
 import AdminOverview from './views/AdminOverview.vue';
+import AdminUserOverview from './views/AdminUserOverview.vue';
 
 // Define routes
 const routes = [
   {
     path: '/login',
-    name: 'LoginPage', // Use 'LoginPage' for navigation
+    name: 'LoginPage', 
     component: LoginPage
   },
   {
     path: '/parent-overview',
-    name: 'ParentOverview', // Use 'ParentOverview' for navigation
+    name: 'ParentOverview', 
     component: ParentOverview
   },
   {
@@ -23,8 +24,29 @@ const routes = [
   },
   {
     path: '/admin-overview',
-    name: 'AdminOverview', // Use 'AdminOverview' for navigation
-    component: AdminOverview
+    name: 'AdminOverview', 
+    component: AdminOverview,
+    beforeEnter: (to, from, next) => { 
+      const role = localStorage.getItem('user-role');
+      if (role === 'admin') {
+        next();
+      } else {
+        next('/login');
+      }
+    }
+  },
+  {
+    path: '/admin-user-overview',
+    name: 'AdminUserOverview',
+    component: AdminUserOverview,
+    beforeEnter: (to, from, next) => {
+      const role = localStorage.getItem('user-role');
+      if (role === 'admin') {
+        next();
+      } else {
+        next('/login'); 
+      }
+    }
   }
 ];
 

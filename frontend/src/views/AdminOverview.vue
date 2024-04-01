@@ -1,7 +1,7 @@
 <template>
   <div class="admin-overview">
     <admin-navbar />
-    <h1>Admin Dashboard</h1>
+    <h1>All Activities</h1>
     <button class="plus-button" @click="prepareNewActivity">+</button>
     <ActivityModal :isVisible="showModal" :editingActivity="editingActivity" @close="handleModalClose" @activityAdded="handleActivityAdded" @activityUpdated="fetchActivities" />
     <div class="activities">

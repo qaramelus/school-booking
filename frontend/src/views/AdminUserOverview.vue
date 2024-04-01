@@ -1,7 +1,7 @@
 <template>
   <div class="admin-user-overview">
     <admin-navbar />
-    <h1>User List</h1>
+    <h1>User Administration</h1>
     <table>
       <thead>
         <tr>

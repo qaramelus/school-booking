@@ -5,8 +5,9 @@ import ChildOverview from './views/ChildOverview.vue';
 import AdminOverview from './views/AdminOverview.vue';
 import AdminUserOverview from './views/AdminUserOverview.vue';
 import ActivityDetail from './views/ActivityDetail.vue';
+import ParentBookedOverview from './views/ParentBookedOverview.vue';
 
-// Define routes
+
 const routes = [
   {
     path: '/login',
@@ -36,6 +37,20 @@ const routes = [
       }
     }
   },
+  {
+    path: '/parent-booked-overview',
+    name: 'ParentBookedOverview',
+    component: ParentBookedOverview,
+    beforeEnter: (to, from, next) => {
+      const loggedIn = localStorage.getItem('user-token');
+      const role = localStorage.getItem('user-role');
+      if (loggedIn && role === 'parent') {
+        next();
+      } else {
+        next('/login'); 
+      }
+    }
+  },  
   {
     path: '/admin-user-overview',
     name: 'AdminUserOverview',

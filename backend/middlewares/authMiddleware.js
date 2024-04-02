@@ -27,4 +27,14 @@ const isAdmin = [authMiddleware, (req, res, next) => {
     next();
 }];
 
-module.exports = { authMiddleware, isAdmin };
+// In authMiddleware.js
+const isAdminOrParent = [authMiddleware, (req, res, next) => {
+  console.log("User role:", req.user.role); 
+  if (req.user.role !== 'admin' && req.user.role !== 'parent') {
+    return res.status(401).send("Access denied. Only admins and parents can perform this.");
+  }
+  next();
+}];
+
+
+module.exports = { authMiddleware, isAdmin, isAdminOrParent };

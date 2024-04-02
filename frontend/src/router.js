@@ -4,6 +4,7 @@ import ParentOverview from './views/ParentOverview.vue';
 import ChildOverview from './views/ChildOverview.vue';
 import AdminOverview from './views/AdminOverview.vue';
 import AdminUserOverview from './views/AdminUserOverview.vue';
+import ActivityDetail from './views/ActivityDetail.vue';
 
 // Define routes
 const routes = [
@@ -55,7 +56,12 @@ const routes = [
     meta: {
       requiresAdmin: true // Custom flag to check for admin role
     }
-  }
+  },
+  {
+    path: '/activities/:activityId',
+    name: 'ActivityDetail',
+    component: ActivityDetail
+  },
 ];
 
 // Create router instance

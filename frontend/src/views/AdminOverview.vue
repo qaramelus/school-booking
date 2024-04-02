@@ -7,15 +7,17 @@
     <div class="activities">
       <h2>Activities</h2>
       <div class="activity-cards">
-        <card-component v-for="activity in activities" :key="activity._id">
-          <template v-slot:delete-icon>
-            <img :src="trashIcon" class="delete-icon" @click.stop="confirmDelete(activity._id)">
-            <img :src="editIcon" class="edit-icon" @click.stop="() => editActivity(activity)">
-          </template>
-          <h3>{{ activity.name }}</h3>
-          <p>{{ activity.description }}</p>
-          <p>Date: {{ new Date(activity.date).toLocaleDateString() }}</p>
-        </card-component>
+        <router-link v-for="activity in activities" :key="activity._id" :to="{ name: 'ActivityDetail', params: { activityId: activity._id }}" class="activity-link activity-card">
+          <card-component>
+            <template v-slot:delete-icon>
+              <img :src="trashIcon" class="delete-icon" @click.stop="confirmDelete(activity._id)">
+              <img :src="editIcon" class="edit-icon" @click.stop="editActivity(activity)">
+            </template>
+            <h3>{{ activity.name }}</h3>
+            <p>{{ activity.description }}</p>
+            <p>Date: {{ new Date(activity.date).toLocaleDateString() }}</p>
+          </card-component>
+        </router-link>
       </div>
     </div>
   </div>
@@ -84,7 +86,7 @@ export default {
       this.showModal = true;
     },
     prepareNewActivity() {
-      this.editingActivity = null; // Ensure modal is in "add new" state
+      this.editingActivity = null; 
       this.showModal = true;
     }
   },
@@ -96,7 +98,6 @@ export default {
 
 <style scoped>
 .admin-overview {
-
   margin: 0 auto;
   text-align: center;
 }
@@ -116,10 +117,10 @@ export default {
   margin-block-start: 20px;
 }
 
-.activity-cards {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
+.activity-card {
+  flex-basis: calc(50% - 20px); 
+  margin: 10px; 
+  box-sizing: border-box; 
 }
 
 .delete-icon, .edit-icon {
@@ -134,5 +135,9 @@ export default {
 .edit-icon {
   inset-inline-end: 35px;
 }
-</style>
 
+.activity-link {
+  text-decoration: none;
+  color: inherit; 
+}
+</style>

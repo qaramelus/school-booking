@@ -93,7 +93,7 @@
   }
   
   .user-detail {
-    margin-top: 20px;
+    margin-block-start: 20px;
   }
   
   ul {
@@ -108,7 +108,7 @@
   }
   
   form input[type="text"], form input[type="email"], form input[type="password"] {
-    margin-bottom: 10px;
+    margin-block-end: 10px;
   }
   </style>
   

@@ -6,13 +6,13 @@ const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, required: true },
-  // Reference to parent User
+
   parent: { 
     type: Schema.Types.ObjectId, 
     ref: 'User',
-    required: false // Set to false because a parent user won't have this field.
+    required: false 
   },
-  // Optional: References to children Users
+
   children: [{
     type: Schema.Types.ObjectId,
     ref: 'User'

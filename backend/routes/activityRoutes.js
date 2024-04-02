@@ -14,4 +14,7 @@ router.delete('/:id', activityController.deleteActivity);
 // PUT request to update an Activity
 router.put('/:id', activityController.updateActivity);
 
+// GET request to fetch a single Activity by ID
+router.get('/:id', activityController.getActivityById);
+
 module.exports = router;

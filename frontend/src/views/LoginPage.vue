@@ -35,7 +35,7 @@ export default {
     };
   },
   methods: {
-    async login() {
+        async login() {
       try {
         const response = await API.post('auth/login', {
           email: this.email,
@@ -44,6 +44,7 @@ export default {
 
         localStorage.setItem('user-token', response.data.token);
         localStorage.setItem('user-role', response.data.role);
+        localStorage.setItem('parent-id', response.data._id); // Save the parent's _id
 
         // Redirect based on the user's role
         switch (response.data.role) {

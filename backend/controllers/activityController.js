@@ -1,13 +1,16 @@
 const Activity = require('../models/activity'); // Ensure this path matches the location of your Activity model
 
-// Existing function to create an Activity
+// Function to create an Activity with scheduling
 exports.createActivity = async (req, res) => {
   try {
+    const { name, description, startDate, endDate, timeSlots, createdBy } = req.body;
     const newActivity = await Activity.create({
-      name: req.body.name,
-      description: req.body.description,
-      date: req.body.date,
-      createdBy: req.body.createdBy,
+      name,
+      description,
+      startDate,
+      endDate,
+      timeSlots,
+      createdBy,
     });
 
     res.status(201).json(newActivity);
@@ -19,8 +22,8 @@ exports.createActivity = async (req, res) => {
 // Function to fetch all Activities
 exports.fetchActivities = async (req, res) => {
   try {
-    const activities = await Activity.find({}); // Fetches all activities
-    res.json(activities); // Responds with the list of all activities
+    const activities = await Activity.find({});
+    res.json(activities);
   } catch (error) {
     res.status(500).send({ message: "Error fetching activities", error: error.message });
   }
@@ -28,26 +31,25 @@ exports.fetchActivities = async (req, res) => {
 
 // Function to delete an activity
 exports.deleteActivity = async (req, res) => {
-    try {
-      // Add authentication and authorization checks here
-      await Activity.findByIdAndDelete(req.params.id);
-      res.status(200).send({ message: 'Activity deleted successfully' });
-    } catch (error) {
-      res.status(500).send({ message: 'Failed to delete activity', error: error.toString() });
-    }
-  };
+  try {
+    await Activity.findByIdAndDelete(req.params.id);
+    res.status(200).send({ message: 'Activity deleted successfully' });
+  } catch (error) {
+    res.status(500).send({ message: 'Failed to delete activity', error: error.toString() });
+  }
+};
 
-  // Function to update an activity
+// Function to update an activity
 exports.updateActivity = async (req, res) => {
-    try {
-      const updatedActivity = await Activity.findByIdAndUpdate(req.params.id, req.body, { new: true });
-      res.status(200).json(updatedActivity);
-    } catch (error) {
-      res.status(500).send({ message: 'Failed to update activity', error: error.toString() });
-    }
-  };
+  try {
+    const updatedActivity = await Activity.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.status(200).json(updatedActivity);
+  } catch (error) {
+    res.status(500).send({ message: 'Failed to update activity', error: error.toString() });
+  }
+};
 
-  // Function to fetch a single Activity by ID
+// Function to fetch a single Activity by ID
 exports.getActivityById = async (req, res) => {
   try {
     const activity = await Activity.findById(req.params.id);
@@ -59,5 +61,3 @@ exports.getActivityById = async (req, res) => {
     res.status(500).json({ message: 'Error fetching activity', error: error.message });
   }
 };
-
-  

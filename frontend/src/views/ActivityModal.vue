@@ -3,24 +3,53 @@
     <div class="modal-content">
       <span class="close" @click="closeModal">&times;</span>
       <h2>Add New Activity</h2>
-      <form @submit.prevent="submitActivity">
-        <div class="form-group">
-          <label for="name">Activity Name:</label>
-          <input type="text" id="name" v-model="activity.name" required>
+      <form @submit.prevent="submitActivity" class="activity-form">
+        <div class="form-column">
+          <div class="form-group">
+            <label for="name">Activity Name:</label>
+            <input type="text" id="name" v-model="activity.name" required>
+          </div>
+          <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" v-model="activity.description"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="startDate">Start Date:</label>
+            <input type="date" id="startDate" v-model="activity.startDate" required>
+          </div>
+          <div class="form-group">
+            <label for="endDate">End Date:</label>
+            <input type="date" id="endDate" v-model="activity.endDate" required>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="description">Description:</label>
-          <textarea id="description" v-model="activity.description"></textarea>
-        </div>
-        <div class="form-group">
-          <label for="date">Date:</label>
-          <input type="date" id="date" v-model="activity.date" required>
+        <div class="form-column">
+          <div class="form-group">
+            <label for="dayOfWeek">Day of the Week:</label>
+            <select id="dayOfWeek" v-model="activity.dayOfWeek" required>
+              <option value="Monday">Monday</option>
+              <option value="Tuesday">Tuesday</option>
+              <option value="Wednesday">Wednesday</option>
+              <option value="Thursday">Thursday</option>
+              <option value="Friday">Friday</option>
+              <option value="Saturday">Saturday</option>
+              <option value="Sunday">Sunday</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="startTime">Start Time:</label>
+            <input type="time" id="startTime" v-model="activity.startTime" required>
+          </div>
+          <div class="form-group">
+            <label for="endTime">End Time:</label>
+            <input type="time" id="endTime" v-model="activity.endTime" required>
+          </div>
         </div>
         <button type="submit" class="submit-button">Add Activity</button>
       </form>
     </div>
   </div>
 </template>
+
 
 <script>
 import API from '@/services/api'; // Ensure this path correctly points to your API service
@@ -33,7 +62,11 @@ export default {
       activity: {
         name: '',
         description: '',
-        date: ''
+        startDate: '',
+        endDate: '',
+        dayOfWeek: '',
+        startTime: '',
+        endTime: ''
       }
     };
   },
@@ -42,14 +75,17 @@ export default {
       immediate: true,
       handler(activity) {
         if (activity) {
-          // If editing an activity, fill the form with its data
+          // Adapt this based on how the activity's time slots are structured
           this.activity = { ...activity };
         } else {
-          // Reset the form if not editing (i.e., adding a new activity)
           this.activity = {
             name: '',
             description: '',
-            date: ''
+            startDate: '',
+            endDate: '',
+            dayOfWeek: '',
+            startTime: '',
+            endTime: ''
           };
         }
       }
@@ -60,8 +96,18 @@ export default {
       this.$emit('close');
     },
     submitActivity() {
+      // For a real application, convert the dayOfWeek, startTime, and endTime into a timeSlots array structure
+      const submission = {
+        ...this.activity,
+        timeSlots: [{
+          dayOfWeek: this.activity.dayOfWeek,
+          startTime: this.activity.startTime,
+          endTime: this.activity.endTime,
+        }]
+      };
+
       if (this.editingActivity) {
-        API.put(`/activities/${this.editingActivity._id}`, this.activity)
+        API.put(`/activities/${this.editingActivity._id}`, submission)
           .then(() => { 
             this.$emit('activityUpdated');
             this.closeModal();
@@ -70,7 +116,7 @@ export default {
             console.error('Error updating activity:', error);
           });
       } else {
-        API.post('/activities', this.activity)
+        API.post('/activities', submission)
           .then(() => { 
             this.$emit('activityAdded');
             this.closeModal();
@@ -87,10 +133,7 @@ export default {
 <style scoped>
 .modal-overlay {
   position: fixed;
-  inset-block-start: 0;
-  inset-inline-start: 0;
-  inset-inline-end: 0;
-  inset-block-end: 0;
+  inset: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -102,20 +145,30 @@ export default {
   background-color: white;
   padding: 20px;
   border-radius: 5px;
-  inline-size: 80%;
-  max-inline-size: 500px;
+  display: flex;
+  flex-direction: column;
+  max-width: 800px; /* Adjust based on your preference */
   z-index: 2; 
 }
 
-.close {
-  float: inline-end;
-  font-size: 28px;
-  font-weight: bold;
-  cursor: pointer;
+.activity-form {
+  display: flex;
+  justify-content: space-between;
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin-right: 20px; /* Space between columns */
+}
+
+.form-column:last-child {
+  margin-right: 0;
 }
 
 .form-group {
-  margin-block-end: 10px;
+  margin-bottom: 10px;
 }
 
 .form-group label {
@@ -124,10 +177,12 @@ export default {
 
 .form-group input[type="text"],
 .form-group input[type="date"],
-.form-group textarea {
-  inline-size: 100%;
+.form-group input[type="time"],
+.form-group textarea,
+.form-group select {
+  width: 100%;
   padding: 8px;
-  margin-block-start: 5px;
+  margin-top: 5px;
   box-sizing: border-box;
 }
 
@@ -135,13 +190,21 @@ export default {
   background-color: #4CAF50; /* Green */
   color: white;
   padding: 14px 20px;
-  margin: 8px 0;
+  margin-top: 8px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  align-self: flex-start;
 }
 
 .submit-button:hover {
   background-color: #45a049;
+}
+
+.close {
+  align-self: flex-end;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
 }
 </style>

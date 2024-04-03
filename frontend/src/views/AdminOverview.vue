@@ -15,7 +15,11 @@
             </template>
             <h3>{{ activity.name }}</h3>
             <p>{{ activity.description }}</p>
-            <p>Date: {{ new Date(activity.date).toLocaleDateString() }}</p>
+            <p>Start Date: {{ new Date(activity.startDate).toLocaleDateString() }}</p>
+            <p>End Date: {{ new Date(activity.endDate).toLocaleDateString() }}</p>
+            <div v-for="(slot, index) in activity.timeSlots" :key="index">
+              <p>{{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}</p>
+            </div>
           </card-component>
         </router-link>
       </div>
@@ -51,7 +55,12 @@ export default {
     fetchActivities() {
       API.get('activities')
         .then(response => {
-          this.activities = response.data;
+          this.activities = response.data.map(activity => ({
+            ...activity,
+            startDate: activity.startDate || new Date(),
+            endDate: activity.endDate || new Date(),
+            timeSlots: activity.timeSlots || []
+          }));
         })
         .catch(error => {
           console.error("There was an error fetching the activities:", error);

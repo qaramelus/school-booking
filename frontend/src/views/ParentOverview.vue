@@ -124,26 +124,25 @@ export default {
 </script>
 
 <style scoped>
-/* Styles for your booking modal and other styles remain unchanged */
 .modal {
-  display: block; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
+  display: block; 
+  position: fixed; 
+  z-index: 1; 
   inset-inline-start: 0;
   inset-block-start: 0;
-  inline-size: 100%; /* Full width */
-  block-size: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  inline-size: 100%; 
+  block-size: 100%; 
+  overflow: auto; 
+  background-color: rgb(0,0,0); 
+  background-color: rgba(0,0,0,0.4); 
 }
 
 .modal-content {
   background-color: #fefefe;
-  margin: 15% auto; /* 15% from the top and centered */
+  margin: 15% auto; 
   padding: 20px;
   border: 1px solid #888;
-  inline-size: 80%; /* Could be more or less, depending on screen size */
+  inline-size: 80%; 
 }
 
 .close {

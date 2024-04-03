@@ -1,4 +1,5 @@
-const Booking = require('../models/booking'); // Adjust the path as needed
+const Booking = require('../models/booking'); 
+const User = require('../models/User'); 
 
 exports.createBooking = async (req, res) => {
   try {
@@ -20,8 +21,16 @@ exports.fetchBookingsForParent = async (req, res) => {
     const childIds = children.map(child => child._id);
 
     const bookings = await Booking.find({ childId: { $in: childIds } })
-                                  .populate('childId', 'username')
-                                  .populate('activityId', 'name date description');
+    .populate({
+        path: 'childId',
+        model: 'User', 
+        select: 'username'
+    })
+    .populate({
+        path: 'activityId',
+        model: 'Activity', 
+        select: 'name date description'
+    });
     res.json(bookings);
   } catch (error) {
     res.status(500).json({ message: "Error fetching bookings", error: error.message });

@@ -36,8 +36,7 @@
             console.error("Parent ID is undefined.");
             return;
           }
-          const response = await API.get(`bookings/parent/${parentId}/bookings`);
-          // Assuming response data is the bookings array; adjust based on actual response structure
+          const response = await API.get(`parent/${parentId}/bookings`);
           this.bookingsGroupedByChild = this.groupBookingsByChild(response.data);
         } catch (error) {
           console.error("There was an error fetching the bookings:", error);

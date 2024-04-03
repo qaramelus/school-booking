@@ -2,7 +2,7 @@
     <nav class="parent-nav">
       <ul>
         <li><router-link to="/parent-overview">All Activities</router-link></li>
-        <li><router-link to="/booked-activities">Booked Activities</router-link></li>
+        <li><router-link to="/parent-booked-overview">Booked Activities</router-link></li>
       </ul>
       <button @click="performLogout" class="logout-button">Logout</button>
     </nav>

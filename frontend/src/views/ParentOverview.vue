@@ -13,7 +13,11 @@
           >
             <h3>{{ activity.name }}</h3>
             <p>{{ activity.description }}</p>
-            <p>Date: {{ new Date(activity.date).toLocaleDateString() }}</p>
+            <p>Start Date: {{ new Date(activity.startDate).toLocaleDateString() }}</p>
+            <p>End Date: {{ new Date(activity.endDate).toLocaleDateString() }}</p>
+            <div v-for="(slot, index) in activity.timeSlots" :key="index">
+              <p>{{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}</p>
+            </div>
           </card-component>
         </div>
       </div>
@@ -36,6 +40,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import API from '@/services/api';

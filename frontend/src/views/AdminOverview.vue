@@ -7,7 +7,8 @@
     <div class="activities">
       <h2>Activities</h2>
       <div class="activity-cards">
-        <router-link v-for="activity in activities" :key="activity._id" :to="{ name: 'ActivityDetail', params: { activityId: activity._id }}" class="activity-link activity-card">
+        <!-- Removed router-link and replaced with a div -->
+        <div v-for="activity in activities" :key="activity._id" class="activity-card" @click="goToActivityDetail(activity._id)">
           <card-component>
             <template v-slot:delete-icon>
               <img :src="trashIcon" class="delete-icon" @click.stop="confirmDelete(activity._id)">
@@ -21,11 +22,12 @@
               <p>{{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}</p>
             </div>
           </card-component>
-        </router-link>
+        </div>
       </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import API from '@/services/api';
@@ -93,6 +95,9 @@ export default {
     editActivity(activity) {
       this.editingActivity = activity;
       this.showModal = true;
+    },
+    goToActivityDetail(activityId) {
+    this.$router.push({ name: 'ActivityDetail', params: { activityId } });
     },
     prepareNewActivity() {
       this.editingActivity = null; 

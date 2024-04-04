@@ -1,4 +1,4 @@
-const Activity = require('../models/activity'); // Ensure this path matches the location of your Activity model
+const Activity = require('../models/Activity'); // Ensure this path matches the location of your Activity model
 
 // Function to create an Activity with scheduling
 exports.createActivity = async (req, res) => {

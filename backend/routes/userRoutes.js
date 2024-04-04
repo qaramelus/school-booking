@@ -10,7 +10,7 @@ router.get('/', isAdmin, userController.fetchAllUsers);
 router.get('/:userId', isAdminOrParent, userController.fetchUserDetails);
 
 // Create a child user - Admins only (or adjust as necessary for your logic)
-router.post('/:parentId/children', isAdminOrParent, userController.createChildUser);
+router.get('/:parentId/children', isAdminOrParent, userController.fetchChildrenForParent);
 
 // Assuming you have something like this already in your userRoutes.js file
 router.get('/users/:parentId/children', isAdminOrParent, userController.fetchChildrenForParent);

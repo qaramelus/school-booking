@@ -49,3 +49,29 @@ exports.fetchBookingsForParent = async (req, res) => {
     res.status(500).json({ message: "Error fetching bookings", error: error.message });
   }
 };
+
+const fetchBookingsForChild = async () => {
+  try {
+    const parentId = localStorage.getItem('parent-id');
+    if (!parentId) throw new Error("Parent ID is undefined.");
+
+    const { data } = await API.get(`/parent/${parentId}/bookings`);
+    const events = data.map(booking => ({
+      title: booking.activityId.name,
+      start: booking.activityId.startDate,
+      end: booking.activityId.endDate,
+    }));
+
+    if (calendarEl.value) {
+      let calendar = new Calendar(calendarEl.value, {
+        plugins: [dayGridPlugin],
+        initialView: 'dayGridMonth',
+      });
+      calendar.removeAllEvents(); 
+      calendar.addEventSource(events); 
+      calendar.render();
+    }
+  } catch (error) {
+    console.error("There was an error fetching the bookings:", error.message);
+  }
+};

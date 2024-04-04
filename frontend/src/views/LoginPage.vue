@@ -44,8 +44,7 @@ export default {
 
         localStorage.setItem('user-token', response.data.token);
         localStorage.setItem('user-role', response.data.role);
-        localStorage.setItem('parent-id', response.data._id); // Save the parent's _id
-
+        localStorage.setItem('parent-id', response.data._id); 
         // Redirect based on the user's role
         switch (response.data.role) {
           case 'parent':

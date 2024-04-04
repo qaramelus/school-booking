@@ -18,16 +18,25 @@ exports.createBooking = async (req, res) => {
 // Fetch bookings for a parent, including detailed activity information
 exports.fetchBookingsForParent = async (req, res) => {
   try {
-    const parentId = req.params.parentId;
+    const { parentId } = req.params;
+    const { startDate, endDate } = req.query; // Accepting startDate and endDate as query parameters
+
     const children = await User.find({ parent: parentId }).select('_id');
     const childIds = children.map(child => child._id);
 
-    // Fetch bookings that belong to these children and populate related fields
-    const bookings = await Booking.find({ childId: { $in: childIds } })
+    let query = {
+      childId: { $in: childIds },
+      ...(startDate && endDate ? {
+        'timeSlots.startDate': { $gte: new Date(startDate) },
+        'timeSlots.endDate': { $lte: new Date(endDate) },
+      } : {})
+    };
+
+    const bookings = await Booking.find(query)
       .populate({
         path: 'childId',
         model: 'User',
-        select: 'username' 
+        select: 'username'
       })
       .populate({
         path: 'activityId',

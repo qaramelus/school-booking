@@ -1,12 +1,13 @@
 <template>
-    <nav class="parent-nav">
-      <ul>
-        <li><router-link to="/parent-overview">All Activities</router-link></li>
-        <li><router-link to="/parent-booked-overview">Booked Activities</router-link></li>
-      </ul>
-      <button @click="performLogout" class="logout-button">Logout</button>
-    </nav>
-  </template>
+  <nav class="parent-nav">
+    <ul>
+      <li><router-link to="/parent-overview">All Activities</router-link></li>
+      <li><router-link to="/parent-booked-overview">Booked Activities</router-link></li>
+      <li><router-link to="/parents-calendar">Calendar View</router-link></li> <!-- New link for the calendar view -->
+    </ul>
+    <button @click="performLogout" class="logout-button">Logout</button>
+  </nav>
+</template>
   
   <script>
   import { logout } from '@/services/logout';

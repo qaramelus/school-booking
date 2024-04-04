@@ -1,11 +1,14 @@
 const { defineConfig } = require('@vue/cli-service');
 
 module.exports = defineConfig({
-  transpileDependencies: true,
+  transpileDependencies: [
+    // Explicitly include FullCalendar packages for transpilation
+    /@fullcalendar.*$/
+  ],
   devServer: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5005', 
+        target: 'http://localhost:5005',
         changeOrigin: true,
         pathRewrite: { '^/api': '' },
       },
@@ -13,9 +16,9 @@ module.exports = defineConfig({
   },
   pluginOptions: {
     i18n: {
-      locale: 'en', 
-      fallbackLocale: 'en', 
-      localeDir: 'locales', 
+      locale: 'en',
+      fallbackLocale: 'en',
+      localeDir: 'locales',
       enableInSFC: false,
     },
   },

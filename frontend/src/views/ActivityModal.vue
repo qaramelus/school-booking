@@ -50,7 +50,6 @@
   </div>
 </template>
 
-
 <script>
 import API from '@/services/api'; // Ensure this path correctly points to your API service
 
@@ -75,7 +74,6 @@ export default {
       immediate: true,
       handler(activity) {
         if (activity) {
-          // Adapt this based on how the activity's time slots are structured
           this.activity = { ...activity };
         } else {
           this.activity = {
@@ -96,7 +94,6 @@ export default {
       this.$emit('close');
     },
     submitActivity() {
-      // For a real application, convert the dayOfWeek, startTime, and endTime into a timeSlots array structure
       const submission = {
         ...this.activity,
         timeSlots: [{
@@ -106,25 +103,16 @@ export default {
         }]
       };
 
-      if (this.editingActivity) {
-        API.put(`/activities/${this.editingActivity._id}`, submission)
-          .then(() => { 
-            this.$emit('activityUpdated');
-            this.closeModal();
-          })
-          .catch(error => {
-            console.error('Error updating activity:', error);
-          });
-      } else {
-        API.post('/activities', submission)
-          .then(() => { 
-            this.$emit('activityAdded');
-            this.closeModal();
-          })
-          .catch(error => {
-            console.error('Error adding activity:', error);
-          });
-      }
+      const apiCall = this.editingActivity
+        ? API.put(`/activities/${this.editingActivity._id}`, submission)
+        : API.post('/activities', submission);
+
+      apiCall.then(() => {
+        this.$emit(this.editingActivity ? 'activityUpdated' : 'activityAdded');
+        this.closeModal();
+      }).catch(error => {
+        console.error('Error updating or adding activity:', error);
+      });
     }
   }
 };
@@ -138,7 +126,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000; 
+  z-index: 1000;
 }
 
 .modal-content {
@@ -147,8 +135,8 @@ export default {
   border-radius: 5px;
   display: flex;
   flex-direction: column;
-  max-width: 800px; /* Adjust based on your preference */
-  z-index: 2; 
+  max-inline-size: 800px;
+  z-index: 2;
 }
 
 .activity-form {
@@ -160,15 +148,15 @@ export default {
   display: flex;
   flex-direction: column;
   flex: 1;
-  margin-right: 20px; /* Space between columns */
+  margin-inline-end: 20px;
 }
 
 .form-column:last-child {
-  margin-right: 0;
+  margin-inline-end: 0;
 }
 
 .form-group {
-  margin-bottom: 10px;
+  margin-block-end: 10px;
 }
 
 .form-group label {
@@ -180,17 +168,17 @@ export default {
 .form-group input[type="time"],
 .form-group textarea,
 .form-group select {
-  width: 100%;
+  inline-size: 100%;
   padding: 8px;
-  margin-top: 5px;
+  margin-block-start: 5px;
   box-sizing: border-box;
 }
 
 .submit-button {
-  background-color: #4CAF50; /* Green */
+  background-color: #4CAF50;
   color: white;
   padding: 14px 20px;
-  margin-top: 8px;
+  margin-block-start: 8px;
   border: none;
   border-radius: 4px;
   cursor: pointer;

@@ -1,7 +1,11 @@
 <template>
   <div class="card" @click="onClick">
-    <slot></slot>
-    <slot name="delete-icon"></slot>
+    <div class="card-content">
+      <slot></slot>
+    </div>
+    <div class="card-icons">
+      <slot name="icons"></slot>
+    </div>
   </div>
 </template>
 
@@ -18,27 +22,20 @@ export default {
 </script>
 
 <style scoped>
-.card {
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-  transition: 0.3s;
-  inline-size: 60%; 
-  margin-block-end: 20px;
-  border-radius: 5px;
-  padding: 2px 16px;
-  background-color: white;
-  cursor: pointer;
-  position: relative; 
-  text-align: start; 
+
+.card-content {
+  padding: 16px;
 }
 
-.card:hover {
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+.card-icons {
+  position: absolute;
+  inset-block-start: 10px;
+  inset-inline-end: 10px;
 }
 
 @media (max-inline-size: 768px) {
   .card {
-    inline-size: 100%; 
+    max-inline-size: 100%;
   }
 }
 </style>
-

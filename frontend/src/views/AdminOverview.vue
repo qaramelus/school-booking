@@ -7,17 +7,16 @@
     <div class="activities">
       <h2>Activities</h2>
       <div class="activity-cards">
-        <!-- Removed router-link and replaced with a div -->
         <div v-for="activity in activities" :key="activity._id" class="activity-card" @click="goToActivityDetail(activity._id)">
-          <card-component>
-            <template v-slot:delete-icon>
+          <card-component :onClick="() => goToActivityDetail(activity._id)">
+            <template v-slot:icons>
               <img :src="trashIcon" class="delete-icon" @click.stop="confirmDelete(activity._id)">
               <img :src="editIcon" class="edit-icon" @click.stop="editActivity(activity)">
             </template>
             <h3>{{ activity.name }}</h3>
             <p>{{ activity.description }}</p>
-            <p>Start Date: {{ new Date(activity.startDate).toLocaleDateString() }}</p>
-            <p>End Date: {{ new Date(activity.endDate).toLocaleDateString() }}</p>
+            <p><strong>Start Date:</strong> {{ new Date(activity.startDate).toLocaleDateString() }}</p>
+            <p><strong>End Date:</strong> {{ new Date(activity.endDate).toLocaleDateString() }}</p>
             <div v-for="(slot, index) in activity.timeSlots" :key="index">
               <p>{{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}</p>
             </div>
@@ -112,18 +111,19 @@ export default {
 
 <style scoped>
 .admin-overview {
+  max-inline-size: 1200px;
   margin: 0 auto;
-  text-align: center;
+  padding: 20px;
 }
 
 .plus-button {
   font-size: 24px;
-  line-height: 50px;
-  margin: 20px;
   inline-size: 50px;
   block-size: 50px;
+  line-height: 50px;
   border-radius: 50%;
   border: 2px solid #000;
+  background-color: #fff;
   cursor: pointer;
 }
 
@@ -131,27 +131,43 @@ export default {
   margin-block-start: 20px;
 }
 
+.activity-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 .activity-card {
-  flex-basis: calc(50% - 20px); 
-  margin: 10px; 
-  box-sizing: border-box; 
+  flex-basis: calc(50% - 20px);
+  margin: 10px;
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+}
+
+.activity-card:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .delete-icon, .edit-icon {
-  cursor: pointer;
   position: absolute;
-  inset-block-start: 5px;
-  inset-inline-end: 5px;
+  inset-block-start: 10px;
+  inset-inline-end: 10px;
   inline-size: 20px;
   block-size: 20px;
+  cursor: pointer;
 }
 
 .edit-icon {
-  inset-inline-end: 35px;
+  inset-inline-end: 40px;
 }
 
 .activity-link {
   text-decoration: none;
-  color: inherit; 
+  color: inherit;
 }
 </style>

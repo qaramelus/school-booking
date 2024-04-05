@@ -65,14 +65,28 @@ export default {
           };
         }
 
-        acc[childId._id].activities.push({
-          _id: activityId._id,
-          name: activityId.name,
-          description: activityId.description,
-          startDate: activityId.startDate, 
-          endDate: activityId.endDate, 
-          timeSlots: activityId.timeSlots, 
-        });
+        // Check if activityId is not null before pushing to activities array
+        if (activityId) {
+          acc[childId._id].activities.push({
+            _id: activityId._id,
+            name: activityId.name,
+            description: activityId.description,
+            startDate: activityId.startDate,
+            endDate: activityId.endDate,
+            timeSlots: activityId.timeSlots,
+          });
+        } else {
+          // Handle the case where activityId is null, possibly by pushing a placeholder or omitting the activity
+          // Example placeholder for activity with null activityId
+          acc[childId._id].activities.push({
+            _id: null, // or a unique identifier
+            name: "Activity not available",
+            description: "This activity is currently not available.",
+            startDate: null,
+            endDate: null,
+            timeSlots: [],
+          });
+        }
 
         return acc;
       }, {});

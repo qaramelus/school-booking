@@ -34,8 +34,8 @@
       const selectedChildId = ref('');
       const children = ref([]);
       const calendarEl = ref(null);
-      const currentView = ref('dayGridMonth'); // Default view
-      const calendarInstance = ref(null); // To store the calendar instance
+      const currentView = ref('dayGridMonth'); 
+      const calendarInstance = ref(null);
   
       const fetchChildren = async () => {
         try {
@@ -54,12 +54,39 @@
       const fetchBookingsForChild = async () => {
         if (selectedChildId.value && calendarInstance.value) {
           try {
-            const { data } = await API.get(`/parent/${selectedChildId.value}/bookings`);
-            const events = data.map(booking => ({
-              title: booking.activityId.name,
-              start: booking.activityId.startDate,
-              end: booking.activityId.endDate,
-            }));
+            const parentId = localStorage.getItem('parent-id'); 
+            if (!parentId) {
+              throw new Error("Parent ID is undefined.");
+            }
+            // Correcting the URL and adding log to see what's being requested
+            const url = `/parent/${parentId}/child/${selectedChildId.value}/bookings`;
+            console.log(`Fetching bookings for child ${selectedChildId.value} of parent ${parentId}`);
+            console.log(`Request URL: ${url}`);
+            const { data } = await API.get(url);
+            const events = [];
+            
+            data.forEach(booking => {
+                if (booking.activityId && booking.activityId.timeSlots) {
+                booking.activityId.timeSlots.forEach(slot => {
+                    const daysOfWeek = [
+                    'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+                    ].map((day, index) => day === slot.dayOfWeek ? index : null).filter(n => n !== null);
+  
+                    if (daysOfWeek.length > 0) {
+                    events.push({
+                        title: booking.activityId.name,
+                        startRecur: booking.activityId.startDate,
+                        endRecur: booking.activityId.endDate,
+                        startTime: slot.startTime,
+                        endTime: slot.endTime,
+                        daysOfWeek: daysOfWeek,
+                        classNames: ['custom-class-for-event'],
+                    });
+                    }
+                });
+                }
+            });
+  
             calendarInstance.value.removeAllEvents();
             calendarInstance.value.addEventSource(events);
           } catch (error) {
@@ -73,11 +100,10 @@
         calendarInstance.value = new Calendar(calendarEl.value, {
           plugins: [dayGridPlugin, timeGridPlugin],
           initialView: currentView.value,
-            slotMinTime: "09:00:00", 
-            slotMaxTime: "18:00:00",
+          slotMinTime: "09:00:00",
+          slotMaxTime: "18:00:00",
         });
         calendarInstance.value.render();
-        // Optionally, fetch bookings for the initial child if applicable
       });
   
       watch(currentView, (newValue) => {
@@ -86,7 +112,10 @@
         }
       });
   
-      watch(selectedChildId, fetchBookingsForChild);
+      watch(selectedChildId, (newVal, oldVal) => {
+        console.log(`Child selection changed from ${oldVal} to ${newVal}`);
+        fetchBookingsForChild();
+      });
   
       return {
         selectedChildId,
@@ -97,6 +126,7 @@
     },
   };
   </script>
+  
   
   <style scoped>
   .calendar-container {
@@ -111,11 +141,10 @@
   }
   
   .calendar {
-    width: 75%; /* Increase width */
-    height: auto; /* Adjust height as needed, or keep it auto */
+    inline-size: 75%; /* Increase width */
+    block-size: auto; /* Adjust height as needed, or keep it auto */
     transform-origin: top left; /* Ensures the scaling is relative to the top left corner */
     margin: auto; /* Keeps the calendar centered */
   }
   </style>
-  
   

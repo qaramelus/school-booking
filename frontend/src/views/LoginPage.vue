@@ -20,7 +20,7 @@
 <script>
 import InputComponent from './InputComponent.vue'; 
 import ButtonComponent from './ButtonComponent.vue'; 
-import API from '@/services/api'; 
+import AuthService from '@/services/authService'; 
 
 export default {
   components: {
@@ -35,18 +35,12 @@ export default {
     };
   },
   methods: {
-        async login() {
+    async login() {
       try {
-        const response = await API.post('auth/login', {
-          email: this.email,
-          password: this.password
-        });
+        const role = await AuthService.login(this.email, this.password);
 
-        localStorage.setItem('user-token', response.data.token);
-        localStorage.setItem('user-role', response.data.role);
-        localStorage.setItem('parent-id', response.data._id); 
         // Redirect based on the user's role
-        switch (response.data.role) {
+        switch (role) {
           case 'parent':
             this.$router.push({ name: 'ParentOverview' });
             break;
@@ -54,23 +48,23 @@ export default {
             this.$router.push({ name: 'ChildOverview' });
             break;
           case 'admin':
-            this.$router.push({ name: 'AdminOverview' }); // Redirect admin to AdminOverview
+            this.$router.push({ name: 'AdminOverview' });
             break;
           default:
             console.error('User role is not recognized or missing');
         }
       } catch (error) {
-        this.errorMessage = this.$t("invalidCredentials");
+        this.errorMessage = error.message;
         console.error(error);
       }
     },
     changeLanguage(lang) {
       this.$i18n.locale = lang;
-      this.currentLang = lang;
     }
   }
 };
 </script>
+
 
 <style scoped>
 .page-background {

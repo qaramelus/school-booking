@@ -50,28 +50,38 @@ exports.fetchBookingsForParent = async (req, res) => {
   }
 };
 
-const fetchBookingsForChild = async () => {
+exports.fetchBookingsForParentAndChild = async (req, res) => {
   try {
-    const parentId = localStorage.getItem('parent-id');
-    if (!parentId) throw new Error("Parent ID is undefined.");
+    const { parentId, childId } = req.params;
+    
+    // Find the children of the parent to ensure the child belongs to the parent making the request
+    const children = await User.find({ parent: parentId }).select('_id');
+    const childIds = children.map(child => child._id.toString());
 
-    const { data } = await API.get(`/parent/${parentId}/bookings`);
-    const events = data.map(booking => ({
-      title: booking.activityId.name,
-      start: booking.activityId.startDate,
-      end: booking.activityId.endDate,
-    }));
-
-    if (calendarEl.value) {
-      let calendar = new Calendar(calendarEl.value, {
-        plugins: [dayGridPlugin],
-        initialView: 'dayGridMonth',
-      });
-      calendar.removeAllEvents(); 
-      calendar.addEventSource(events); 
-      calendar.render();
+    // Check if the requested childId is one of the parent's children
+    if (!childIds.includes(childId)) {
+      return res.status(404).json({ message: "Child not found for this parent" });
     }
+
+    const bookings = await Booking.find({ 
+      childId: childId // Directly use childId
+    })
+    .populate({
+      path: 'childId',
+      model: 'User',
+      select: 'username'
+    })
+    .populate({
+      path: 'activityId',
+      model: 'Activity',
+      select: 'name description startDate endDate timeSlots'
+    });
+
+    res.json(bookings);
   } catch (error) {
-    console.error("There was an error fetching the bookings:", error.message);
+    console.error('Error fetching bookings:', error);
+    res.status(500).send('Error fetching bookings');
   }
 };
+
+

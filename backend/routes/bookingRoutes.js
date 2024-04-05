@@ -9,4 +9,7 @@ router.get('/parent/:parentId/bookings', authMiddleware, bookingController.fetch
 // Book activity
 router.post('/bookActivity', bookingController.createBooking);
 
+// Get bookings for a specific child of a parent
+router.get('/parent/:parentId/child/:childId/bookings', authMiddleware, bookingController.fetchBookingsForParentAndChild);
+
 module.exports = router;

@@ -8,10 +8,10 @@ const bookedTimeSlotSchema = new mongoose.Schema({
 }, { _id: false });
 
 const bookingSchema = new mongoose.Schema({
-  childId: { type: mongoose.Schema.Types.ObjectId, ref: 'Child' }, // Reference to the Child model
-  activityId: { type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }, // Reference to the Activity model
-  dateBooked: { type: Date, default: Date.now }, // The date when this booking was made
-  timeSlots: [bookedTimeSlotSchema], // Array of booked time slots
+  childId: { type: mongoose.Schema.Types.ObjectId, ref: 'Child' }, 
+  activityId: { type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }, 
+  dateBooked: { type: Date, default: Date.now }, 
+  timeSlots: [bookedTimeSlotSchema], 
 });
 
 module.exports = mongoose.model('Booking', bookingSchema);

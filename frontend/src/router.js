@@ -7,6 +7,7 @@ import AdminUserOverview from './views/AdminUserOverview.vue';
 import ActivityDetail from './views/ActivityDetail.vue';
 import ParentBookedOverview from './views/ParentBookedOverview.vue';
 import ParentsCalendar from './views/ParentsCalendar.vue';
+import AdminCalendar from './views/AdminCalendar.vue';
 
 
 const routes = [
@@ -30,6 +31,19 @@ const routes = [
     name: 'AdminOverview', 
     component: AdminOverview,
     beforeEnter: (to, from, next) => { 
+      const role = localStorage.getItem('user-role');
+      if (role === 'admin') {
+        next();
+      } else {
+        next('/login');
+      }
+    }
+  },
+  {
+    path: '/admin-calendar', 
+    name: 'AdminCalendar',
+    component: AdminCalendar,
+    beforeEnter: (to, from, next) => {
       const role = localStorage.getItem('user-role');
       if (role === 'admin') {
         next();

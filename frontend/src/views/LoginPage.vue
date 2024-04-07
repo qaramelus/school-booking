@@ -20,7 +20,7 @@
 <script>
 import InputComponent from './InputComponent.vue'; 
 import ButtonComponent from './ButtonComponent.vue'; 
-import AuthService from '@/services/authService'; 
+import AuthService from '../services/authService';
 
 export default {
   components: {

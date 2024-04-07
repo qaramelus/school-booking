@@ -3,6 +3,7 @@
     <ul>
       <li><router-link to="/admin-overview">All Activities</router-link></li>
       <li><router-link to="/admin-user-overview">User Management</router-link></li>
+      <li><router-link to="/admin-calendar">Calendar View</router-link></li>
     </ul>
     <button @click="performLogout" class="logout-button">Logout</button>
   </nav>

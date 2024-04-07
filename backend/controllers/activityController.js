@@ -61,3 +61,32 @@ exports.getActivityById = async (req, res) => {
     res.status(500).json({ message: 'Error fetching activity', error: error.message });
   }
 };
+
+// Fetch list of participants per activity
+exports.getActivityParticipants = async (req, res) => {
+  try {
+    const { activityId } = req.params;
+    const bookings = await Booking.find({ activityId: activityId }).populate('userId');
+    const participants = bookings.map(booking => booking.userId);
+    res.json(participants);
+  } catch (error) {
+    res.status(500).send({ message: 'Error fetching activity participants', error: error.message });
+  }
+};
+
+// Function to fetch all Activities with participant counts
+exports.fetchActivitiesWithParticipants = async (req, res) => {
+  try {
+    let activities = await Activity.find({});
+
+    // Map through all activities and count participants for each
+    activities = await Promise.all(activities.map(async (activity) => {
+      const participantCount = await Booking.countDocuments({ activityId: activity._id });
+      return { ...activity.toObject(), participantCount }; // Convert Mongoose document to plain object and add participantCount
+    }));
+
+    res.json(activities);
+  } catch (error) {
+    res.status(500).send({ message: "Error fetching activities and participant counts", error: error.message });
+  }
+};

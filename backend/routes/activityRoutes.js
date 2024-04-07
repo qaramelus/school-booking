@@ -17,4 +17,11 @@ router.put('/:id', activityController.updateActivity);
 // GET request to fetch a single Activity by ID
 router.get('/:id', activityController.getActivityById);
 
+// GET request to get participants per Activity
+router.get('/:id/participants', activityController.getActivityParticipants);
+
+// GET request to get all participants for all Activities
+router.get('/', activityController.fetchActivitiesWithParticipants);
+
+
 module.exports = router;

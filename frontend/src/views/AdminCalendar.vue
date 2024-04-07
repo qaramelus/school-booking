@@ -38,9 +38,9 @@
             return activity.timeSlots.map(slot => {
               const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
                 .map((day, index) => day === slot.dayOfWeek ? index : null).filter(n => n !== null);
-  
+
               return {
-                title: activity.name,
+                title: `${activity.name} (${activity.participantCount} participants)`,
                 startRecur: activity.startDate,
                 endRecur: activity.endDate,
                 startTime: slot.startTime,
@@ -50,13 +50,14 @@
               };
             }).flat();
           }).flat();
-  
+
           calendarInstance.value.removeAllEvents();
           calendarInstance.value.addEventSource(events);
         } catch (error) {
           console.error("There was an error fetching the activities:", error.message);
         }
       };
+
   
       onMounted(() => {
         calendarInstance.value = new Calendar(calendarEl.value, {

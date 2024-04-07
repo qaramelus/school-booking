@@ -1,4 +1,4 @@
-const Booking = require('../models/booking');
+const Booking = require('../models/Booking'); 
 const User = require('../models/User');
 
 // Create a new booking
@@ -15,11 +15,27 @@ exports.createBooking = async (req, res) => {
   }
 };
 
+// Delete a booking
+exports.deleteBooking = async (req, res) => {
+  try {
+    const bookingId = req.params.bookingId;
+    const deletedBooking = await Booking.findByIdAndDelete(bookingId);
+
+    if (!deletedBooking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    res.status(200).json({ message: 'Booking deleted successfully', deletedBooking });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete booking', error: error.message });
+  }
+};
+
 // Fetch bookings for a parent, including detailed activity information
 exports.fetchBookingsForParent = async (req, res) => {
   try {
     const { parentId } = req.params;
-    const { startDate, endDate } = req.query; // Accepting startDate and endDate as query parameters
+    const { startDate, endDate } = req.query;
 
     const children = await User.find({ parent: parentId }).select('_id');
     const childIds = children.map(child => child._id);
@@ -54,28 +70,24 @@ exports.fetchBookingsForParentAndChild = async (req, res) => {
   try {
     const { parentId, childId } = req.params;
     
-    // Find the children of the parent to ensure the child belongs to the parent making the request
     const children = await User.find({ parent: parentId }).select('_id');
     const childIds = children.map(child => child._id.toString());
 
-    // Check if the requested childId is one of the parent's children
     if (!childIds.includes(childId)) {
       return res.status(404).json({ message: "Child not found for this parent" });
     }
 
-    const bookings = await Booking.find({ 
-      childId: childId // Directly use childId
-    })
-    .populate({
-      path: 'childId',
-      model: 'User',
-      select: 'username'
-    })
-    .populate({
-      path: 'activityId',
-      model: 'Activity',
-      select: 'name description startDate endDate timeSlots'
-    });
+    const bookings = await Booking.find({ childId: childId })
+      .populate({
+        path: 'childId',
+        model: 'User',
+        select: 'username'
+      })
+      .populate({
+        path: 'activityId',
+        model: 'Activity',
+        select: 'name description startDate endDate timeSlots'
+      });
 
     res.json(bookings);
   } catch (error) {
@@ -84,4 +96,45 @@ exports.fetchBookingsForParentAndChild = async (req, res) => {
   }
 };
 
+exports.fetchActivityParticipants = async (req, res) => {
+  try {
+    const activityId = req.params.activityId;
+    const bookings = await Booking.find({ activityId: activityId }).populate('childId');
 
+    if (!bookings.length) {
+      return res.json([]);
+    }
+
+    // Ensure each participant object includes a bookingId
+    const participants = bookings.map(booking => {
+      return booking.childId ? {
+        bookingId: booking._id.toString(), // Ensure booking ID is included
+        id: booking.childId._id,
+        username: booking.childId.username,
+        email: booking.childId.email,
+      } : null;
+    }).filter(participant => participant !== null);
+
+    res.json(participants);
+  } catch (error) {
+    console.error('Error fetching activity participants:', error);
+    res.status(500).json({ message: "Error fetching activity participants", error: error.message });
+  }
+};
+
+exports.fetchActivities = async (req, res) => {
+  try {
+    const activities = await Activity.find({});
+
+    // Using Promise.all to handle the asynchronous operation of counting participants for each activity
+    const activitiesWithParticipantCounts = await Promise.all(activities.map(async (activity) => {
+      const participantCount = await Booking.countDocuments({ activityId: activity._id });
+      // Spreading the activity object and adding the participantCount
+      return { ...activity.toObject(), participantCount };
+    }));
+
+    res.json(activitiesWithParticipantCounts);
+  } catch (error) {
+    res.status(500).send({ message: "Error fetching activities with participant counts", error: error.message });
+  }
+};

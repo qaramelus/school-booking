@@ -8,7 +8,7 @@ const bookedTimeSlotSchema = new mongoose.Schema({
 }, { _id: false });
 
 const bookingSchema = new mongoose.Schema({
-  childId: { type: mongoose.Schema.Types.ObjectId, ref: 'Child' }, 
+  childId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, 
   activityId: { type: mongoose.Schema.Types.ObjectId, ref: 'Activity' }, 
   dateBooked: { type: Date, default: Date.now }, 
   timeSlots: [bookedTimeSlotSchema], 

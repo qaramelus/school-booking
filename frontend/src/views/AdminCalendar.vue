@@ -32,31 +32,46 @@
       const calendarInstance = ref(null);
   
       const fetchActivities = async () => {
-        try {
-          const { data } = await API.get('/activities');
-          const events = data.map(activity => {
-            return activity.timeSlots.map(slot => {
-              const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-                .map((day, index) => day === slot.dayOfWeek ? index : null).filter(n => n !== null);
+  try {
+    // First, fetch all activities without participant counts
+    const { data: activities } = await API.get('/activities');
 
-              return {
-                title: `${activity.name} (${activity.participantCount} participants)`,
-                startRecur: activity.startDate,
-                endRecur: activity.endDate,
-                startTime: slot.startTime,
-                endTime: slot.endTime,
-                daysOfWeek: daysOfWeek,
-                classNames: ['custom-class-for-event'],
-              };
-            }).flat();
-          }).flat();
+    // Map over activities and fetch participant count for each
+    const eventsPromises = activities.map(async (activity) => {
+      try {
+        const { data: activityWithParticipants } = await API.get(`/activities/${activity._id}/with-participants`);
+        return (activityWithParticipants.timeSlots || []).map((slot) => {
+          const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+            .map((day, index) => (day === slot.dayOfWeek ? index : null))
+            .filter((n) => n !== null);
+          return {
+            title: `${activityWithParticipants.name} (${activityWithParticipants.participantCount} participants)`,
+            startRecur: activityWithParticipants.startDate,
+            endRecur: activityWithParticipants.endDate,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+            daysOfWeek,
+            classNames: ['custom-class-for-event'],
+          };
+        }).flat();
+      } catch (error) {
+        console.error(`Error fetching participants for activity ${activity._id}:`, error);
+        return []; // Return an empty array in case of an error
+      }
+    });
 
-          calendarInstance.value.removeAllEvents();
-          calendarInstance.value.addEventSource(events);
-        } catch (error) {
-          console.error("There was an error fetching the activities:", error.message);
-        }
-      };
+    // Await all the promises from the map to resolve
+    const eventsNestedArray = await Promise.all(eventsPromises);
+    const events = eventsNestedArray.flat();
+
+    if (calendarInstance.value) {
+      calendarInstance.value.removeAllEvents();
+      calendarInstance.value.addEventSource(events);
+    }
+  } catch (error) {
+    console.error("There was an error fetching the activities:", error);
+  }
+};
 
   
       onMounted(() => {

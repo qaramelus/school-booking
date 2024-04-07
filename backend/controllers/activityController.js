@@ -1,4 +1,5 @@
-const Activity = require('../models/Activity'); // Ensure this path matches the location of your Activity model
+const Activity = require('../models/Activity'); 
+const Booking = require('../models/Booking'); 
 
 // Function to create an Activity with scheduling
 exports.createActivity = async (req, res) => {
@@ -88,5 +89,25 @@ exports.fetchActivitiesWithParticipants = async (req, res) => {
     res.json(activities);
   } catch (error) {
     res.status(500).send({ message: "Error fetching activities and participant counts", error: error.message });
+  }
+};
+
+// Function to fetch a single Activity with its participant count
+exports.getActivityWithParticipants = async (req, res) => {
+  try {
+    const activityId = req.params.id; // Correctly use req.params.id based on your route definition
+    const activity = await Activity.findById(activityId);
+
+    if (!activity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
+
+    const participantCount = await Booking.countDocuments({ activityId: activity._id });
+
+    // Send back the activity details with participant count
+    res.json({ ...activity.toObject(), participantCount });
+  } catch (error) {
+    console.error('Error fetching activity with participant count:', error);
+    res.status(500).json({ message: 'Error fetching activity with participant count', error: error.message });
   }
 };

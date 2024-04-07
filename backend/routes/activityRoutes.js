@@ -23,5 +23,11 @@ router.get('/:id/participants', activityController.getActivityParticipants);
 // GET request to get all participants for all Activities
 router.get('/', activityController.fetchActivitiesWithParticipants);
 
+// Assuming you're adding this to activityRoutes.js or a similar file
+router.get('/:id/with-participants', activityController.getActivityWithParticipants);
+
+
+
+
 
 module.exports = router;

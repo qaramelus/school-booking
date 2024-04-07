@@ -53,6 +53,11 @@ const routes = [
     }
   },
   {
+    path: '/activity/:activityId',
+    name: 'ActivityDetail',
+    component: () => import('@/views/ActivityDetail.vue')
+  },
+  {
     path: '/parent-booked-overview',
     name: 'ParentBookedOverview',
     component: ParentBookedOverview,
@@ -100,6 +105,11 @@ const routes = [
     meta: {
       requiresAdmin: true // Custom flag to check for admin role
     }
+  },
+  {
+    path: '/activity/:activityId',
+    name: 'ActivityDetail',
+    component: () => import('@/views/ActivityDetail.vue')
   },
   {
     path: '/activities/:activityId',

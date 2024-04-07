@@ -4,28 +4,36 @@
       <span class="close" @click="closeModal">&times;</span>
       <h2>Add New Activity</h2>
       <form @submit.prevent="submitActivity" class="activity-form">
-        <div class="form-column">
-          <div class="form-group">
-            <label for="name">Activity Name:</label>
-            <input type="text" id="name" v-model="activity.name" required>
-          </div>
-          <div class="form-group">
-            <label for="description">Description:</label>
-            <textarea id="description" v-model="activity.description"></textarea>
-          </div>
-          <div class="form-group">
-            <label for="startDate">Start Date:</label>
-            <input type="date" id="startDate" v-model="activity.startDate" required>
-          </div>
-          <div class="form-group">
-            <label for="endDate">End Date:</label>
-            <input type="date" id="endDate" v-model="activity.endDate" required>
-          </div>
+        <!-- Title field -->
+        <div class="form-group">
+          <label for="activity-name">Title:</label>
+          <input type="text" id="activity-name" v-model="activity.name" required>
         </div>
-        <div class="form-column">
-          <div class="form-group">
-            <label for="dayOfWeek">Day of the Week:</label>
-            <select id="dayOfWeek" v-model="activity.dayOfWeek" required>
+
+        <!-- Detail field -->
+        <div class="form-group">
+          <label for="activity-description">Detail:</label>
+          <textarea id="activity-description" v-model="activity.description" required></textarea>
+        </div>
+
+        <!-- Start Date field -->
+        <div class="form-group">
+          <label for="activity-start-date">Start Date:</label>
+          <input type="date" id="activity-start-date" v-model="activity.startDate" required>
+        </div>
+
+        <!-- End Date field -->
+        <div class="form-group">
+          <label for="activity-end-date">End Date:</label>
+          <input type="date" id="activity-end-date" v-model="activity.endDate" required>
+        </div>
+
+        <!-- Time Slot Section -->
+        <div class="time-slot-section">
+          <div class="form-group" v-for="(slot, index) in activity.timeSlots" :key="index">
+            <label>Day of the Week:</label>
+            <select v-model="slot.dayOfWeek" required>
+              <option disabled value="">Select a Day</option>
               <option value="Monday">Monday</option>
               <option value="Tuesday">Tuesday</option>
               <option value="Wednesday">Wednesday</option>
@@ -34,16 +42,17 @@
               <option value="Saturday">Saturday</option>
               <option value="Sunday">Sunday</option>
             </select>
+            <label>Start Time:</label>
+            <input type="time" v-model="slot.startTime" required>
+            <label>End Time:</label>
+            <input type="time" v-model="slot.endTime" required>
+            <button type="button" @click.prevent="removeTimeSlot(index)">Remove Time Slot</button>
           </div>
-          <div class="form-group">
-            <label for="startTime">Start Time:</label>
-            <input type="time" id="startTime" v-model="activity.startTime" required>
-          </div>
-          <div class="form-group">
-            <label for="endTime">End Time:</label>
-            <input type="time" id="endTime" v-model="activity.endTime" required>
+          <div class="add-slot-button-container">
+            <button type="button" @click="addTimeSlot" class="add-time-slot-button">Add Time Slot</button>
           </div>
         </div>
+
         <button type="submit" class="submit-button">Add Activity</button>
       </form>
     </div>
@@ -63,49 +72,24 @@ export default {
         description: '',
         startDate: '',
         endDate: '',
-        dayOfWeek: '',
-        startTime: '',
-        endTime: ''
+        timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '' }]
       }
     };
   },
-  watch: {
-    editingActivity: {
-      immediate: true,
-      handler(activity) {
-        if (activity) {
-          this.activity = { ...activity };
-        } else {
-          this.activity = {
-            name: '',
-            description: '',
-            startDate: '',
-            endDate: '',
-            dayOfWeek: '',
-            startTime: '',
-            endTime: ''
-          };
-        }
-      }
-    }
-  },
   methods: {
+    addTimeSlot() {
+      this.activity.timeSlots.push({ dayOfWeek: '', startTime: '', endTime: '' });
+    },
+    removeTimeSlot(index) {
+      this.activity.timeSlots.splice(index, 1);
+    },
     closeModal() {
       this.$emit('close');
     },
     submitActivity() {
-      const submission = {
-        ...this.activity,
-        timeSlots: [{
-          dayOfWeek: this.activity.dayOfWeek,
-          startTime: this.activity.startTime,
-          endTime: this.activity.endTime,
-        }]
-      };
-
       const apiCall = this.editingActivity
-        ? API.put(`/activities/${this.editingActivity._id}`, submission)
-        : API.post('/activities', submission);
+        ? API.put(`/activities/${this.editingActivity._id}`, this.activity)
+        : API.post('/activities', this.activity);
 
       apiCall.then(() => {
         this.$emit(this.editingActivity ? 'activityUpdated' : 'activityAdded');
@@ -131,36 +115,36 @@ export default {
 
 .modal-content {
   background-color: white;
-  padding: 20px;
-  border-radius: 5px;
+  padding: 40px;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
-  max-inline-size: 800px;
+  width: 90%;
+  max-width: 1200px;
   z-index: 2;
 }
 
 .activity-form {
   display: flex;
-  justify-content: space-between;
-}
-
-.form-column {
-  display: flex;
   flex-direction: column;
-  flex: 1;
-  margin-inline-end: 20px;
 }
 
-.form-column:last-child {
-  margin-inline-end: 0;
+.form-group-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px; /* Ensure there's space between columns */
 }
 
 .form-group {
-  margin-block-end: 10px;
+  flex: 1; /* Allows form groups to expand and fill the row */
+  min-width: 250px; /* Minimum width before wrapping */
+  margin-bottom: 20px;
 }
 
 .form-group label {
   display: block;
+  margin-bottom: 5px;
 }
 
 .form-group input[type="text"],
@@ -168,25 +152,44 @@ export default {
 .form-group input[type="time"],
 .form-group textarea,
 .form-group select {
-  inline-size: 100%;
-  padding: 8px;
-  margin-block-start: 5px;
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
   box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.time-slot-section {
+  margin-bottom: 30px;
+}
+
+.add-slot-button-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 15px;
+}
+
+.add-time-slot-button,
+.submit-button {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.add-time-slot-button:hover,
+.submit-button:hover {
+  background-color: #0056b3;
 }
 
 .submit-button {
   background-color: #4CAF50;
-  color: white;
-  padding: 14px 20px;
-  margin-block-start: 8px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  padding: 16px 24px;
+  margin-top: 10px;
   align-self: flex-start;
-}
-
-.submit-button:hover {
-  background-color: #45a049;
 }
 
 .close {

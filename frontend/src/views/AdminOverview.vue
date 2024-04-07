@@ -111,9 +111,7 @@ export default {
 
 <style scoped>
 .admin-overview {
-  max-inline-size: 1200px;
   margin: 0 auto;
-  padding: 20px;
 }
 
 .plus-button {
@@ -125,10 +123,6 @@ export default {
   border: 2px solid #000;
   background-color: #fff;
   cursor: pointer;
-}
-
-.activities {
-  margin-block-start: 20px;
 }
 
 .activity-cards {

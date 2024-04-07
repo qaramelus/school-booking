@@ -1,38 +1,47 @@
 <template>
-  <div class="activity-detail" v-if="activity">
-    <h1>{{ activity.name }}</h1>
-    <p>{{ activity.description }}</p>
-    <p>Date: {{ new Date(activity.startDate).toLocaleDateString() }} to {{ new Date(activity.endDate).toLocaleDateString() }}</p>
-    <div v-if="activity.timeSlots">
-      <h3>Time Slots</h3>
-      <ul>
-        <li v-for="(slot, index) in activity.timeSlots" :key="index">
-          {{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}
-        </li>
-      </ul>
+  <div>
+    <AdminNavbar />
+    <div v-if="activity" class="activity-detail-container">
+      <div class="activity-detail">
+        <h1>{{ activity.name }}</h1>
+        <p>{{ activity.description }}</p>
+        <p>Date: {{ new Date(activity.startDate).toLocaleDateString() }} to {{ new Date(activity.endDate).toLocaleDateString() }}</p>
+        <div v-if="activity.timeSlots">
+          <h3>Time Slots</h3>
+          <ul>
+            <li v-for="(slot, index) in activity.timeSlots" :key="index">
+              {{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}
+            </li>
+          </ul>
+        </div>
+        <div v-if="isAdmin">
+          <h2>Participants ({{ participants.length }}):</h2>
+          <ul>
+            <li v-for="participant in participants" :key="participant.id">
+              {{ participant.username }}
+              <button class="remove-button" @click="removeUserFromActivity(participant.bookingId)">Remove</button>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
-    <div v-if="isAdmin">
-      <h2>Participants ({{ participants.length }}):</h2>
-      <ul>
-        <!-- Ensure participant.bookingId is correctly referenced -->
-        <li v-for="participant in participants" :key="participant.id">
-          {{ participant.username }}
-          <!-- Check if bookingId is correctly passed on click -->
-          <button class="remove-button" @click="removeUserFromActivity(participant.bookingId)">Remove</button>
-        </li>
-      </ul>
+    <div v-else class="loading">
+      <!-- This div is directly related to the v-if above, ensuring the v-else works correctly -->
+      Loading activity details...
     </div>
-  </div>
-  <div v-else class="loading">
-    Loading activity details...
   </div>
 </template>
 
+
 <script>
 import API from '@/services/api';
+import AdminNavbar from '@/components/AdminNavbar.vue';
 
 export default {
   name: 'ActivityDetail',
+  components: {
+    AdminNavbar, 
+  },
   data() {
     return {
       activity: null,
@@ -94,7 +103,7 @@ export default {
 
 <style scoped>
 .activity-detail {
-  max-width: 600px;
+  max-inline-size: 600px;
   margin: auto;
   padding: 20px;
   background: #f5f5f5;
@@ -120,7 +129,7 @@ li {
 .loading {
   text-align: center;
   font-size: 20px;
-  margin-top: 50px;
+  margin-block-start: 20px;
 }
 
 .remove-button {
@@ -130,11 +139,23 @@ li {
   padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
-  margin-left: 10px;
+  margin-inline-start: 10px;
 }
 
 .remove-button:hover {
   background-color: #ff3333;
+}
+
+.activity-detail-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.activity-detail {
+  max-inline-size: 1200px;
+  background: #f5f5f5;
+  border-radius: 8px;
 }
 
 </style>

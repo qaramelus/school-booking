@@ -23,15 +23,16 @@
             </li>
           </ul>
         </div>
+        <div v-else>
+          <h2>Number of Participants: {{ participants.length }}</h2>
+        </div>
       </div>
     </div>
     <div v-else class="loading">
-      <!-- This div is directly related to the v-if above, ensuring the v-else works correctly -->
       Loading activity details...
     </div>
   </div>
 </template>
-
 
 <script>
 import API from '@/services/api';
@@ -40,7 +41,7 @@ import AdminNavbar from '@/components/AdminNavbar.vue';
 export default {
   name: 'ActivityDetail',
   components: {
-    AdminNavbar, 
+    AdminNavbar,
   },
   data() {
     return {
@@ -79,11 +80,10 @@ export default {
         });
     },
     removeUserFromActivity(bookingId) {
-      // Confirm before deleting
       if (confirm("Are you sure you want to remove the child from the booking?")) {
         if (!bookingId) {
           console.error('Booking ID is undefined');
-          return; // Prevent the API call if bookingId is undefined
+          return;
         }
         API.delete(`/deleteBooking/${bookingId}`)
           .then(() => {
@@ -93,7 +93,6 @@ export default {
             console.error('Error removing user from activity:', error);
           });
       } else {
-        // If the user clicks "Cancel", do nothing
         console.log("Deletion cancelled by user.");
       }
     }
@@ -102,6 +101,12 @@ export default {
 </script>
 
 <style scoped>
+.activity-detail-container, .activity-detail {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
 .activity-detail {
   max-inline-size: 600px;
   margin: auto;
@@ -110,7 +115,7 @@ export default {
   border-radius: 8px;
 }
 
-.activity-detail h1, .activity-detail h2, .activity-detail h3 {
+.activity-detail h1, .activity-detail h2, .activity-detail h3, .loading {
   color: #333;
 }
 
@@ -126,12 +131,6 @@ li {
   border-radius: 5px;
 }
 
-.loading {
-  text-align: center;
-  font-size: 20px;
-  margin-block-start: 20px;
-}
-
 .remove-button {
   background-color: #ff4d4d;
   color: white;
@@ -145,17 +144,4 @@ li {
 .remove-button:hover {
   background-color: #ff3333;
 }
-
-.activity-detail-container {
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-}
-
-.activity-detail {
-  max-inline-size: 1200px;
-  background: #f5f5f5;
-  border-radius: 8px;
-}
-
 </style>

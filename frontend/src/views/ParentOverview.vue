@@ -9,7 +9,7 @@
           <card-component
             v-for="activity in activities"
             :key="activity._id"
-            @onClick="() => handleCardClick(activity)"
+            @click="() => handleCardClick(activity)"
           >
             <h3>{{ activity.name }}</h3>
             <p>{{ activity.description }}</p>
@@ -41,32 +41,27 @@
   </div>
 </template>
 
-
 <script>
 import API from '@/services/api';
-import { logout } from '@/services/logout';
 import CardComponent from '@/components/CardComponent.vue';
-import ParentNavbar from '@/components/ParentNavbar.vue'; // Make sure the path is correct
+import ParentNavbar from '@/components/ParentNavbar.vue';
 
 export default {
   name: "ParentOverview",
   components: {
     CardComponent,
-    ParentNavbar, // Include the navbar component
+    ParentNavbar,
   },
   data() {
     return {
       activities: [],
       showBookingModal: false,
-      children: [], // Placeholder for children data
+      children: [],
       selectedChild: '',
       selectedActivity: '',
     };
   },
   methods: {
-    performLogout() {
-      logout(this.$router);
-    },
     fetchActivities() {
       API.get('activities')
         .then(response => {
@@ -82,7 +77,7 @@ export default {
         console.error("Parent ID is undefined.");
         return;
       }
-      API.get(`users/${parentId}`, {})
+      API.get(`users/${parentId}`)
         .then(response => {
           this.children = response.data.children ? response.data.children.map(child => ({
             id: child._id,
@@ -94,36 +89,36 @@ export default {
         });
     },
     bookActivity() {
-      if (this.selectedChild && this.selectedActivity) {
-        const bookingInfo = {
-          childId: this.selectedChild,
-          activityId: this.selectedActivity,
-        };
-        API.post('/bookActivity', bookingInfo, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('user-token')}`
-          }
-        })
-        .then(() => {
-          alert('Activity booked successfully');
-          this.showBookingModal = false;
-        })
-        .catch(error => {
-          console.error("There was an error booking the activity:", error);
-        });
-      } else {
+      if (!this.selectedChild || !this.selectedActivity) {
         alert('Please select both a child and an activity');
+        return;
       }
+
+      const bookingInfo = {
+        childId: this.selectedChild,
+        activityId: this.selectedActivity,
+      };
+      API.post('/bookActivity', bookingInfo, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('user-token')}`
+        }
+      })
+      .then(() => {
+        alert('Activity booked successfully');
+        this.showBookingModal = false;
+        this.fetchActivities(); // Optionally refresh the activities list
+      })
+      .catch(error => {
+        console.error("There was an error booking the activity:", error);
+      });
+    },
+    handleCardClick(activity) {
+      this.$router.push({ name: 'ActivityDetail', params: { activityId: activity._id } });
     },
   },
   created() {
     this.fetchActivities();
-    const parentId = localStorage.getItem('parent-id');
-    if (parentId) {
-      this.fetchChildren();
-    } else {
-      console.error('No parent ID found for fetching children.');
-    }
+    this.fetchChildren();
   }
 };
 </script>

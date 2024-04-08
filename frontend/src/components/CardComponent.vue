@@ -1,5 +1,5 @@
 <template>
-  <div class="card" @click="onClick">
+  <div class="card" @click="cardClicked">
     <div class="card-content">
       <slot></slot>
     </div>
@@ -12,12 +12,11 @@
 <script>
 export default {
   name: "CardComponent",
-  props: {
-    onClick: {
-      type: Function,
-      default: null,
-    },
-  },
+  methods: {
+    cardClicked() {
+      this.$emit('click'); // Emit a click event
+    }
+  }
 };
 </script>
 

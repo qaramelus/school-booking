@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import API from '@/services/api'; // Ensure this path correctly points to your API service
+import API from '@/services/api'; 
 
 export default {
   name: "ActivityModal",
@@ -76,6 +76,25 @@ export default {
       }
     };
   },
+  watch: {
+    editingActivity: {
+      handler(newVal) {
+        if (newVal) {
+          this.activity = {
+            ...newVal,
+            // Ensure dates are formatted correctly if necessary
+            startDate: newVal.startDate.split('T')[0],
+            endDate: newVal.endDate.split('T')[0],
+            timeSlots: newVal.timeSlots.length > 0 ? newVal.timeSlots : [{ dayOfWeek: '', startTime: '', endTime: '' }]
+          };
+        } else {
+          this.resetActivity();
+        }
+      },
+      deep: true,
+      immediate: true
+    }
+  },
   methods: {
     addTimeSlot() {
       this.activity.timeSlots.push({ dayOfWeek: '', startTime: '', endTime: '' });
@@ -84,6 +103,7 @@ export default {
       this.activity.timeSlots.splice(index, 1);
     },
     closeModal() {
+      this.resetActivity();
       this.$emit('close');
     },
     submitActivity() {
@@ -97,6 +117,15 @@ export default {
       }).catch(error => {
         console.error('Error updating or adding activity:', error);
       });
+    },
+    resetActivity() {
+      this.activity = {
+        name: '',
+        description: '',
+        startDate: '',
+        endDate: '',
+        timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '' }]
+      };
     }
   }
 };
@@ -111,6 +140,7 @@ export default {
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  overflow-y: auto;
 }
 
 .modal-content {
@@ -120,7 +150,9 @@ export default {
   display: flex;
   flex-direction: column;
   width: 90%;
-  max-width: 1200px;
+  max-width: 600px; 
+  max-height: 80vh; 
+  overflow-y: auto; 
   z-index: 2;
 }
 
@@ -161,7 +193,11 @@ export default {
 }
 
 .time-slot-section {
-  margin-bottom: 30px;
+  max-height: 300px; 
+  overflow-y: auto; 
+  margin-bottom: 20px;
+  border: 1px solid #ccc; 
+  padding: 10px; 
 }
 
 .add-slot-button-container {

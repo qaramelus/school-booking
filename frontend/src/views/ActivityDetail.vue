@@ -23,13 +23,13 @@
           </div>
           <!-- Teachers Information Integrated Here -->
           <div v-if="activity.teachers && activity.teachers.length">
-            <h3>Teachers</h3>
-            <ul>
-              <li v-for="teacher in activity.teachers" :key="teacher._id">
-                {{ teacher.name }}
-              </li>
-            </ul>
-          </div>
+          <h3>Teachers</h3>
+          <ul>
+            <li v-for="teacher in activity.teachers" :key="teacher._id">
+              {{ teacher.username }} <!-- Change from teacher.name to teacher.username -->
+            </li>
+          </ul>
+        </div>
         </div>
         <div v-if="currentTab === 'participants' && isAdmin">
           <h2>Participants ({{ participants.length }}):</h2>

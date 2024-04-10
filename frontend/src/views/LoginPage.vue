@@ -50,6 +50,9 @@ export default {
           case 'admin':
             this.$router.push({ name: 'AdminOverview' });
             break;
+          case 'teacher':
+            this.$router.push({ name: 'TeacherOverview' });
+            break;
           default:
             console.error('User role is not recognized or missing');
         }

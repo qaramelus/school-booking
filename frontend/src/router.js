@@ -104,7 +104,7 @@ const routes = [
     name: 'TeacherOverview',
     component: TeacherOverview,
     beforeEnter: (to, from, next) => {
-      const role = localStorage.getItem('user-role');
+      const role = (localStorage.getItem('user-role') || '').trim();
       if (role === 'teacher') {
         next();
       } else {
@@ -115,9 +115,9 @@ const routes = [
   {
     path: '/users/:userId',
     name: 'UserDetail',
-    component: () => import('@/views/UserDetail.vue'), // Adjust path as needed
+    component: () => import('@/views/UserDetail.vue'), 
     meta: {
-      requiresAdmin: true // Custom flag to check for admin role
+      requiresAdmin: true 
     }
   },
   {
@@ -143,26 +143,34 @@ router.beforeEach((to, from, next) => {
   const publicPages = ['/login'];
   const authRequired = !publicPages.includes(to.path);
   const loggedIn = localStorage.getItem('user-token');
-  const role = localStorage.getItem('user-role'); 
+  // Use a fallback value for role to ensure it's always a string
+  const role = (localStorage.getItem('user-role') || '').trim();
 
+  // Redirect to login page if not logged in and trying to access a restricted page
   if (authRequired && !loggedIn) {
-    return next('/login');
+    next('/login');
+    return;
   }
 
+  // Redirect based on role if already logged in and trying to access the login page
   if (loggedIn && to.path === '/login') {
     switch (role) {
       case 'parent':
-        return next('/parent-overview');
+        next('/parent-overview');
+        break;
       case 'child':
-        return next('/child-overview');
+        next('/child-overview');
+        break;
       case 'teacher':
-        return next('/teacher-overview'); 
+        next('/teacher-overview');
+        break;
       default:
-        return next();
+        next('/login');
+        break;
     }
+  } else {
+    next();
   }
-
-  next();
 });
 
 export default router;

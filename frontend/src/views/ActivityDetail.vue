@@ -2,37 +2,43 @@
   <div>
     <AdminNavbar />
     <div v-if="activity" class="activity-detail-container">
-      <div class="activity-detail">
-        <h1>{{ activity.name }}</h1>
-        <p>{{ activity.description }}</p>
-        <p>Date: {{ new Date(activity.startDate).toLocaleDateString() }} to {{ new Date(activity.endDate).toLocaleDateString() }}</p>
-        <div v-if="activity.timeSlots">
-          <h3>Time Slots</h3>
-          <ul>
-            <li v-for="(slot, index) in activity.timeSlots" :key="index">
-              {{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}
-            </li>
-          </ul>
+      <div class="activity-detail-tabs">
+        <!-- Tab Headers -->
+        <button @click="currentTab = 'about'" :class="{'active-tab': currentTab === 'about'}">About</button>
+        <button v-if="isAdmin" @click="currentTab = 'participants'" :class="{'active-tab': currentTab === 'participants'}">Participants</button>
+      </div>
+      <!-- Tab Content -->
+      <div class="tab-content">
+        <div v-if="currentTab === 'about'" class="activity-detail">
+          <h1>{{ activity.name }}</h1>
+          <p>{{ activity.description }}</p>
+          <p>Date: {{ new Date(activity.startDate).toLocaleDateString() }} to {{ new Date(activity.endDate).toLocaleDateString() }}</p>
+          <div v-if="activity.timeSlots">
+            <h3>Time Slots</h3>
+            <ul>
+              <li v-for="(slot, index) in activity.timeSlots" :key="index">
+                {{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}
+              </li>
+            </ul>
+          </div>
+          <!-- Teachers Information Integrated Here -->
+          <div v-if="activity.teachers && activity.teachers.length">
+            <h3>Teachers</h3>
+            <ul>
+              <li v-for="teacher in activity.teachers" :key="teacher._id">
+                {{ teacher.name }}
+              </li>
+            </ul>
+          </div>
         </div>
-        <div v-if="isAdmin">
+        <div v-if="currentTab === 'participants' && isAdmin">
           <h2>Participants ({{ participants.length }}):</h2>
-          <ul>
+          <ul class="participant-list">
             <li v-for="participant in participants" :key="participant.id">
-              {{ participant.username }}
+              <span>{{ participant.username }}</span>
               <button class="remove-button" @click="removeUserFromActivity(participant.bookingId)">Remove</button>
             </li>
           </ul>
-        </div>
-        <div v-if="activity.teachers && activity.teachers.length">
-        <h3>Teachers</h3>
-        <ul>
-          <li v-for="teacher in activity.teachers" :key="teacher._id">
-            {{ teacher.name }} 
-          </li>
-        </ul>
-      </div>
-        <div v-else>
-          <h2>Number of Participants: {{ participants.length }}</h2>
         </div>
       </div>
     </div>
@@ -41,6 +47,8 @@
     </div>
   </div>
 </template>
+
+
 
 <script>
 import API from '@/services/api';
@@ -56,6 +64,7 @@ export default {
       activity: null,
       participants: [],
       isAdmin: false,
+      currentTab: 'about', // Default tab
     };
   },
   created() {
@@ -109,18 +118,21 @@ export default {
 </script>
 
 <style scoped>
-.activity-detail-container, .activity-detail {
+.activity-detail-container {
   display: flex;
-  justify-content: center;
-  padding: 20px;
+  flex-direction: column;
+  max-block-size: 100vh; 
+  overflow: hidden;
 }
 
-.activity-detail {
-  max-inline-size: 600px;
-  margin: auto;
-  padding: 20px;
-  background: #f5f5f5;
-  border-radius: 8px;
+.activity-detail-tabs {
+  display: flex;
+  justify-content: space-around;
+  background-color: #f5f5f5; 
+  padding: 10px 0;
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1000; 
 }
 
 .activity-detail h1, .activity-detail h2, .activity-detail h3, .loading {
@@ -146,10 +158,31 @@ li {
   padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
-  margin-inline-start: 10px;
+  margin-inline-start: auto;;
 }
 
 .remove-button:hover {
   background-color: #ff3333;
+}
+
+.tab-content {
+  overflow-y: auto;
+  flex-grow: 1; 
+  padding: 20px;
+}
+
+.participant-list li {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center; 
+}
+
+.active-tab {
+  background-color: #007bff;
+  color: white;
+}
+
+.tab-content {
+  margin-block-start: 20px;
 }
 </style>

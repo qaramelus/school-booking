@@ -12,11 +12,16 @@ const AuthService = {
 
       localStorage.setItem('user-token', response.data.token);
       localStorage.setItem('user-role', response.data.role);
-      localStorage.setItem('parent-id', response.data._id); 
+      localStorage.setItem('user-id', response.data._id); // Generalized user ID storage
 
       return response.data.role;
     } catch (error) {
-      throw new Error('Invalid credentials');
+      // More nuanced error handling
+      if (error.response && error.response.data) {
+        throw new Error(error.response.data.message || 'Login failed');
+      } else {
+        throw new Error('Network error or server is not responding');
+      }
     }
   }
 };

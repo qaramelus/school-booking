@@ -23,6 +23,14 @@
             </li>
           </ul>
         </div>
+        <div v-if="activity.teachers && activity.teachers.length">
+        <h3>Teachers</h3>
+        <ul>
+          <li v-for="teacher in activity.teachers" :key="teacher._id">
+            {{ teacher.name }} 
+          </li>
+        </ul>
+      </div>
         <div v-else>
           <h2>Number of Participants: {{ participants.length }}</h2>
         </div>

@@ -9,6 +9,17 @@
           <label for="activity-name">Title:</label>
           <input type="text" id="activity-name" v-model="activity.name" required>
         </div>
+        
+        <!-- Teacher field -->
+        <div class="form-group">
+          <label for="activity-teachers">Teachers:</label>
+          <select id="activity-teachers" v-model="activity.teachers" multiple required>
+          <option disabled value="">Select Teachers</option>
+          <option v-for="teacher in teachers" :value="teacher._id" :key="teacher._id">
+          {{ teacher.username }}
+          </option>
+          </select>
+        </div>
 
         <!-- Detail field -->
         <div class="form-group">
@@ -60,76 +71,108 @@
 </template>
 
 <script>
-import API from '@/services/api'; 
+  import API from '@/services/api';
 
-export default {
-  name: "ActivityModal",
-  props: ['isVisible', 'editingActivity'],
-  data() {
-    return {
-      activity: {
-        name: '',
-        description: '',
-        startDate: '',
-        endDate: '',
-        timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '' }]
-      }
-    };
-  },
-  watch: {
-    editingActivity: {
-      handler(newVal) {
-        if (newVal) {
-          this.activity = {
-            ...newVal,
-            // Ensure dates are formatted correctly if necessary
-            startDate: newVal.startDate.split('T')[0],
-            endDate: newVal.endDate.split('T')[0],
-            timeSlots: newVal.timeSlots.length > 0 ? newVal.timeSlots : [{ dayOfWeek: '', startTime: '', endTime: '' }]
-          };
-        } else {
-          this.resetActivity();
-        }
-      },
-      deep: true,
-      immediate: true
-    }
-  },
-  methods: {
-    addTimeSlot() {
-      this.activity.timeSlots.push({ dayOfWeek: '', startTime: '', endTime: '' });
-    },
-    removeTimeSlot(index) {
-      this.activity.timeSlots.splice(index, 1);
-    },
-    closeModal() {
-      this.resetActivity();
-      this.$emit('close');
-    },
-    submitActivity() {
-      const apiCall = this.editingActivity
-        ? API.put(`/activities/${this.editingActivity._id}`, this.activity)
-        : API.post('/activities', this.activity);
-
-      apiCall.then(() => {
-        this.$emit(this.editingActivity ? 'activityUpdated' : 'activityAdded');
-        this.closeModal();
-      }).catch(error => {
-        console.error('Error updating or adding activity:', error);
-      });
-    },
-    resetActivity() {
-      this.activity = {
-        name: '',
-        description: '',
-        startDate: '',
-        endDate: '',
-        timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '' }]
+  export default {
+    name: "ActivityModal",
+    props: ['isVisible', 'editingActivity'],
+    data() {
+      return {
+        activity: {
+          name: '',
+          description: '',
+          startDate: '',
+          endDate: '',
+          timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '' }],
+          teachers: []
+        },
+        teachers: [] // Initialize the teachers array to hold the fetched teacher data
       };
-    }
-  }
-};
+    },
+    watch: {
+      editingActivity: {
+        handler(newVal) {
+          if (newVal) {
+            this.activity = {
+              ...newVal,
+              startDate: newVal.startDate.split('T')[0],
+              endDate: newVal.endDate.split('T')[0],
+              timeSlots: newVal.timeSlots.length > 0 ? newVal.timeSlots : [{ dayOfWeek: '', startTime: '', endTime: '' }]
+            };
+          } else {
+            this.resetActivity();
+          }
+        },
+        deep: true,
+        immediate: true
+      }
+    },
+    methods: {
+      addTimeSlot() {
+        this.activity.timeSlots.push({ dayOfWeek: '', startTime: '', endTime: '' });
+      },
+      removeTimeSlot(index) {
+        this.activity.timeSlots.splice(index, 1);
+      },
+      closeModal() {
+        this.resetActivity();
+        this.$emit('close');
+      },
+      submitActivity() {
+        const userId = localStorage.getItem('user-id');
+        if (!userId) {
+          console.error('User ID not found. Please log in.');
+          return; 
+        }
+        
+        const selectedTeacherIds = this.activity.teachers.filter(teacherId => teacherId !== null);
+
+        const activityData = {
+          ...this.activity,
+          createdBy: userId,
+          teachers: selectedTeacherIds,
+        }
+
+        const apiCall = this.editingActivity
+          ? API.put(`/activities/${this.editingActivity._id}`, activityData)
+          : API.post('/activities', activityData);
+
+        apiCall.then(() => {
+          this.$emit(this.editingActivity ? 'activityUpdated' : 'activityAdded');
+          this.closeModal();
+        }).catch(error => {
+          console.error('Error updating or adding activity:', error);
+        });
+      },
+      resetActivity() {
+        this.activity = {
+          name: '',
+          description: '',
+          startDate: '',
+          endDate: '',
+          timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '' }],
+          teachers: [],
+        };
+      },
+      fetchTeachers() {
+        API.get('/users/teachers')
+          .then(response => {
+            this.teachers = response.data.map(teacher => ({
+              _id: teacher._id,
+              username: teacher.username,
+            }));
+          })
+          .catch(error => {
+            console.error('Error fetching teachers:', error);
+          });
+      },
+    },
+    created() {
+      this.fetchTeachers(); // Fetch teachers when the component is created
+    },
+  };
 </script>
+
 
 <style scoped>
 .modal-overlay {
@@ -149,9 +192,9 @@ export default {
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  width: 90%;
-  max-width: 600px; 
-  max-height: 80vh; 
+  inline-size: 90%;
+  max-inline-size: 600px; 
+  max-block-size: 80vh; 
   overflow-y: auto; 
   z-index: 2;
 }
@@ -170,13 +213,13 @@ export default {
 
 .form-group {
   flex: 1; /* Allows form groups to expand and fill the row */
-  min-width: 250px; /* Minimum width before wrapping */
-  margin-bottom: 20px;
+  min-inline-size: 250px; /* Minimum width before wrapping */
+  margin-block-end: 20px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
+  margin-block-end: 5px;
 }
 
 .form-group input[type="text"],
@@ -184,18 +227,18 @@ export default {
 .form-group input[type="time"],
 .form-group textarea,
 .form-group select {
-  width: 100%;
+  inline-size: 100%;
   padding: 10px;
-  margin-top: 5px;
+  margin-block-start: 5px;
   box-sizing: border-box;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
 .time-slot-section {
-  max-height: 300px; 
+  max-block-size: 300px; 
   overflow-y: auto; 
-  margin-bottom: 20px;
+  margin-block-end: 20px;
   border: 1px solid #ccc; 
   padding: 10px; 
 }
@@ -203,7 +246,7 @@ export default {
 .add-slot-button-container {
   display: flex;
   justify-content: flex-start;
-  margin-top: 15px;
+  margin-block-start: 15px;
 }
 
 .add-time-slot-button,
@@ -224,7 +267,7 @@ export default {
 .submit-button {
   background-color: #4CAF50;
   padding: 16px 24px;
-  margin-top: 10px;
+  margin-block-start: 10px;
   align-self: flex-start;
 }
 

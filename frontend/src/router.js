@@ -8,6 +8,7 @@ import ActivityDetail from './views/ActivityDetail.vue';
 import ParentBookedOverview from './views/ParentBookedOverview.vue';
 import ParentsCalendar from './views/ParentsCalendar.vue';
 import AdminCalendar from './views/AdminCalendar.vue';
+import TeacherOverview from './views/TeacherOverview.vue';
 
 
 const routes = [
@@ -99,6 +100,19 @@ const routes = [
     }
   },
   {
+    path: '/teacher-overview',
+    name: 'TeacherOverview',
+    component: TeacherOverview,
+    beforeEnter: (to, from, next) => {
+      const role = localStorage.getItem('user-role');
+      if (role === 'teacher') {
+        next();
+      } else {
+        next('/login');
+      }
+    }
+  },
+  {
     path: '/users/:userId',
     name: 'UserDetail',
     component: () => import('@/views/UserDetail.vue'), // Adjust path as needed
@@ -136,10 +150,15 @@ router.beforeEach((to, from, next) => {
   }
 
   if (loggedIn && to.path === '/login') {
-    if (role === 'parent') {
-      return next('/parent-overview');
-    } else if (role === 'child') {
-      return next('/child-overview'); // Redirect child role to ChildOverview
+    switch (role) {
+      case 'parent':
+        return next('/parent-overview');
+      case 'child':
+        return next('/child-overview');
+      case 'teacher':
+        return next('/teacher-overview'); 
+      default:
+        return next();
     }
   }
 

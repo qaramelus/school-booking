@@ -12,7 +12,7 @@ const AuthService = {
 
       localStorage.setItem('user-token', response.data.token);
       localStorage.setItem('user-role', response.data.role);
-      localStorage.setItem('user-id', response.data._id); // Generalized user ID storage
+      localStorage.setItem('user-id', response.data._id); 
 
       return response.data.role;
     } catch (error) {

@@ -77,12 +77,12 @@ export default {
         console.error("Parent ID is undefined.");
         return;
       }
-      API.get(`users/${parentId}`)
+      API.get(`users/${parentId}/children`)
         .then(response => {
-          this.children = response.data.children ? response.data.children.map(child => ({
+          this.children = response.data.map(child => ({
             id: child._id,
             name: child.username 
-          })) : [];
+          }));
         })
         .catch(error => {
           console.error("There was an error fetching the children:", error);

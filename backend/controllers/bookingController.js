@@ -105,10 +105,9 @@ exports.fetchActivityParticipants = async (req, res) => {
       return res.json([]);
     }
 
-    // Ensure each participant object includes a bookingId
     const participants = bookings.map(booking => {
       return booking.childId ? {
-        bookingId: booking._id.toString(), // Ensure booking ID is included
+        bookingId: booking._id.toString(), 
         id: booking.childId._id,
         username: booking.childId.username,
         email: booking.childId.email,

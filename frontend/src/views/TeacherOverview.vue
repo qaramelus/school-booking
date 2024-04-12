@@ -1,5 +1,6 @@
 <template>
     <div class="teacher-overview">
+      <teacher-navbar></teacher-navbar>
       <h1>Your Activities</h1>
       <div class="activities-list">
         <div v-for="activity in activities" :key="activity._id" class="activity">
@@ -13,46 +14,40 @@
           <p><strong>Co-Teachers:</strong> {{ activity.teachers.map(teacher => teacher.username).join(', ') }}</p>
         </div>
       </div>
-      <button @click="performLogout">Logout</button>
     </div>
-  </template>
-    
-    <script>
-    import API from '@/services/api';
-    
-    export default {
-      name: "TeacherOverview",
-      data() {
-        return {
-          activities: []
-        };
+</template>
+  
+<script>
+import API from '@/services/api';
+import TeacherNavbar from '@/components/TeacherNavbar'; // Import the TeacherNavbar component
+  
+export default {
+    name: "TeacherOverview",
+    components: {
+      TeacherNavbar // Register the TeacherNavbar component
+    },
+    data() {
+      return {
+        activities: []
+      };
+    },
+    methods: {
+      fetchActivitiesForTeacher() {
+        const teacherId = localStorage.getItem('user-id');
+        API.get(`/activities/forteacher/${teacherId}`)
+          .then(response => {
+            this.activities = response.data;
+          })
+          .catch(error => {
+            console.error("There was an error fetching activities for the teacher:", error);
+          });
       },
-      methods: {
-        fetchActivitiesForTeacher() {
-          const teacherId = localStorage.getItem('user-id'); // Assuming the teacher's ID is stored here upon login
-          API.get(`/activities/forteacher/${teacherId}`)
-            .then(response => {
-              this.activities = response.data;
-            })
-            .catch(error => {
-              console.error("There was an error fetching activities for the teacher:", error);
-            });
-        },
-        performLogout() {
-          // Clear user information from localStorage
-          localStorage.removeItem('user-token');
-          localStorage.removeItem('user-role');
-          localStorage.removeItem('user-id');
-    
-          // Redirect the user to the login page
-          this.$router.push('/login');
-        }
-      },
-      created() {
-        this.fetchActivitiesForTeacher();
-      }
-    };
-    </script>
+    },
+created() {
+    this.fetchActivitiesForTeacher();
+}
+};
+</script>
     
   
 <style scoped>

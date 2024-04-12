@@ -53,3 +53,12 @@ exports.fetchChildrenForParent = async (req, res) => {
     }
 };
 
+exports.fetchTeachers = async (req, res) => {
+    try {
+        const teachers = await User.find({ role: 'teacher' });
+        res.json(teachers);
+    } catch (error) {
+        res.status(500).send({ message: "Error fetching teachers", error: error.message });
+    }
+};
+

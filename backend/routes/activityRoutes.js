@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const activityController = require('../controllers/activityController');
 
+// GET request to fetch all Activities for a specific teacher
+router.get('/forteacher/:teacherId', activityController.fetchActivitiesForTeacher);
+
 // POST request to create an Activity
 router.post('/', activityController.createActivity);
 
@@ -25,9 +28,5 @@ router.get('/', activityController.fetchActivitiesWithParticipants);
 
 // Assuming you're adding this to activityRoutes.js or a similar file
 router.get('/:id/with-participants', activityController.getActivityWithParticipants);
-
-
-
-
 
 module.exports = router;

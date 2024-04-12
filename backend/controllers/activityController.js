@@ -4,7 +4,7 @@ const Booking = require('../models/Booking');
 // Function to create an Activity with scheduling
 exports.createActivity = async (req, res) => {
   try {
-    const { name, description, startDate, endDate, timeSlots, createdBy } = req.body;
+    const { name, description, startDate, endDate, timeSlots, createdBy, teachers } = req.body;
     const newActivity = await Activity.create({
       name,
       description,
@@ -12,6 +12,7 @@ exports.createActivity = async (req, res) => {
       endDate,
       timeSlots,
       createdBy,
+      teachers
     });
 
     res.status(201).json(newActivity);
@@ -53,7 +54,10 @@ exports.updateActivity = async (req, res) => {
 // Function to fetch a single Activity by ID
 exports.getActivityById = async (req, res) => {
   try {
-    const activity = await Activity.findById(req.params.id);
+    const activity = await Activity.findById(req.params.id)
+      .populate('teachers', 'username') 
+      .exec();
+
     if (!activity) {
       return res.status(404).json({ message: 'Activity not found' });
     }
@@ -62,6 +66,7 @@ exports.getActivityById = async (req, res) => {
     res.status(500).json({ message: 'Error fetching activity', error: error.message });
   }
 };
+
 
 // Fetch list of participants per activity
 exports.getActivityParticipants = async (req, res) => {
@@ -80,10 +85,9 @@ exports.fetchActivitiesWithParticipants = async (req, res) => {
   try {
     let activities = await Activity.find({});
 
-    // Map through all activities and count participants for each
     activities = await Promise.all(activities.map(async (activity) => {
       const participantCount = await Booking.countDocuments({ activityId: activity._id });
-      return { ...activity.toObject(), participantCount }; // Convert Mongoose document to plain object and add participantCount
+      return { ...activity.toObject(), participantCount }; 
     }));
 
     res.json(activities);
@@ -95,7 +99,7 @@ exports.fetchActivitiesWithParticipants = async (req, res) => {
 // Function to fetch a single Activity with its participant count
 exports.getActivityWithParticipants = async (req, res) => {
   try {
-    const activityId = req.params.id; // Correctly use req.params.id based on your route definition
+    const activityId = req.params.id; 
     const activity = await Activity.findById(activityId);
 
     if (!activity) {
@@ -104,10 +108,25 @@ exports.getActivityWithParticipants = async (req, res) => {
 
     const participantCount = await Booking.countDocuments({ activityId: activity._id });
 
-    // Send back the activity details with participant count
     res.json({ ...activity.toObject(), participantCount });
   } catch (error) {
     console.error('Error fetching activity with participant count:', error);
     res.status(500).json({ message: 'Error fetching activity with participant count', error: error.message });
   }
 };
+
+// Function to fetch all Activities for a specific teacher
+exports.fetchActivitiesForTeacher = async (req, res) => {
+  try {
+    const teacherId = req.params.teacherId;
+    const activities = await Activity.find({ teachers: teacherId })
+      .populate('teachers', 'username') 
+      .exec();
+
+    res.json(activities);
+  } catch (error) {
+    console.error("Error fetching activities for teacher:", error);
+    res.status(500).send({ message: "Error fetching activities for teacher", error: error.message });
+  }
+};
+

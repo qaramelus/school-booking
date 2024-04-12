@@ -26,9 +26,9 @@
           <div v-if="currentTab === 'schedule'" class="activity-schedule">
             <h2>Schedule:</h2>
             <ul>
-              <li v-for="(slot, index) in activity.timeSlots" :key="index">
-                {{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}
-                <button class="cancel-button" @click="cancelClass(slot._id)">Cancel</button>
+              <li v-for="(slot, index) in scheduledTimeSlots" :key="index">
+                {{ slot.dayOfWeek }} {{ slot.date }}: {{ slot.startTime }} - {{ slot.endTime }}
+                <button class="cancel-button" @click="cancelClass(slot.date, slot.startTime)">Cancel</button>
               </li>
             </ul>
           </div>
@@ -55,9 +55,45 @@
         currentTab: 'about', // Default tab
       };
     },
-    created() {
-      this.fetchActivity();
-    },
+    computed: {
+        scheduledTimeSlots() {
+            let occurrences = [];
+            if (this.activity && this.activity.startDate && this.activity.endDate && this.activity.timeSlots) {
+            const startDate = new Date(this.activity.startDate);
+            const endDate = new Date(this.activity.endDate);
+
+            this.activity.timeSlots.forEach(slot => {
+                const dayOfWeek = slot.dayOfWeek;
+                let currentDate = new Date(startDate.getTime());
+
+                // Adjust the first date to the correct day of the week
+                while (currentDate.getDay() !== this.dayOfWeekToNumber(dayOfWeek)) {
+                currentDate.setDate(currentDate.getDate() + 1);
+                }
+
+                // Generate all occurrences until the end date
+                while (currentDate <= endDate) {
+                occurrences.push({
+                    dayOfWeek: slot.dayOfWeek,
+                    startTime: slot.startTime,
+                    endTime: slot.endTime,
+                    date: currentDate.toISOString().slice(0, 10)  // Format YYYY-MM-DD
+                });
+                currentDate.setDate(currentDate.getDate() + 7);  // Next week
+                }
+            });
+
+            // Sort occurrences by date, then by start time
+            occurrences.sort((a, b) => {
+                if (a.date === b.date) {
+                return a.startTime.localeCompare(b.startTime);  // Sort by time if the same day
+                }
+                return new Date(a.date) - new Date(b.date);  // Sort by date
+            });
+            }
+            return occurrences;
+        }
+        },
     methods: {
       fetchActivity() {
         const activityId = this.$route.params.activityId;
@@ -69,18 +105,19 @@
             console.error("There was an error fetching the activity details:", error);
           });
       },
-      cancelClass(slotId) {
-        if (confirm("Are you sure you want to cancel this class?")) {
-          API.delete(`/cancelClass/${slotId}`)
-            .then(() => {
-              alert("Class cancelled successfully.");
-              this.fetchActivity(); // Refresh the data
-            })
-            .catch(error => {
-              console.error('Error cancelling the class:', error);
-            });
+      dayOfWeekToNumber(day) {
+        return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(day);
+      },
+      cancelClass(date, startTime) {
+        if (confirm(`Are you sure you want to cancel the class on ${date} at ${startTime}?`)) {
+          // API call to cancel the class
+          console.log('Cancelling class...', date, startTime);
+          // Handle cancellation logic here
         }
       }
+    },
+    created() {
+      this.fetchActivity();
     }
   };
   </script>

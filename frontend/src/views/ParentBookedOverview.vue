@@ -8,6 +8,7 @@
         <card-component
           v-for="activity in booking.activities"
           :key="activity._id"
+          @click="goToActivityDetails(activity._id)"  
         >
           <h3>{{ activity.name }}</h3>
           <p>{{ activity.description }}</p>
@@ -22,8 +23,9 @@
   </div>
 </template>
 
+
   
-  <script>
+<script>
 import API from '@/services/api';
 import ParentNavbar from '@/components/ParentNavbar.vue';
 import CardComponent from '@/components/CardComponent.vue';
@@ -65,7 +67,6 @@ export default {
           };
         }
 
-        // Check if activityId is not null before pushing to activities array
         if (activityId) {
           acc[childId._id].activities.push({
             _id: activityId._id,
@@ -76,10 +77,9 @@ export default {
             timeSlots: activityId.timeSlots,
           });
         } else {
-          // Handle the case where activityId is null, possibly by pushing a placeholder or omitting the activity
-          // Example placeholder for activity with null activityId
+          // Handling a missing or null activityId
           acc[childId._id].activities.push({
-            _id: null, // or a unique identifier
+            _id: null,
             name: "Activity not available",
             description: "This activity is currently not available.",
             startDate: null,
@@ -93,6 +93,14 @@ export default {
 
       return Object.values(grouped);
     },
+    goToActivityDetails(activityId) {
+      // Check for valid activityId to prevent navigation errors
+      if (activityId) {
+        this.$router.push({ name: 'ActivityDetailParents', params: { activityId } });
+      } else {
+        console.error('Invalid activity ID');
+      }
+    }
   },
   created() {
     this.fetchBookings();

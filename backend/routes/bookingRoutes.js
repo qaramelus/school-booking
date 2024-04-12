@@ -21,5 +21,11 @@ router.get('/activities-with-participants', bookingController.fetchActivities);
 // Delete a booking
 router.delete('/deleteBooking/:bookingId', authMiddleware, bookingController.deleteBooking);
 
+// Route to handle cancellation
+router.post('/cancelClass', authMiddleware, bookingController.cancelClass);
+
+// Route to revert cancellation
+router.post('/revertCancellation', authMiddleware, bookingController.revertCancellation);
+
 
 module.exports = router;

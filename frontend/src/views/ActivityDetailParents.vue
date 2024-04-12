@@ -26,10 +26,11 @@
           <div v-if="currentTab === 'schedule'" class="activity-schedule">
             <h2>Schedule:</h2>
             <ul>
-              <li v-for="(slot, index) in scheduledTimeSlots" :key="index">
-                {{ slot.dayOfWeek }} {{ slot.date }}: {{ slot.startTime }} - {{ slot.endTime }}
-                <button class="cancel-button" @click="cancelClass(slot.date, slot.startTime)">Cancel</button>
-              </li>
+                <li v-for="(slot, index) in scheduledTimeSlots" :key="index">
+                    {{ slot.dayOfWeek }} {{ slot.date }}: {{ slot.startTime }} - {{ slot.endTime }}
+                    <button v-if="!slot.cancelled" class="cancel-button" @click="cancelClass(slot)">Cancel</button>
+                    <button v-else class="revert-button" @click="revertCancellation(slot)">Revert Cancellation</button>
+                 </li>
             </ul>
           </div>
         </div>
@@ -41,86 +42,123 @@
   </template>
   
   <script>
-  import API from '@/services/api';
-  import ParentNavbar from '@/components/ParentNavbar.vue';
-  
-  export default {
-    name: 'ActivityDetailParents',
-    components: {
-      ParentNavbar,
-    },
-    data() {
-      return {
-        activity: null,
-        currentTab: 'about', // Default tab
-      };
-    },
-    computed: {
-        scheduledTimeSlots() {
-            let occurrences = [];
-            if (this.activity && this.activity.startDate && this.activity.endDate && this.activity.timeSlots) {
-            const startDate = new Date(this.activity.startDate);
-            const endDate = new Date(this.activity.endDate);
+import API from '@/services/api';
+import ParentNavbar from '@/components/ParentNavbar.vue';
 
-            this.activity.timeSlots.forEach(slot => {
-                const dayOfWeek = slot.dayOfWeek;
-                let currentDate = new Date(startDate.getTime());
+export default {
+  name: 'ActivityDetailParents',
+  components: {
+    ParentNavbar,
+  },
+  data() {
+    return {
+      activity: null,
+      currentTab: 'about', // Default tab
+      childId: null, // Assume this is set correctly from somewhere, like from user state or route params
+    };
+  },
+  computed: {
+    scheduledTimeSlots() {
+      let occurrences = [];
+      if (this.activity && this.activity.startDate && this.activity.endDate && this.activity.timeSlots) {
+        const startDate = new Date(this.activity.startDate);
+        const endDate = new Date(this.activity.endDate);
 
-                // Adjust the first date to the correct day of the week
-                while (currentDate.getDay() !== this.dayOfWeekToNumber(dayOfWeek)) {
-                currentDate.setDate(currentDate.getDate() + 1);
-                }
+        this.activity.timeSlots.forEach(slot => {
+          const dayOfWeek = slot.dayOfWeek;
+          let currentDate = new Date(startDate.getTime());
 
-                // Generate all occurrences until the end date
-                while (currentDate <= endDate) {
-                occurrences.push({
-                    dayOfWeek: slot.dayOfWeek,
-                    startTime: slot.startTime,
-                    endTime: slot.endTime,
-                    date: currentDate.toISOString().slice(0, 10)  // Format YYYY-MM-DD
-                });
-                currentDate.setDate(currentDate.getDate() + 7);  // Next week
-                }
+          // Adjust the first date to the correct day of the week
+          while (currentDate.getDay() !== this.dayOfWeekToNumber(dayOfWeek)) {
+            currentDate.setDate(currentDate.getDate() + 1);
+          }
+
+          // Generate all occurrences until the end date
+          while (currentDate <= endDate) {
+            occurrences.push({
+              dayOfWeek: slot.dayOfWeek,
+              startTime: slot.startTime,
+              endTime: slot.endTime,
+              date: currentDate.toISOString().slice(0, 10), // Format YYYY-MM-DD
+              cancelled: false // Assume not cancelled initially
             });
+            currentDate.setDate(currentDate.getDate() + 7); // Next week
+          }
+        });
 
-            // Sort occurrences by date, then by start time
-            occurrences.sort((a, b) => {
-                if (a.date === b.date) {
-                return a.startTime.localeCompare(b.startTime);  // Sort by time if the same day
-                }
-                return new Date(a.date) - new Date(b.date);  // Sort by date
-            });
-            }
-            return occurrences;
-        }
-        },
-    methods: {
-      fetchActivity() {
-        const activityId = this.$route.params.activityId;
-        API.get(`activities/${activityId}`)
-          .then(response => {
-            this.activity = response.data;
-          })
-          .catch(error => {
-            console.error("There was an error fetching the activity details:", error);
-          });
-      },
-      dayOfWeekToNumber(day) {
-        return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(day);
-      },
-      cancelClass(date, startTime) {
-        if (confirm(`Are you sure you want to cancel the class on ${date} at ${startTime}?`)) {
-          // API call to cancel the class
-          console.log('Cancelling class...', date, startTime);
-          // Handle cancellation logic here
-        }
+        // Sort occurrences by date, then by start time
+        occurrences.sort((a, b) => {
+          if (a.date === b.date) {
+            return a.startTime.localeCompare(b.startTime); // Sort by time if the same day
+          }
+          return new Date(a.date) - new Date(b.date); // Sort by date
+        });
       }
-    },
-    created() {
-      this.fetchActivity();
+      return occurrences;
     }
-  };
-  </script>
+  },
+  methods: {
+    fetchActivity() {
+      const activityId = this.$route.params.activityId;
+      API.get(`activities/${activityId}`)
+        .then(response => {
+          this.activity = response.data;
+          // You might need to set childId here if it's coming from activity data
+          // this.childId = this.activity.childId or similar
+        })
+        .catch(error => {
+          console.error("There was an error fetching the activity details:", error);
+        });
+    },
+    dayOfWeekToNumber(day) {
+      return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(day);
+    },
+    cancelClass(slot) {
+  if (confirm(`Are you sure you want to cancel ${slot.dayOfWeek}'s class on ${slot.date}?`)) {
+    API.post(`/cancelClass`, {
+      childId: this.childId,
+      activityId: this.activity._id,
+      slotDate: slot.date, 
+      startTime: slot.startTime 
+    })
+    .then(() => {
+      alert('Class cancelled successfully.');
+      // Directly set the property for Vue 3 reactivity
+      slot.cancelled = true;
+      // You may need to force an update if the change does not reflect in the template
+      this.$forceUpdate();
+    })
+    .catch(error => {
+      console.error('Error cancelling class:', error);
+    });
+  }
+},
+revertCancellation(slot) {
+  API.post(`/revertCancellation`, { 
+    childId: this.childId,
+    activityId: this.activity._id,
+    slotDate: slot.date, 
+    startTime: slot.startTime 
+  })
+  .then(() => {
+    alert('Cancellation reverted successfully.');
+    // Directly set the property for Vue 3 reactivity
+    slot.cancelled = false;
+    // You may need to force an update if the change does not reflect in the template
+    this.$forceUpdate();
+  })
+  .catch(error => {
+    console.error('Error reverting cancellation:', error);
+  });
+}
+
+  },
+  created() {
+    this.fetchActivity();
+  }
+};
+</script>
+
   
   <style scoped>
   .activity-detail-container {
@@ -134,7 +172,7 @@
     background-color: #f5f5f5;
     padding: 10px 0;
     position: sticky;
-    top: 0;
+    inset-block-start: 0;
     z-index: 1000;
   }
   
@@ -176,7 +214,7 @@
   }
   
   .tab-content {
-    margin-top: 20px;
+    margin-block-start: 20px;
   }
   </style>
   

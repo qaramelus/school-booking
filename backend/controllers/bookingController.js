@@ -125,10 +125,8 @@ exports.fetchActivities = async (req, res) => {
   try {
     const activities = await Activity.find({});
 
-    // Using Promise.all to handle the asynchronous operation of counting participants for each activity
     const activitiesWithParticipantCounts = await Promise.all(activities.map(async (activity) => {
       const participantCount = await Booking.countDocuments({ activityId: activity._id });
-      // Spreading the activity object and adding the participantCount
       return { ...activity.toObject(), participantCount };
     }));
 
@@ -136,4 +134,18 @@ exports.fetchActivities = async (req, res) => {
   } catch (error) {
     res.status(500).send({ message: "Error fetching activities with participant counts", error: error.message });
   }
+};
+
+// Method to cancel a class
+exports.cancelClass = async (req, res) => {
+  const { childId, activityId, slotDate, startTime } = req.body;
+  
+  res.json({ message: 'Class cancelled successfully.' });
+};
+
+// Method to revert a cancellation
+exports.revertCancellation = async (req, res) => {
+  const { childId, activityId, slotDate, startTime } = req.body;
+  
+  res.json({ message: 'Cancellation reverted successfully.' });
 };

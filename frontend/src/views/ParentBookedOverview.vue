@@ -2,28 +2,30 @@
   <div>
     <parent-navbar></parent-navbar>
     <h2>Booked Activities</h2>
-    <div v-for="booking in bookingsGroupedByChild" :key="booking.childId">
-      <h3>{{ booking.childName }}</h3>
-      <div class="activity-cards">
-        <card-component
-          v-for="activity in booking.activities"
-          :key="activity._id"
-          @click="goToActivityDetails(activity._id)"  
-        >
-          <h3>{{ activity.name }}</h3>
-          <p>{{ activity.description }}</p>
-          <p>Start Date: {{ new Date(activity.startDate).toLocaleDateString() }}</p>
-          <p>End Date: {{ new Date(activity.endDate).toLocaleDateString() }}</p>
-          <div v-for="(slot, index) in activity.timeSlots" :key="index">
-            <p>{{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}</p>
-          </div>
-        </card-component>
+    <div v-for="booking in bookingsGroupedByChild" :key="booking.childId" class="child-activities-section">
+      <button class="accordion" @click="toggleAccordion(booking.childId)">
+        <h3>{{ booking.childName }}</h3>
+      </button>
+      <div class="panel" :id="'panel-' + booking.childId">
+        <div class="activity-cards">
+          <card-component
+            v-for="activity in booking.activities"
+            :key="activity._id"
+            @click="goToActivityDetails(activity._id)"
+          >
+            <h3>{{ activity.name }}</h3>
+            <p>{{ activity.description }}</p>
+            <p>Start Date: {{ new Date(activity.startDate).toLocaleDateString() }}</p>
+            <p>End Date: {{ new Date(activity.endDate).toLocaleDateString() }}</p>
+            <div v-for="(slot, index) in activity.timeSlots" :key="index">
+              <p>{{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}</p>
+            </div>
+          </card-component>
+        </div>
       </div>
     </div>
   </div>
 </template>
-
-
   
 <script>
 import API from '@/services/api';
@@ -39,6 +41,7 @@ export default {
   data() {
     return {
       bookingsGroupedByChild: [],
+      openPanels: [],
     };
   },
   methods: {
@@ -100,6 +103,21 @@ export default {
       } else {
         console.error('Invalid activity ID');
       }
+    },
+    toggleAccordion(childId) {
+      const panelId = `panel-${childId}`;
+      const panel = this.$el.querySelector('#' + panelId);
+      if (panel.style.maxHeight) {
+        panel.style.maxHeight = null;
+      } else {
+        panel.style.maxHeight = panel.scrollHeight + "px";
+      }
+      // Toggle panel id in the openPanels array
+      if (this.openPanels.includes(childId)) {
+        this.openPanels = this.openPanels.filter(id => id !== childId);
+      } else {
+        this.openPanels.push(childId);
+      }
     }
   },
   created() {
@@ -117,6 +135,42 @@ export default {
     gap: 20px;
   }
   
-  /* You can customize further based on your design preferences */
+  .accordion {
+  background-color: #eee;
+  color: #444;
+  cursor: pointer;
+  padding: 18px;
+  inline-size: 100%;
+  border: none;
+  text-align: start;
+  outline: none;
+  transition: 0.4s;
+  border-radius: 5px;
+  margin-block-start: 10px;
+}
+
+.active, .accordion:hover {
+  background-color: #ccc; 
+}
+
+.panel {
+  padding: 0 18px;
+  background-color: white;
+  max-block-size: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  border: 1px solid #ddd;
+  border-block-start: none;
+}
+
+.child-activities-section {
+  margin-block-end: 10px;
+}
+
+.activity-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
   </style>
   

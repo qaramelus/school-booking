@@ -9,6 +9,8 @@ import ParentBookedOverview from './views/ParentBookedOverview.vue';
 import ParentsCalendar from './views/ParentsCalendar.vue';
 import AdminCalendar from './views/AdminCalendar.vue';
 import TeacherOverview from './views/TeacherOverview.vue';
+import ActivityDetailParents from './views/ActivityDetailParents.vue';
+
 
 
 const routes = [
@@ -120,6 +122,20 @@ const routes = [
       requiresAdmin: true 
     }
   },
+  {
+    path: '/parent-activity/:activityId',
+    name: 'ActivityDetailParents',
+    component: ActivityDetailParents,
+    beforeEnter: (to, from, next) => {
+      const loggedIn = localStorage.getItem('user-token');
+      const role = localStorage.getItem('user-role');
+      if (loggedIn && (role === 'parent' || role === 'child')) {
+        next();
+      } else {
+        next('/login');
+      }
+    }
+  },  
   {
     path: '/activity/:activityId',
     name: 'ActivityDetail',

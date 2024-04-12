@@ -113,7 +113,8 @@ export default {
       });
     },
     handleCardClick(activity) {
-      this.$router.push({ name: 'ActivityDetail', params: { activityId: activity._id } });
+      // Update to point to the new detail page for parents
+      this.$router.push({ name: 'ActivityDetailParents', params: { activityId: activity._id } });
     },
   },
   created() {
@@ -122,6 +123,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .modal {

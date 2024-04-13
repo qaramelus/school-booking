@@ -11,7 +11,7 @@
           <card-component
             v-for="activity in booking.activities"
             :key="activity._id"
-            @click="goToActivityDetails(activity._id)"
+            @click="goToActivityDetails(activity._id, booking.childId)"
           >
             <h3>{{ activity.name }}</h3>
             <p>{{ activity.description }}</p>
@@ -96,13 +96,12 @@ export default {
 
       return Object.values(grouped);
     },
-    goToActivityDetails(activityId) {
-      // Check for valid activityId to prevent navigation errors
-      if (activityId) {
-        this.$router.push({ name: 'ActivityDetailParents', params: { activityId } });
-      } else {
-        console.error('Invalid activity ID');
-      }
+    goToActivityDetails(activityId, childId) {
+        if (activityId && childId) {
+            this.$router.push({ name: 'ActivityDetailParents', params: { activityId }, query: { childId } });
+        } else {
+            console.error('Invalid activity or child ID');
+        }
     },
     toggleAccordion(childId) {
       const panelId = `panel-${childId}`;

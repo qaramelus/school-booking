@@ -1,5 +1,6 @@
 const Activity = require('../models/Activity'); 
 const Booking = require('../models/Booking'); 
+const User = require('../models/User'); 
 
 // Function to create an Activity with scheduling
 exports.createActivity = async (req, res) => {
@@ -130,3 +131,59 @@ exports.fetchActivitiesForTeacher = async (req, res) => {
   }
 };
 
+exports.fetchActivitiesForParents = async (req, res) => {
+  try {
+    const { parentId } = req.params;
+
+    // Validate parent existence
+    const parent = await User.findById(parentId);
+    if (!parent) {
+      return res.status(404).json({ message: "Parent not found" });
+    }
+
+    // Fetch all children IDs for the parent
+    const children = await User.find({ parent: parentId }).select('_id');
+    if (!children.length) {
+      return res.status(404).json({ message: "No children found for this parent" });
+    }
+    const childIds = children.map(child => child._id);
+
+    // Fetch bookings for these children
+    const bookings = await Booking.find({ childId: { $in: childIds } }).populate({
+      path: 'activityId',
+      populate: { path: 'teachers', select: 'name username' }
+    });
+
+    // Check if bookings are found and handle the case where they are not
+    if (!bookings.length) {
+      return res.status(404).json({ message: "No bookings found for these children" });
+    }
+
+    // Deduplicate and extract activity data
+    const activities = {};
+    bookings.forEach(booking => {
+      const activity = booking.activityId;
+      if (!activity) {
+        console.error('Booking without a valid activity:', booking);
+        return;  // Skip this booking
+      }
+      if (!activities[activity._id]) {
+        activities[activity._id] = {
+          ...activity.toObject(),
+          bookings: []
+        };
+      }
+      activities[activity._id].bookings.push({
+        bookingId: booking._id,
+        childId: booking.childId,
+        dateBooked: booking.dateBooked,
+        cancellations: booking.cancellations
+      });
+    });
+
+    res.json(Object.values(activities));
+  } catch (error) {
+    console.error("Error fetching activities for parents:", error);
+    res.status(500).send({ message: "Error fetching activities for parents", error: error.message });
+  }
+};

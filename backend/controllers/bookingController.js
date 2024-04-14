@@ -213,3 +213,5 @@ exports.fetchCancellations = async (req, res) => {
     res.status(500).json({ message: "Error fetching cancellations", error: error.message });
   }
 };
+
+

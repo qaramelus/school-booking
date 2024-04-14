@@ -10,7 +10,7 @@ import ParentsCalendar from './views/ParentsCalendar.vue';
 import AdminCalendar from './views/AdminCalendar.vue';
 import TeacherOverview from './views/TeacherOverview.vue';
 import ActivityDetailParents from './views/ActivityDetailParents.vue';
-
+import ActivityDetailTeacher from './views/ActivityDetailTeacher.vue'; 
 
 
 const routes = [
@@ -105,6 +105,19 @@ const routes = [
     path: '/teacher-overview',
     name: 'TeacherOverview',
     component: TeacherOverview,
+    beforeEnter: (to, from, next) => {
+      const role = (localStorage.getItem('user-role') || '').trim();
+      if (role === 'teacher') {
+        next();
+      } else {
+        next('/login');
+      }
+    }
+  },
+  {
+    path: '/teacher-activity/:activityId',
+    name: 'ActivityDetailTeacher',
+    component: ActivityDetailTeacher,
     beforeEnter: (to, from, next) => {
       const role = (localStorage.getItem('user-role') || '').trim();
       if (role === 'teacher') {

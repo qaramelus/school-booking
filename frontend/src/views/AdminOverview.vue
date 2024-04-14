@@ -2,17 +2,26 @@
   <div class="admin-overview">
     <admin-navbar />
     <h1>All Activities</h1>
-    <button class="plus-button" @click="prepareNewActivity">+</button>
-    <ActivityModal :isVisible="showModal" :editingActivity="editingActivity" @close="handleModalClose" @activityAdded="handleActivityAdded" @activityUpdated="fetchActivities" />
+    <div class="button-container">
+      <button class="add-activity-button" @click="prepareNewActivity">Add Activity</button>
+    </div>
+    <ActivityModal
+      :isVisible="showModal"
+      :editingActivity="editingActivity"
+      @close="handleModalClose"
+      @activityAdded="handleActivityAdded"
+      @activityUpdated="fetchActivities"
+    />
     <div class="activities">
       <h2>Activities</h2>
       <div class="activity-cards">
-        <div v-for="activity in activities" :key="activity._id" class="activity-card" @click="goToActivityDetail(activity._id)">
-          <card-component :onClick="() => goToActivityDetail(activity._id)">
-            <template v-slot:icons>
-              <img :src="trashIcon" class="delete-icon" @click.stop="confirmDelete(activity._id)">
-              <img :src="editIcon" class="edit-icon" @click.stop="editActivity(activity)">
-            </template>
+        <div
+          v-for="activity in activities"
+          :key="activity._id"
+          class="activity-card"
+          @click="goToActivityDetail(activity._id)"
+        >
+          <div class="card-content">
             <h3>{{ activity.name }}</h3>
             <p>{{ activity.description }}</p>
             <p><strong>Start Date:</strong> {{ new Date(activity.startDate).toLocaleDateString() }}</p>
@@ -20,7 +29,11 @@
             <div v-for="(slot, index) in activity.timeSlots" :key="index">
               <p>{{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}</p>
             </div>
-          </card-component>
+          </div>
+          <div class="card-icons">
+            <img :src="trashIcon" class="delete-icon" @click.stop="confirmDelete(activity._id)">
+            <img :src="editIcon" class="edit-icon" @click.stop="editActivity(activity)">
+          </div>
         </div>
       </div>
     </div>
@@ -28,9 +41,9 @@
 </template>
 
 
+
 <script>
 import API from '@/services/api';
-import CardComponent from '@/components/CardComponent.vue';
 import ActivityModal from './ActivityModal.vue';
 import trashIcon from '@/assets/trashicon.jpeg';
 import editIcon from '@/assets/editicon.png';
@@ -40,7 +53,6 @@ export default {
   name: "AdminOverview",
   components: {
     AdminNavbar,
-    CardComponent,
     ActivityModal
   },
   data() {
@@ -74,7 +86,7 @@ export default {
     },
     handleModalClose() {
       this.showModal = false;
-      this.editingActivity = null; // Reset the editing activity
+      this.editingActivity = null;
     },
     confirmDelete(activityId) {
       if (window.confirm("Are you sure you want to delete this activity?")) {
@@ -96,10 +108,10 @@ export default {
       this.showModal = true;
     },
     goToActivityDetail(activityId) {
-    this.$router.push({ name: 'ActivityDetail', params: { activityId } });
+      this.$router.push({ name: 'ActivityDetail', params: { activityId } });
     },
     prepareNewActivity() {
-      this.editingActivity = null; 
+      this.editingActivity = null;
       this.showModal = true;
     }
   },
@@ -114,15 +126,21 @@ export default {
   margin: 0 auto;
 }
 
-.plus-button {
-  font-size: 24px;
-  inline-size: 50px;
-  block-size: 50px;
-  line-height: 50px;
-  border-radius: 50%;
-  border: 2px solid #000;
-  background-color: #fff;
+.button-container {
+  margin-top: 10px;
+  text-align: center;
+  width: 100%;
+}
+
+.add-activity-button {
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
   cursor: pointer;
+  outline: none;
 }
 
 .activity-cards {
@@ -141,16 +159,24 @@ export default {
   border-radius: 8px;
   background-color: #f9f9f9;
   cursor: pointer;
+  transition: box-shadow 0.3s;
 }
 
 .activity-card:hover {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.delete-icon, .edit-icon {
+.card-content {
+  padding: 16px;
+}
+
+.card-icons {
   position: absolute;
   inset-block-start: 10px;
   inset-inline-end: 10px;
+}
+
+.delete-icon, .edit-icon {
   inline-size: 20px;
   block-size: 20px;
   cursor: pointer;
@@ -158,10 +184,5 @@ export default {
 
 .edit-icon {
   inset-inline-end: 40px;
-}
-
-.activity-link {
-  text-decoration: none;
-  color: inherit;
 }
 </style>

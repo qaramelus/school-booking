@@ -1,9 +1,7 @@
 <template>
   <div class="login-container">
     <div class="language-switcher">
-      <button @click="changeLanguage('en')">English</button>
-      <button @click="changeLanguage('de')">Deutsch</button>
-      <button @click="changeLanguage('lv')">Latvian</button>
+      <button v-for="lang in languages" :key="lang" @click="changeLanguage(lang)">{{ lang }}</button>
     </div>
 
     <h1>{{ $t("login") }}</h1>
@@ -16,10 +14,9 @@
   </div>
 </template>
 
-
 <script>
-import InputComponent from './InputComponent.vue'; 
-import ButtonComponent from './ButtonComponent.vue'; 
+import InputComponent from './InputComponent.vue';
+import ButtonComponent from './ButtonComponent.vue';
 import AuthService from '../services/authService';
 
 export default {
@@ -31,34 +28,32 @@ export default {
     return {
       email: '',
       password: '',
-      errorMessage: ''
+      errorMessage: '',
+      languages: ['en', 'de', 'lv']
     };
   },
   methods: {
     async login() {
       try {
         const role = await AuthService.login(this.email, this.password);
-
-        // Redirect based on the user's role
-        switch (role) {
-          case 'parent':
-            this.$router.push({ name: 'ParentOverview' });
-            break;
-          case 'child':
-            this.$router.push({ name: 'ChildOverview' });
-            break;
-          case 'admin':
-            this.$router.push({ name: 'AdminOverview' });
-            break;
-          case 'teacher':
-            this.$router.push({ name: 'TeacherOverview' });
-            break;
-          default:
-            console.error('User role is not recognized or missing');
-        }
+        this.redirectUser(role);
       } catch (error) {
         this.errorMessage = error.message;
         console.error(error);
+      }
+    },
+    redirectUser(role) {
+      const routes = {
+        parent: 'ParentOverview',
+        child: 'ChildOverview',
+        admin: 'AdminOverview',
+        teacher: 'TeacherOverview'
+      };
+      const routeName = routes[role];
+      if (routeName) {
+        this.$router.push({ name: routeName });
+      } else {
+        console.error('User role is not recognized or missing');
       }
     },
     changeLanguage(lang) {
@@ -68,46 +63,53 @@ export default {
 };
 </script>
 
-
 <style scoped>
-.page-background {
-  block-size: 100vh;
-  background: linear-gradient(to top left, #0F2027, #203A43, #2C5364);
-}
-
 .login-container {
-  max-inline-size: 460px;
-  margin: 40px auto; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-width: 400px;
+  margin: 5% auto;
   padding: 20px;
-  box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-  border-radius: 8px;
-  text-align: center;
-  background-color: white;
+  border-radius: 10px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.input-component {
-  margin: 20px; 
-}
-
-h1 {
-  margin-block-end: 20px;
-}
-
-.error-message {
-  color: red;
-  margin-block-start: 10px;
+.language-switcher {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 .language-switcher button {
-  margin: 0 5px;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 5px;
+  background-color: #ffffff;
+  border: 2px solid #d1d1d1;
+  border-radius: 20px;
+  padding: 5px 15px;
+  margin: 0 10px;
   cursor: pointer;
-  background-color: #f0f0f0;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 .language-switcher button:hover {
-  background-color: #e0e0e0;
+  background-color: #f0f0f0;
+  transform: translateY(-2px);
+}
+
+input-component, button-component {
+  margin: 10px 0;
+  width: 200%;
+}
+
+.error-message {
+  color: #ff6b6b;
+}
+
+h1 {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 20px;
 }
 </style>

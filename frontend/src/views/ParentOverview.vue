@@ -2,23 +2,23 @@
   <div>
     <parent-navbar></parent-navbar>
     <div class="parent-overview">
-      <button @click="showBookingModal = true">Book activity</button>
+      <div class="button-container">
+        <button class="book-activity-button" @click="showBookingModal = true">Book Activity</button>
+      </div>
       <div class="activities">
         <h2>Activities</h2>
         <div class="activity-cards">
-          <card-component
-            v-for="activity in activities"
-            :key="activity._id"
-            @click="() => handleCardClick(activity)"
-          >
-            <h3>{{ activity.name }}</h3>
-            <p>{{ activity.description }}</p>
-            <p>Start Date: {{ new Date(activity.startDate).toLocaleDateString() }}</p>
-            <p>End Date: {{ new Date(activity.endDate).toLocaleDateString() }}</p>
-            <div v-for="(slot, index) in activity.timeSlots" :key="index">
-              <p>{{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}</p>
+          <div v-for="activity in activities" :key="activity._id" class="activity-card" @click="handleCardClick(activity)">
+            <div class="card-content">
+              <h3>{{ activity.name }}</h3>
+              <p>{{ activity.description }}</p>
+              <p><strong>Start Date:</strong> {{ new Date(activity.startDate).toLocaleDateString() }}</p>
+              <p><strong>End Date:</strong> {{ new Date(activity.endDate).toLocaleDateString() }}</p>
+              <div v-for="(slot, index) in activity.timeSlots" :key="index">
+                <p>{{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}</p>
+              </div>
             </div>
-          </card-component>
+          </div>
         </div>
       </div>
       <!-- Booking Modal -->
@@ -43,13 +43,11 @@
 
 <script>
 import API from '@/services/api';
-import CardComponent from '@/components/CardComponent.vue';
 import ParentNavbar from '@/components/ParentNavbar.vue';
 
 export default {
   name: "ParentOverview",
   components: {
-    CardComponent,
     ParentNavbar,
   },
   data() {
@@ -124,8 +122,62 @@ export default {
 };
 </script>
 
-
 <style scoped>
+.parent-overview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.button-container {
+  margin-top: 20px;
+  text-align: center;
+  width: 100%;
+}
+
+.book-activity-button {
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+.activities {
+  width: 100%;
+}
+
+.activity-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.activity-card {
+  flex-basis: calc(50% - 20px);
+  margin: 10px;
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: box-shadow 0.3s;
+}
+
+.activity-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-content {
+  padding: 16px;
+}
+
 .modal {
   display: block; 
   position: fixed; 
@@ -144,12 +196,12 @@ export default {
   margin: 15% auto; 
   padding: 20px;
   border: 1px solid #888;
-  inline-size: 80%; 
+  width: 80%; 
 }
 
 .close {
   color: #aaa;
-  float: inline-end;
+  float: right;
   font-size: 28px;
   font-weight: bold;
 }

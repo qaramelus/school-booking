@@ -161,13 +161,13 @@ exports.cancelClass = async (req, res) => {
 
 // Method to revert a cancellation
 exports.revertCancellation = async (req, res) => {
-  const { childId, activityId, slotDate, startTime } = req.body;
+  const { childId, activityId, slotDate } = req.body;  
   
   try {
-    // Update the booking document by pulling a cancellation record
+    // Update the booking document by pulling a cancellation record based only on date
     const updatedBooking = await Booking.findOneAndUpdate(
       { childId: childId, activityId: activityId },
-      { $pull: { cancellations: { date: new Date(slotDate), startTime: startTime } } },
+      { $pull: { cancellations: { date: new Date(slotDate) } } },
       { new: true }
     );
 

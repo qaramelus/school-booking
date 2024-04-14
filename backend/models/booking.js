@@ -4,8 +4,10 @@ const Schema = mongoose.Schema;
 
 const cancellationSchema = new Schema({
   date: { type: Date, required: true },
-  reason: { type: String } 
+  startTime: { type: String, required: true },  
+  reason: { type: String }
 }, { _id: false });
+
 
 const bookedTimeSlotSchema = new Schema({
   startDate: { type: Date, required: true },

@@ -101,7 +101,7 @@ export default {
         .then(response => {
           this.activity = response.data;
           console.log("Activity data fetched:", this.activity);
-          this.fetchCancellations(); // Fetch cancellations separately if not included
+          this.fetchCancellations(); 
         })
         .catch(error => {
           console.error("Error fetching the activity details:", error);
@@ -111,9 +111,9 @@ export default {
       const url = `/cancellations/${this.childId}/${this.activity._id}`;
       API.get(url)
         .then(response => {
-          this.activity.cancellations = response.data.map(booking => booking.cancellations).flat();
-          console.log("Cancellations fetched and applied:", this.activity.cancellations);
-          this.$forceUpdate(); // Force update to ensure UI reflects new data
+        this.activity = { ...this.activity, cancellations: response.data.map(booking => booking.cancellations).flat() };
+        console.log("Cancellations fetched and applied:", this.activity.cancellations);
+        this.$forceUpdate(); 
         })
         .catch(error => {
           console.error('Error fetching updated cancellations:', error);
@@ -151,24 +151,25 @@ export default {
       }
     },
     revertCancellation(slot) {
-      if (!this.childId) {
-        alert('Error: No child ID specified.');
-        return;
-      }
-      API.post(`/revertCancellation`, {
-        childId: this.childId,
-        activityId: this.activity._id,
-        slotDate: slot.date,
-        startTime: slot.startTime
-      })
-      .then(() => {
-        alert('Cancellation reverted successfully.');
-        this.updateSlotStatus(slot, false);
-      })
-      .catch(error => {
-        console.error('Error reverting cancellation:', error);
-      });
-    },
+        if (!this.childId) {
+            alert('Error: No child ID specified.');
+            return;
+        }
+        API.post(`/revertCancellation`, {
+            childId: this.childId,
+            activityId: this.activity._id,
+            slotDate: slot.date,
+            startTime: slot.startTime
+        })
+        .then(() => {
+            alert('Cancellation reverted successfully.');
+            this.updateSlotStatus(slot, false);
+            this.fetchCancellations(); // Refetch cancellations to update all data
+        })
+        .catch(error => {
+            console.error('Error reverting cancellation:', error);
+        });
+        },
     dayOfWeekToNumber(day) {
         return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(day);
     }

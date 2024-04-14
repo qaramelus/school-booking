@@ -1,3 +1,4 @@
+// activityController.js
 const Activity = require('../models/Activity'); 
 const Booking = require('../models/Booking'); 
 const User = require('../models/User'); 

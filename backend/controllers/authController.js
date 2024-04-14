@@ -1,3 +1,4 @@
+// authController.js
 // Import dependencies
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');

@@ -1,3 +1,4 @@
+// bookingController.js
 const Booking = require('../models/Booking'); 
 const User = require('../models/User');
 
@@ -180,3 +181,35 @@ exports.revertCancellation = async (req, res) => {
   }
 };
 
+// Fetch cancellations for a specific child and activity
+exports.fetchCancellations = async (req, res) => {
+  try {
+    const { childId, activityId } = req.params;
+
+    // Ensure both childId and activityId are provided
+    if (!childId || !activityId) {
+      return res.status(400).json({ message: "Child ID and Activity ID are required" });
+    }
+
+    const bookings = await Booking.find({
+      childId: childId,
+      activityId: activityId
+    }, 'cancellations')
+    .populate({
+      path: 'childId',
+      select: 'username'
+    })
+    .populate({
+      path: 'activityId',
+      select: 'name'
+    });
+
+    // Filter to only return bookings with cancellations
+    const filteredBookings = bookings.filter(booking => booking.cancellations.length > 0);
+
+    res.json(filteredBookings);
+  } catch (error) {
+    console.error('Error fetching cancellations:', error);
+    res.status(500).json({ message: "Error fetching cancellations", error: error.message });
+  }
+};

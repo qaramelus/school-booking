@@ -297,27 +297,23 @@ exports.calculateSessionsPerTimeSlot = async (req, res) => {
           return res.status(404).json({ message: 'Activity not found' });
       }
 
-      // Fetch all bookings for the given activity
       const bookings = await Booking.find({ activityId: activity._id })
           .populate('childId', 'username email')
           .lean();
 
       let sessionDetails = {};
 
-      // Calculate all occurrences for each timeslot
       activity.timeSlots.forEach(slot => {
           const key = `${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`;
           sessionDetails[key] = [];
-          const dayOfWeek = dayOfWeekToNumber(slot.dayOfWeek);
 
-          // Generate dates for each occurrence of the time slot
           let currentDate = new Date(activity.startDate);
-          currentDate = nextDay(currentDate, dayOfWeek); // Adjust to the first correct day of the week
+          const dayOfWeek = dayOfWeekToNumber(slot.dayOfWeek);
+          currentDate = nextDay(currentDate, dayOfWeek);
 
           while (currentDate <= activity.endDate) {
               const dateString = currentDate.toISOString().split('T')[0];
 
-              // Initialize session details
               sessionDetails[key].push({
                   date: dateString,
                   startTime: slot.startTime,
@@ -326,28 +322,22 @@ exports.calculateSessionsPerTimeSlot = async (req, res) => {
                   count: 0
               });
 
-              // Move to the next week
               currentDate.setDate(currentDate.getDate() + 7);
           }
       });
 
-      // Map participants to each session based on date only
       bookings.forEach(booking => {
           Object.keys(sessionDetails).forEach(timeSlotKey => {
               sessionDetails[timeSlotKey].forEach(session => {
-                  if (booking.cancellations.some(cancellation => 
+                  if (!booking.cancellations.some(cancellation => 
                       cancellation.date.toISOString().split('T')[0] === session.date)) {
-                      // This session is cancelled for this booking, skip adding participants
-                      return;
+                      session.participants.push({
+                          childId: booking.childId._id,
+                          username: booking.childId.username,
+                          email: booking.childId.email
+                      });
+                      session.count++;
                   }
-                  
-                  // If not cancelled, add participant to the session
-                  session.participants.push({
-                      childId: booking.childId._id,
-                      username: booking.childId.username,
-                      email: booking.childId.email
-                  });
-                  session.count++;
               });
           });
       });
@@ -365,8 +355,7 @@ function dayOfWeekToNumber(day) {
 }
 
 function nextDay(date, dayOfWeek) {
-  date = new Date(date);
-  const resultDate = new Date(date.getTime());
-  resultDate.setDate(date.getDate() + (dayOfWeek + 7 - date.getDay()) % 7);
-  return resultDate;
+  const result = new Date(date.getTime());
+  result.setDate(result.getDate() + (dayOfWeek - result.getDay() + 7) % 7);
+  return result;
 }

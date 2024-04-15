@@ -1,6 +1,9 @@
 <template>
   <div>
-    <AdminNavbar />
+    <!-- Conditional rendering of Navbars -->
+    <AdminNavbar v-if="isAdmin" />
+    <ParentNavbar v-else />
+
     <div v-if="activity" class="activity-detail-container">
       <div class="activity-detail-tabs">
         <!-- Tab Headers -->
@@ -21,15 +24,14 @@
               </li>
             </ul>
           </div>
-          <!-- Teachers Information Integrated Here -->
           <div v-if="activity.teachers && activity.teachers.length">
-          <h3>Teachers</h3>
-          <ul>
-            <li v-for="teacher in activity.teachers" :key="teacher._id">
-              {{ teacher.username }} <!-- Change from teacher.name to teacher.username -->
-            </li>
-          </ul>
-        </div>
+            <h3>Teachers</h3>
+            <ul>
+              <li v-for="teacher in activity.teachers" :key="teacher._id">
+                {{ teacher.username }}
+              </li>
+            </ul>
+          </div>
         </div>
         <div v-if="currentTab === 'participants' && isAdmin">
           <h2>Participants ({{ participants.length }}):</h2>
@@ -48,16 +50,16 @@
   </div>
 </template>
 
-
-
 <script>
 import API from '@/services/api';
 import AdminNavbar from '@/components/AdminNavbar.vue';
+import ParentNavbar from '@/components/ParentNavbar.vue';
 
 export default {
   name: 'ActivityDetail',
   components: {
     AdminNavbar,
+    ParentNavbar
   },
   data() {
     return {
@@ -68,7 +70,7 @@ export default {
     };
   },
   created() {
-    this.isAdmin = localStorage.getItem('user-role') === 'admin';
+    this.isAdmin = localStorage.getItem('user-role') === 'admin';  // Check admin status
     this.fetchActivity();
     if (this.isAdmin) {
       this.fetchParticipants();
@@ -90,28 +92,23 @@ export default {
       API.get(`activity/${activityId}/participants`)
         .then(response => {
           this.participants = response.data;
-          console.log(this.participants); // Debug: Ensure participants include bookingId
         })
         .catch(error => {
           console.error("There was an error fetching the participants:", error);
         });
     },
     removeUserFromActivity(bookingId) {
-      if (confirm("Are you sure you want to remove the child from the booking?")) {
-        if (!bookingId) {
-          console.error('Booking ID is undefined');
-          return;
-        }
-        API.delete(`/deleteBooking/${bookingId}`)
-          .then(() => {
-            this.participants = this.participants.filter(p => p.bookingId !== bookingId);
-          })
-          .catch(error => {
-            console.error('Error removing user from activity:', error);
-          });
-      } else {
-        console.log("Deletion cancelled by user.");
+      if (!bookingId) {
+        console.error('Booking ID is undefined');
+        return;
       }
+      API.delete(`/deleteBooking/${bookingId}`)
+        .then(() => {
+          this.participants = this.participants.filter(p => p.bookingId !== bookingId);
+        })
+        .catch(error => {
+          console.error('Error removing user from activity:', error);
+        });
     }
   }
 };

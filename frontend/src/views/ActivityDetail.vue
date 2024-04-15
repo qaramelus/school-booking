@@ -1,3 +1,4 @@
+// ActivityDetail.vue
 <template>
   <div>
     <!-- Conditional rendering of Navbars -->
@@ -6,7 +7,6 @@
 
     <div v-if="activity" class="activity-detail-container">
       <div class="activity-detail-tabs">
-        <!-- Tab Headers -->
         <button @click="currentTab = 'about'" :class="{'active-tab': currentTab === 'about'}">About</button>
         <button v-if="isAdmin" @click="currentTab = 'participants'" :class="{'active-tab': currentTab === 'participants'}">Participants</button>
       </div>
@@ -32,6 +32,8 @@
               </li>
             </ul>
           </div>
+          <!-- Book Activity Button for Parents -->
+          <button v-if="!isAdmin" class="book-activity-button" @click="showBookingModal = true">Book This Activity</button>
         </div>
         <div v-if="currentTab === 'participants' && isAdmin">
           <h2>Participants ({{ participants.length }}):</h2>
@@ -46,6 +48,19 @@
     </div>
     <div v-else class="loading">
       Loading activity details...
+    </div>
+
+    <!-- Booking Modal -->
+    <div v-if="showBookingModal" class="modal">
+      <div class="modal-content">
+        <span @click="showBookingModal = false" class="close">&times;</span>
+        <h3>Book This Activity</h3>
+        <select v-model="selectedChild" v-if="children.length > 1">
+          <option disabled value="">Select Child</option>
+          <option v-for="child in children" :value="child.id" :key="child.id">{{ child.name }}</option>
+        </select>
+        <button @click="bookActivity">Book Activity</button>
+      </div>
     </div>
   </div>
 </template>
@@ -66,14 +81,19 @@ export default {
       activity: null,
       participants: [],
       isAdmin: false,
-      currentTab: 'about', // Default tab
+      showBookingModal: false,
+      children: [],
+      selectedChild: '',
+      currentTab: 'about',
     };
   },
   created() {
-    this.isAdmin = localStorage.getItem('user-role') === 'admin';  // Check admin status
+    this.isAdmin = localStorage.getItem('user-role') === 'admin';
     this.fetchActivity();
     if (this.isAdmin) {
       this.fetchParticipants();
+    } else {
+      this.fetchChildren(); // Fetch children if not admin
     }
   },
   methods: {
@@ -87,34 +107,65 @@ export default {
           console.error("There was an error fetching the activity details:", error);
         });
     },
-    fetchParticipants() {
-      const activityId = this.$route.params.activityId;
-      API.get(`activity/${activityId}/participants`)
+    fetchChildren() {
+      const parentId = localStorage.getItem('parent-id');
+      API.get(`users/${parentId}/children`)
         .then(response => {
-          this.participants = response.data;
+          this.children = response.data.map(child => ({
+            id: child._id,
+            name: child.username 
+          }));
+          // Preselect the child if only one child is available
+          if (this.children.length === 1) {
+            this.selectedChild = this.children[0].id;
+          }
         })
         .catch(error => {
-          console.error("There was an error fetching the participants:", error);
+          console.error("There was an error fetching the children:", error);
         });
     },
-    removeUserFromActivity(bookingId) {
-      if (!bookingId) {
-        console.error('Booking ID is undefined');
+    bookActivity() {
+      if (!this.selectedChild) {
+        alert('Please select a child');
         return;
       }
-      API.delete(`/deleteBooking/${bookingId}`)
-        .then(() => {
-          this.participants = this.participants.filter(p => p.bookingId !== bookingId);
-        })
-        .catch(error => {
-          console.error('Error removing user from activity:', error);
-        });
+
+      const bookingInfo = {
+        childId: this.selectedChild,
+        activityId: this.activity._id, // Use the currently viewed activity's ID
+      };
+      API.post('/bookActivity', bookingInfo, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('user-token')}`
+        }
+      })
+      .then(() => {
+        alert('Activity booked successfully');
+        this.showBookingModal = false;
+        this.fetchActivity(); // Optionally refresh the activity details
+      })
+      .catch(error => {
+        console.error("There was an error booking the activity:", error);
+      });
     }
   }
 };
 </script>
 
+
 <style scoped>
+.book-activity-button {
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  display: block; /* Makes the button block level for better layout control */
+  margin-top: 20px; /* Adds space between the content above and the button */
+}
 .activity-detail-container {
   display: flex;
   flex-direction: column;

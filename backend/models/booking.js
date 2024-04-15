@@ -21,7 +21,8 @@ const bookingSchema = new Schema({
   activityId: { type: Schema.Types.ObjectId, ref: 'Activity' }, 
   dateBooked: { type: Date, default: Date.now }, 
   timeSlots: [bookedTimeSlotSchema],
-  cancellations: [cancellationSchema] 
+  cancellations: [cancellationSchema],
+  cancelled: { type: Boolean, default: false } 
 });
 
 module.exports = mongoose.model('Booking', bookingSchema);

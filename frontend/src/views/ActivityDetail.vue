@@ -1,4 +1,3 @@
-// ActivityDetail.vue
 <template>
   <div>
     <!-- Conditional rendering of Navbars -->
@@ -32,8 +31,17 @@
               </li>
             </ul>
           </div>
+          <!-- Booking status for Parents -->
+          <div v-if="!isAdmin && bookingStatus">
+            <h3>Booking Status:</h3>
+            <p>{{ bookingStatus }}</p>
+            <!-- Cancel Booking Button for each child -->
+            <button v-for="child in children" :key="child.id" @click="cancelBooking(child.id, activity._id)" class="cancel-button">
+              Cancel {{ child.name }}'s Booking
+            </button>
+          </div>
           <!-- Book Activity Button for Parents -->
-          <button v-if="!isAdmin" class="book-activity-button" @click="showBookingModal = true">Book This Activity</button>
+          <button v-if="!isAdmin && !allChildrenBooked" class="book-activity-button" @click="showBookingModal = true">Book This Activity</button>
         </div>
         <div v-if="currentTab === 'participants' && isAdmin">
           <h2>Participants ({{ participants.length }}):</h2>
@@ -85,6 +93,8 @@ export default {
       children: [],
       selectedChild: '',
       currentTab: 'about',
+      bookingStatus: '', 
+      allChildrenBooked: true,
     };
   },
   created() {
@@ -94,6 +104,7 @@ export default {
       this.fetchParticipants();
     } else {
       this.fetchChildren(); // Fetch children if not admin
+      this.fetchBookingStatus(); // Fetch booking status if not admin
     }
   },
   methods: {
@@ -124,6 +135,30 @@ export default {
           console.error("There was an error fetching the children:", error);
         });
     },
+    fetchBookingStatus() {
+      const parentId = localStorage.getItem('parent-id');
+      const activityId = this.$route.params.activityId;
+      API.get(`activity/${activityId}/parent/${parentId}/booking-status`)
+        .then(response => {
+          let allChildrenBooked = true;
+          this.children.forEach(child => {
+            const childBooked = response.data.some(booking => booking.childName === child.name && booking.status === 'Booked');
+            if (!childBooked) {
+              allChildrenBooked = false;
+            }
+          });
+          this.allChildrenBooked = allChildrenBooked;
+          if (response.data.length > 0) {
+            this.bookingStatus = response.data.map(booking => `${booking.childName} - ${booking.status}`).join(", ");
+          } else {
+            this.bookingStatus = "Not booked";
+          }
+        })
+        .catch(error => {
+          console.error("There was an error fetching the booking status:", error);
+          this.bookingStatus = "Error fetching booking status";
+        });
+    },
     bookActivity() {
       if (!this.selectedChild) {
         alert('Please select a child');
@@ -132,7 +167,7 @@ export default {
 
       const bookingInfo = {
         childId: this.selectedChild,
-        activityId: this.activity._id, // Use the currently viewed activity's ID
+        activityId: this.activity._id,
       };
       API.post('/bookActivity', bookingInfo, {
         headers: {
@@ -142,19 +177,32 @@ export default {
       .then(() => {
         alert('Activity booked successfully');
         this.showBookingModal = false;
-        this.fetchActivity(); // Optionally refresh the activity details
+        this.fetchBookingStatus(); // Refresh booking status after booking
       })
       .catch(error => {
         console.error("There was an error booking the activity:", error);
+      });
+    },
+    cancelBooking(childId, activityId) {
+      API.post(`/cancelBooking/${childId}/${activityId}`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('user-token')}`
+        }
+      })
+      .then(() => {
+        alert('Booking cancelled successfully.');
+        this.fetchBookingStatus(); // Refresh the booking status
+      })
+      .catch(error => {
+        console.error("There was an error cancelling the booking:", error);
       });
     }
   }
 };
 </script>
 
-
 <style scoped>
-.book-activity-button {
+.book-activity-button, .cancel-button {
   font-size: 16px;
   padding: 10px 20px;
   border-radius: 8px;
@@ -169,36 +217,31 @@ export default {
 .activity-detail-container {
   display: flex;
   flex-direction: column;
-  max-block-size: 100vh; 
+  max-block-size: 100vh;
   overflow: hidden;
 }
-
 .activity-detail-tabs {
   display: flex;
   justify-content: space-around;
-  background-color: #f5f5f5; 
+  background-color: #f5f5f5;
   padding: 10px 0;
   position: sticky;
   inset-block-start: 0;
-  z-index: 1000; 
+  z-index: 1000;
 }
-
 .activity-detail h1, .activity-detail h2, .activity-detail h3, .loading {
   color: #333;
 }
-
 ul {
   list-style-type: none;
   padding: 0;
 }
-
 li {
   background: #e9ecef;
   margin: 5px 0;
   padding: 10px;
   border-radius: 5px;
 }
-
 .remove-button {
   background-color: #ff4d4d;
   color: white;
@@ -206,30 +249,25 @@ li {
   padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
-  margin-inline-start: auto;;
+  margin-inline-start: auto;
 }
-
 .remove-button:hover {
   background-color: #ff3333;
 }
-
 .tab-content {
   overflow-y: auto;
-  flex-grow: 1; 
+  flex-grow: 1;
   padding: 20px;
 }
-
 .participant-list li {
   display: flex;
-  justify-content: space-between; 
-  align-items: center; 
+  justify-content: space-between;
+  align-items: center;
 }
-
 .active-tab {
   background-color: #007bff;
   color: white;
 }
-
 .tab-content {
   margin-block-start: 20px;
 }

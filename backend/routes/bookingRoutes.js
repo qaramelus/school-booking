@@ -18,7 +18,13 @@ router.get('/parent/:parentId/child/:childId/bookings', authMiddleware, bookingC
 router.get('/activity/:activityId/participants', authMiddleware, bookingController.fetchActivityParticipants); // Get participants for a specific activity
 router.get('/activities-with-participants', bookingController.fetchActivities); // Get participants count for all activities
 
-// New route to fetch cancellations for a specific child and activity
+// Route to fetch cancellations for a specific child and activity
 router.get('/cancellations/:childId/:activityId', authMiddleware, bookingController.fetchCancellations); // Fetch all cancellations for a specific child and activity
+
+// Route to check booking status for a specific activity and parent
+router.get('/activity/:activityId/parent/:parentId/booking-status', authMiddleware, bookingController.fetchBookingStatusForActivityAndParent);
+
+// Route to cancel a booking for a specific child and activity
+router.post('/cancelBooking/:childId/:activityId', authMiddleware, bookingController.cancelBookingForChild);
 
 module.exports = router;

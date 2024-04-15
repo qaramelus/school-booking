@@ -214,4 +214,60 @@ exports.fetchCancellations = async (req, res) => {
   }
 };
 
+exports.fetchBookingStatusForActivityAndParent = async (req, res) => {
+  try {
+    const { activityId, parentId } = req.params;
+    
+    // Find all children of the parent
+    const children = await User.find({ parent: parentId }).select('_id');
+    const childIds = children.map(child => child._id);
+
+    // Find bookings for the activity made by any of the parent's children
+    const bookings = await Booking.find({
+      activityId: activityId,
+      childId: { $in: childIds },
+      cancellations: { $size: 0 } // Ensure no cancellations are present
+    }).populate('childId', 'username');
+
+    // Map results to include necessary details
+    const bookingDetails = bookings.map(booking => {
+      return {
+        bookingId: booking._id,
+        activityId: activityId,
+        childName: booking.childId.username,
+        status: 'Booked' // Only booked entries are returned, hence status is always 'Booked'
+      };
+    });
+
+    if (bookingDetails.length === 0) {
+      res.status(404).json({ message: 'No bookings found for this activity and parent' });
+    } else {
+      res.json(bookingDetails);
+    }
+  } catch (error) {
+    console.error('Error fetching booking status:', error);
+    res.status(500).json({ message: "Error fetching booking status", error: error.message });
+  }
+};
+
+exports.cancelBookingForChild = async (req, res) => {
+  try {
+    const { childId, activityId } = req.params;
+    const booking = await Booking.findOneAndUpdate(
+      { childId: childId, activityId: activityId, cancelled: { $ne: true } }, // find a booking that isn't already cancelled
+      { cancelled: true }, // set the cancelled flag
+      { new: true }
+    );
+
+    if (!booking) {
+      return res.status(404).json({ message: 'No active booking found for this child and activity' });
+    }
+
+    res.status(200).json({ message: 'Booking cancelled successfully', booking });
+  } catch (error) {
+    console.error('Error cancelling the booking:', error);
+    res.status(500).json({ message: 'Failed to cancel the booking', error: error.message });
+  }
+};
+
 

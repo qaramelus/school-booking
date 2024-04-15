@@ -112,7 +112,7 @@ export default {
     },
     handleCardClick(activity) {
       // Update to point to the new detail page for parents
-      this.$router.push({ name: 'ActivityDetailParents', params: { activityId: activity._id } });
+      this.$router.push({ name: 'ActivityDetail', params: { activityId: activity._id } });
     },
   },
   created() {

@@ -1,68 +1,121 @@
 <template>
   <nav class="parent-nav">
-    <ul>
-      <li><router-link to="/parent-overview">All Activities</router-link></li>
-      <li><router-link to="/parent-booked-overview">Booked Activities</router-link></li>
-      <li><router-link to="/parents-calendar">Calendar View</router-link></li> <!-- New link for the calendar view -->
+    <div @click="toggleNav" class="burger">
+      &#9776;
+    </div>
+    <ul :class="{ 'nav-active': navOpen }">
+      <li><router-link to="/parent-overview" @click="closeNav">All Activities</router-link></li>
+      <li><router-link to="/parent-booked-overview" @click="closeNav">Booked Activities</router-link></li>
+      <li><router-link to="/parents-calendar" @click="closeNav">Calendar View</router-link></li>
     </ul>
     <button @click="performLogout" class="logout-button">Logout</button>
   </nav>
 </template>
-  
-  <script>
-  import { logout } from '@/services/logout';
-  
-  export default {
-    name: 'ParentNavbar',
-    methods: {
-      performLogout() {
-        logout(this.$router);
-      }
+
+<script>
+import { logout } from '@/services/logout';
+
+export default {
+  name: 'ParentNavbar',
+  data() {
+    return {
+      navOpen: false
+    };
+  },
+  methods: {
+    performLogout() {
+      logout(this.$router);
+    },
+    toggleNav() {
+      this.navOpen = !this.navOpen;
+    },
+    closeNav() {
+      this.navOpen = false;
     }
-  };
-  </script>
-  
-  <style scoped>
-  .parent-nav {
+  }
+};
+</script>
+
+<style scoped>
+.parent-nav {
+  background-color: #2c3e50;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.parent-nav ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  transition: transform 0.3s ease-in-out;
+}
+
+.parent-nav li {
+  margin-inline-end: 20px;
+}
+
+.parent-nav a {
+  color: #ecf0f1;
+  text-decoration: none;
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+}
+
+.parent-nav a:hover, .router-link-active {
+  color: #3498db;
+}
+
+.logout-button {
+  background-color: transparent;
+  border: none;
+  color: #ecf0f1;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  color: #e74c3c;
+}
+
+.burger {
+  display: none;
+  cursor: pointer;
+  font-size: 2rem;
+  color: #ecf0f1;
+}
+
+@media (max-width: 768px) {
+  .burger {
+    display: block;
+  }
+
+  .parent-nav ul {
+    flex-direction: column;
+    width: 100%;
+    position: absolute;
+    top: 58px;
+    left: 0;
     background-color: #2c3e50;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
+    transform: translateY(-100vh);
+    padding: 1rem;
     align-items: center;
   }
-  
-  .parent-nav ul {
-    display: flex;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  
+
   .parent-nav li {
-    margin-inline-end: 20px;
+    margin: 10px 0;
   }
-  
-  .parent-nav a {
-    color: #ecf0f1;
-    text-decoration: none;
-    font-size: 1.2rem;
-    transition: color 0.3s ease;
+
+  .nav-active {
+    transform: translateY(0);
   }
-  
-  .parent-nav a:hover, .router-link-active {
-    color: #3498db;
-  }
-  
+
   .logout-button {
-    background-color: transparent;
-    border: none;
-    color: #ecf0f1;
-    font-size: 1rem;
-    cursor: pointer;
+    position: absolute;
+    top: 18px;
+    right: 2rem;
   }
-  
-  .logout-button:hover {
-    color: #e74c3c;
-  }
-  </style>
-  
+}
+</style>

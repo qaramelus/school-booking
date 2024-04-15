@@ -1,22 +1,36 @@
 <template>
   <nav class="admin-nav">
-    <ul>
-      <li><router-link to="/admin-overview">All Activities</router-link></li>
-      <li><router-link to="/admin-user-overview">User Management</router-link></li>
-      <li><router-link to="/admin-calendar">Calendar View</router-link></li>
+    <div @click="toggleNav" class="burger">
+      &#9776; <!-- Burger menu icon -->
+    </div>
+    <ul :class="{ 'nav-active': navOpen }">
+      <li><router-link to="/admin-overview" @click="closeNav">All Activities</router-link></li>
+      <li><router-link to="/admin-user-overview" @click="closeNav">User Management</router-link></li>
+      <li><router-link to="/admin-calendar" @click="closeNav">Calendar View</router-link></li>
     </ul>
     <button @click="performLogout" class="logout-button">Logout</button>
   </nav>
 </template>
 
 <script>
-import { logout } from '@/services/logout'; 
+import { logout } from '@/services/logout';
 
 export default {
   name: 'AdminNavbar',
+  data() {
+    return {
+      navOpen: false
+    };
+  },
   methods: {
     performLogout() {
       logout(this.$router);
+    },
+    toggleNav() {
+      this.navOpen = !this.navOpen;
+    },
+    closeNav() {
+      this.navOpen = false;
     }
   }
 };
@@ -36,6 +50,7 @@ export default {
   list-style: none;
   margin: 0;
   padding: 0;
+  transition: transform 0.3s ease-in-out;
 }
 
 .admin-nav li {
@@ -46,7 +61,6 @@ export default {
   color: #ecf0f1;
   text-decoration: none;
   font-size: 1.2rem;
-  transition: color 0.3s ease;
 }
 
 .admin-nav a:hover, .router-link-active {
@@ -63,5 +77,40 @@ export default {
 
 .logout-button:hover {
   color: #e74c3c;
+}
+
+.burger {
+  display: none;
+  cursor: pointer;
+  font-size: 2rem;
+  color: #ecf0f1;
+}
+
+@media (max-width: 768px) {
+  .burger {
+    display: block;
+  }
+
+  .admin-nav ul {
+    flex-direction: column;
+    width: 100%;
+    position: absolute;
+    top: 58px;
+    left: 0;
+    background-color: #2c3e50;
+    padding: 1rem;
+    align-items: center;
+    display: none; /* Initially hidden */
+  }
+
+  .admin-nav .nav-active {
+    display: flex; /* Show when active */
+  }
+
+  .logout-button {
+    position: absolute;
+    top: 18px;
+    right: 2rem;
+  }
 }
 </style>

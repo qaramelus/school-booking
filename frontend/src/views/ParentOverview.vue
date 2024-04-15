@@ -127,13 +127,13 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+  inline-size: 100%;
 }
 
 .button-container {
-  margin-top: 20px;
+  margin-block-start: 20px;
   text-align: center;
-  width: 100%;
+  inline-size: 100%;
 }
 
 .book-activity-button {
@@ -148,7 +148,7 @@ export default {
 }
 
 .activities {
-  width: 100%;
+  inline-size: 100%;
 }
 
 .activity-cards {
@@ -196,12 +196,12 @@ export default {
   margin: 15% auto; 
   padding: 20px;
   border: 1px solid #888;
-  width: 80%; 
+  inline-size: 80%; 
 }
 
 .close {
   color: #aaa;
-  float: right;
+  float: inline-end;
   font-size: 28px;
   font-weight: bold;
 }

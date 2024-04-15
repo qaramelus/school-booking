@@ -1,7 +1,7 @@
 <template>
   <nav class="parent-nav">
     <div @click="toggleNav" class="burger">
-      &#9776;
+      &#9776; <!-- Represents burger icon -->
     </div>
     <ul :class="{ 'nav-active': navOpen }">
       <li><router-link to="/parent-overview" @click="closeNav">All Activities</router-link></li>
@@ -27,10 +27,10 @@ export default {
       logout(this.$router);
     },
     toggleNav() {
-      this.navOpen = !this.navOpen;
+      this.navOpen = !this.navOpen; // Toggle the visibility of the nav
     },
     closeNav() {
-      this.navOpen = false;
+      this.navOpen = false; // Ensure nav closes when a link is clicked
     }
   }
 };
@@ -50,7 +50,6 @@ export default {
   list-style: none;
   margin: 0;
   padding: 0;
-  transition: transform 0.3s ease-in-out;
 }
 
 .parent-nav li {
@@ -61,7 +60,6 @@ export default {
   color: #ecf0f1;
   text-decoration: none;
   font-size: 1.2rem;
-  transition: color 0.3s ease;
 }
 
 .parent-nav a:hover, .router-link-active {
@@ -99,17 +97,13 @@ export default {
     top: 58px;
     left: 0;
     background-color: #2c3e50;
-    transform: translateY(-100vh);
     padding: 1rem;
     align-items: center;
+    display: none; /* Initially hidden */
   }
 
-  .parent-nav li {
-    margin: 10px 0;
-  }
-
-  .nav-active {
-    transform: translateY(0);
+  .parent-nav .nav-active {
+    display: flex; /* Show when active */
   }
 
   .logout-button {

@@ -127,9 +127,9 @@ export default {
 }
 
 .button-container {
-  margin-top: 10px;
+  margin-block-start: 10px;
   text-align: center;
-  width: 100%;
+  inline-size: 100%;
 }
 
 .add-activity-button {

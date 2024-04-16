@@ -32,16 +32,19 @@
             </ul>
           </div>
           <!-- Booking status for Parents -->
-          <div v-if="!isAdmin && bookingStatus">
-            <h3>Booking Status:</h3>
-            <p>{{ bookingStatus }}</p>
-            <!-- Cancel Booking Button for each child -->
-            <button v-for="child in children" :key="child.id" @click="cancelBooking(child.id, activity._id)" class="cancel-button">
-              Cancel {{ child.name }}'s Booking
-            </button>
-          </div>
-          <!-- Book Activity Button for Parents -->
-          <button v-if="!isAdmin && !allChildrenBooked" class="book-activity-button" @click="showBookingModal = true">Book This Activity</button>
+        <div v-if="!isAdmin && children.length > 0">
+          <h3>Booking Details:</h3>
+          <ul>
+            <li v-for="child in children" :key="child.id">
+              <span>{{ child.name }}:</span>
+              <button v-if="child.isBooked" @click="cancelBooking(child.id, child.bookingId)" class="cancel-button">
+                Cancel Booking
+              </button>
+            </li>
+          </ul>
+        </div>
+        <!-- Book Activity Button for Parents -->
+        <button v-if="!isAdmin && !allChildrenBooked" class="book-activity-button" @click="showBookingModal = true">Book This Activity</button>
         </div>
         <div v-if="currentTab === 'participants' && isAdmin">
           <h2>Participants ({{ participants.length }}):</h2>
@@ -72,6 +75,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import API from '@/services/api';
@@ -141,18 +145,17 @@ export default {
       API.get(`activity/${activityId}/parent/${parentId}/booking-status`)
         .then(response => {
           let allChildrenBooked = true;
-          this.children.forEach(child => {
-            const childBooked = response.data.some(booking => booking.childName === child.name && booking.status === 'Booked');
-            if (!childBooked) {
-              allChildrenBooked = false;
-            }
+          this.children = this.children.map(child => {
+            const booking = response.data.find(booking => booking.childName === child.name && booking.status === 'Booked');
+            const isBooked = booking !== undefined;
+            if (!isBooked) allChildrenBooked = false;
+            return {
+              ...child,
+              isBooked,
+              bookingId: booking ? booking.bookingId : null // Include bookingId if available
+            };
           });
           this.allChildrenBooked = allChildrenBooked;
-          if (response.data.length > 0) {
-            this.bookingStatus = response.data.map(booking => `${booking.childName} - ${booking.status}`).join(", ");
-          } else {
-            this.bookingStatus = "Not booked";
-          }
         })
         .catch(error => {
           console.error("There was an error fetching the booking status:", error);
@@ -183,8 +186,9 @@ export default {
         console.error("There was an error booking the activity:", error);
       });
     },
-    cancelBooking(childId, activityId) {
-      API.post(`/cancelBooking/${childId}/${activityId}`, {}, {
+    cancelBooking(childId, bookingId) {
+      // Use DELETE method and include bookingId in the URL
+      API.delete(`/deleteBooking/${bookingId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('user-token')}`
         }

@@ -240,7 +240,7 @@ exports.fetchBookingStatusForActivityAndParent = async (req, res) => {
     });
 
     if (bookingDetails.length === 0) {
-      res.status(404).json({ message: 'No bookings found for this activity and parent' });
+      res.status(200).json([]); // Return an empty array with a 200 OK status
     } else {
       res.json(bookingDetails);
     }
@@ -249,25 +249,3 @@ exports.fetchBookingStatusForActivityAndParent = async (req, res) => {
     res.status(500).json({ message: "Error fetching booking status", error: error.message });
   }
 };
-
-exports.cancelBookingForChild = async (req, res) => {
-  try {
-    const { childId, activityId } = req.params;
-    const booking = await Booking.findOneAndUpdate(
-      { childId: childId, activityId: activityId, cancelled: { $ne: true } }, // find a booking that isn't already cancelled
-      { cancelled: true }, // set the cancelled flag
-      { new: true }
-    );
-
-    if (!booking) {
-      return res.status(404).json({ message: 'No active booking found for this child and activity' });
-    }
-
-    res.status(200).json({ message: 'Booking cancelled successfully', booking });
-  } catch (error) {
-    console.error('Error cancelling the booking:', error);
-    res.status(500).json({ message: 'Failed to cancel the booking', error: error.message });
-  }
-};
-
-

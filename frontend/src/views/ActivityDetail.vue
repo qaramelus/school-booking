@@ -216,7 +216,7 @@ export default {
   cursor: pointer;
   outline: none;
   display: block; /* Makes the button block level for better layout control */
-  margin-top: 20px; /* Adds space between the content above and the button */
+  margin-block-start: 20px; 
 }
 .activity-detail-container {
   display: flex;

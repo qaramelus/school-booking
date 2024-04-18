@@ -141,23 +141,29 @@ exports.fetchActivities = async (req, res) => {
 exports.cancelClass = async (req, res) => {
   const { childId, activityId, slotDate, startTime } = req.body;
   
-  try {
-    // Update the booking document by pushing a cancellation record
-    const updatedBooking = await Booking.findOneAndUpdate(
-      { childId: childId, activityId: activityId }, 
-      { $push: { cancellations: { date: new Date(slotDate), startTime: startTime, reason: 'Parent cancellation' } } },
-      { new: true } // Returns the modified document rather than the original
-    );
-    
-    if (!updatedBooking) {
-      return res.status(404).json({ message: 'Booking not found' });
-    }
+  console.log("Received cancellation:", req.body);  // Debugging line to check incoming data
 
-    res.json({ message: 'Class cancelled successfully.', updatedBooking });
+  if (!slotDate || !startTime) {
+      return res.status(400).json({ message: 'Date and start time are required for cancellation.' });
+  }
+
+  try {
+      const updatedBooking = await Booking.findOneAndUpdate(
+          { childId: childId, activityId: activityId },
+          { $push: { cancellations: { date: new Date(slotDate), startTime: startTime, reason: 'Parent cancellation' } } },
+          { new: true }
+      );
+      
+      if (!updatedBooking) {
+          return res.status(404).json({ message: 'Booking not found' });
+      }
+
+      res.json({ message: 'Class cancelled successfully.', updatedBooking });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to cancel class', error: error.message });
+      res.status(500).json({ message: 'Failed to cancel class', error: error.message });
   }
 };
+
 
 // Method to revert a cancellation
 exports.revertCancellation = async (req, res) => {

@@ -24,4 +24,5 @@ router.get('/cancellations/:childId/:activityId', authMiddleware, bookingControl
 // Route to check booking status for a specific activity and parent
 router.get('/activity/:activityId/parent/:parentId/booking-status', authMiddleware, bookingController.fetchBookingStatusForActivityAndParent);
 
+
 module.exports = router;

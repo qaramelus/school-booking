@@ -349,6 +349,100 @@ exports.calculateSessionsPerTimeSlot = async (req, res) => {
   }
 };
 
+// Calculate sessions for an activity
+exports.calculateSessionsPerActivity = async (req, res) => {
+  try {
+    const { activityId } = req.params;
+    const activity = await Activity.findById(activityId);
+    if (!activity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
+
+    const sessions = [];
+    const { startDate, endDate, timeSlots } = activity;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    timeSlots.forEach(slot => {
+      const current = new Date(start);
+      const day = dayOfWeekToNumber(slot.dayOfWeek);
+      current.setDate(current.getDate() + ((day - current.getDay() + 7) % 7));
+
+      while (current <= end) {
+        sessions.push({
+          date: current.toISOString().split('T')[0],
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+          dayOfWeek: slot.dayOfWeek
+        });
+        current.setDate(current.getDate() + 7);
+      }
+    });
+
+    // Sort sessions by date
+    sessions.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    res.json(sessions);
+  } catch (error) {
+    res.status(500).send({ message: "Error calculating sessions", error: error.toString() });
+  }
+};
+
+exports.fetchNonCancelledSessions = async (req, res) => {
+  try {
+    const { activityId, childId } = req.params;
+    const activity = await Activity.findById(activityId);
+    const booking = await Booking.findOne({ activityId, childId }, 'cancellations');
+
+    if (!activity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    const calculatedSessions = calculateSessions(activity);
+    let cancellations = booking.cancellations || [];
+
+    // Debugging: Outputting current data
+    console.log("Calculated Sessions: ", calculatedSessions);
+    console.log("Cancellations: ", cancellations);
+
+    const nonCancelledSessions = calculatedSessions.filter(session => {
+      return !cancellations.some(cancellation => {
+        return session.date === new Date(cancellation.date).toISOString().split('T')[0] && session.startTime === cancellation.startTime;
+      });
+    });
+
+    res.json(nonCancelledSessions);
+  } catch (error) {
+    console.error('Error fetching non-cancelled sessions:', error);
+    res.status(500).json({ message: 'Error fetching non-cancelled sessions', error: error.toString() });
+  }
+};
+
+function calculateSessions(activity) {
+  let sessions = [];
+  const { startDate, endDate, timeSlots } = activity;
+  timeSlots.forEach(slot => {
+    let currentDate = new Date(startDate);
+    const dayOffset = (7 + dayOfWeekToNumber(slot.dayOfWeek) - currentDate.getDay()) % 7;
+    currentDate.setDate(currentDate.getDate() + dayOffset);
+
+    while (currentDate <= endDate) {
+      sessions.push({
+        date: currentDate.toISOString().split('T')[0],
+        startTime: slot.startTime,
+        endTime: slot.endTime,
+        dayOfWeek: slot.dayOfWeek
+      });
+      currentDate.setDate(currentDate.getDate() + 7);
+    }
+  });
+  return sessions;
+}
+
+
 function dayOfWeekToNumber(day) {
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   return days.indexOf(day);
@@ -359,3 +453,41 @@ function nextDay(date, dayOfWeek) {
   result.setDate(result.getDate() + (dayOfWeek - result.getDay() + 7) % 7);
   return result;
 }
+
+exports.fetchAllNonCancelledSessionsForChild = async (req, res) => {
+  try {
+    const { childId } = req.params;
+    const bookings = await Booking.find({ childId }).populate({
+      path: 'activityId',
+      select: 'name timeSlots startDate endDate'
+    });
+
+    let sessions = [];
+    for (let booking of bookings) {
+      const { activityId } = booking;
+      const calculatedSessions = calculateSessions(activityId);
+
+      calculatedSessions.forEach(session => {
+        const isCancelled = booking.cancellations.some(cancellation => 
+          new Date(session.date).toISOString().split('T')[0] === new Date(cancellation.date).toISOString().split('T')[0] &&
+          session.startTime === cancellation.startTime
+        );
+
+        if (!isCancelled) {
+          sessions.push({
+            activityName: activityId.name,
+            date: session.date,
+            startTime: session.startTime,
+            endTime: session.endTime,
+            activityId: activityId._id
+          });
+        }
+      });
+    }
+
+    res.json(sessions);
+  } catch (error) {
+    console.error('Error fetching non-cancelled sessions for the child across all activities:', error);
+    res.status(500).json({ message: "Error fetching non-cancelled sessions for the child across all activities", error: error.message });
+  }
+};

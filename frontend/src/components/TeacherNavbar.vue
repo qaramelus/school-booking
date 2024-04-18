@@ -37,10 +37,13 @@ export default {
 <style scoped>
 .teacher-nav {
   background-color: #34495e;
-  padding: 1rem 2rem;
+  padding: 1rem 0; /* Remove horizontal padding */
+  width: 100%; /* Ensure the nav is full-width */
+  margin: 0; /* Remove any default margin */
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-sizing: border-box; /* Include padding and border in the element's total width */
 }
 
 .teacher-nav ul {
@@ -56,7 +59,7 @@ export default {
 }
 
 .teacher-nav a {
-  color: #bdc3c7;
+  color: #ffffff;
   text-decoration: none;
   font-size: 1.2rem;
 }

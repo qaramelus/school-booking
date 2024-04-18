@@ -71,7 +71,7 @@ export default {
 .logout-button {
   background-color: transparent;
   border: none;
-  color: #bdc3c7;
+  color: #ffffff;
   font-size: 1rem;
   cursor: pointer;
 }

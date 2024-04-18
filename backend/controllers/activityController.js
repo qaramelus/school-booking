@@ -6,7 +6,7 @@ const User = require('../models/User');
 // Function to create an Activity with scheduling
 exports.createActivity = async (req, res) => {
   try {
-    const { name, description, startDate, endDate, timeSlots, createdBy, teachers } = req.body;
+    const { name, description, startDate, endDate, timeSlots, createdBy, teachers, maxParticipants } = req.body;
     const newActivity = await Activity.create({
       name,
       description,
@@ -14,7 +14,10 @@ exports.createActivity = async (req, res) => {
       endDate,
       timeSlots,
       createdBy,
-      teachers
+      teachers,
+      maxParticipants, // Include the maximum number of participants
+      currentParticipants: 0, // Initialize current participants
+      waitlistCount: 0 // Initialize waitlist count
     });
 
     res.status(201).json(newActivity);
@@ -46,7 +49,21 @@ exports.deleteActivity = async (req, res) => {
 // Function to update an activity
 exports.updateActivity = async (req, res) => {
   try {
-    const updatedActivity = await Activity.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const { maxParticipants } = req.body;
+    const activity = await Activity.findById(req.params.id);
+
+    if (!activity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
+
+    // You may want to add logic here to handle situations where reducing maxParticipants
+    // would affect current bookings, e.g., notify users or adjust bookings accordingly.
+
+    const updatedActivity = await Activity.findByIdAndUpdate(req.params.id, {
+      ...req.body,
+      maxParticipants: maxParticipants || activity.maxParticipants // Ensure maxParticipants is updated or maintained
+    }, { new: true });
+
     res.status(200).json(updatedActivity);
   } catch (error) {
     res.status(500).send({ message: 'Failed to update activity', error: error.toString() });
@@ -491,3 +508,4 @@ exports.fetchAllNonCancelledSessionsForChild = async (req, res) => {
     res.status(500).json({ message: "Error fetching non-cancelled sessions for the child across all activities", error: error.message });
   }
 };
+

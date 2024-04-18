@@ -16,6 +16,7 @@ router.post('/revertCancellation', authMiddleware, bookingController.revertCance
 router.get('/parent/:parentId/bookings', authMiddleware, bookingController.fetchBookingsForParent); // Fetch bookings for a parent
 router.get('/parent/:parentId/child/:childId/bookings', authMiddleware, bookingController.fetchBookingsForParentAndChild); // Fetch bookings for a specific child of a parent
 router.get('/activity/:activityId/participants', authMiddleware, bookingController.fetchActivityParticipants); // Get participants for a specific activity
+router.get('/activity/:activityId/bookings', bookingController.fetchBookingsForActivity);
 router.get('/activities-with-participants', bookingController.fetchActivities); // Get participants count for all activities
 
 // Route to fetch cancellations for a specific child and activity

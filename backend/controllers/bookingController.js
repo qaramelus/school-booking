@@ -32,6 +32,18 @@ exports.deleteBooking = async (req, res) => {
   }
 };
 
+// Function to fetch all bookings for a specific activity
+exports.fetchBookingsForActivity = async (req, res) => {
+  try {
+    const { activityId } = req.params;
+    const bookings = await Booking.find({ activityId: activityId }).populate('childId');
+    res.json(bookings);
+  } catch (error) {
+    console.error('Error fetching bookings for activity:', error);
+    res.status(500).json({ message: "Error fetching bookings for activity", error: error.message });
+  }
+};
+
 // Fetch bookings for a parent, including detailed activity information
 exports.fetchBookingsForParent = async (req, res) => {
   try {

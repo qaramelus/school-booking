@@ -15,6 +15,7 @@
           <h1>{{ activity.name }}</h1>
           <p>{{ activity.description }}</p>
           <p>Date: {{ new Date(activity.startDate).toLocaleDateString() }} to {{ new Date(activity.endDate).toLocaleDateString() }}</p>
+          <p>Maximum Participants: {{ activity.maxParticipants }}</p>
           <div v-if="activity.timeSlots">
             <h3>Time Slots</h3>
             <ul>
@@ -103,23 +104,42 @@ export default {
   },
   created() {
     this.isAdmin = localStorage.getItem('user-role') === 'admin';
-    this.fetchActivity();
-    if (this.isAdmin) {
-      this.fetchParticipants();
-    } else {
-      this.fetchChildren(); // Fetch children if not admin
-      this.fetchBookingStatus(); // Fetch booking status if not admin
-    }
+    this.fetchActivity()
+      .then(() => {
+        if (this.isAdmin) {
+          this.fetchParticipants();
+        } else {
+          this.fetchChildren();
+          this.fetchBookingStatus();
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching activity:", error);
+      });
   },
   methods: {
     fetchActivity() {
       const activityId = this.$route.params.activityId;
-      API.get(`activities/${activityId}`)
+      return API.get(`activities/${activityId}`)
         .then(response => {
           this.activity = response.data;
         })
         .catch(error => {
-          console.error("There was an error fetching the activity details:", error);
+          console.error("Error fetching activity details:", error);
+          throw error; // Rethrow the error to propagate it to the caller
+        });
+    },
+    fetchParticipants() {
+      const activityId = this.activity._id;
+      API.get(`activity/${activityId}/bookings`)
+        .then(response => {
+          this.participants = response.data.map(booking => ({
+            id: booking.childId._id,
+            username: booking.childId.username
+          }));
+        })
+        .catch(error => {
+          console.error("Error fetching participants:", error);
         });
     },
     fetchChildren() {
@@ -130,13 +150,12 @@ export default {
             id: child._id,
             name: child.username 
           }));
-          // Preselect the child if only one child is available
           if (this.children.length === 1) {
             this.selectedChild = this.children[0].id;
           }
         })
         .catch(error => {
-          console.error("There was an error fetching the children:", error);
+          console.error("Error fetching children:", error);
         });
     },
     fetchBookingStatus() {

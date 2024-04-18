@@ -27,6 +27,12 @@
           <textarea id="activity-description" v-model="activity.description" required></textarea>
         </div>
 
+        <!-- Max Participants field -->
+        <div class="form-group">
+          <label for="activity-max-participants">Max Participants:</label>
+          <input type="number" id="activity-max-participants" v-model="activity.maxParticipants" required min="1">
+        </div>
+
         <!-- Start Date field -->
         <div class="form-group">
           <label for="activity-start-date">Start Date:</label>
@@ -84,7 +90,8 @@
           startDate: '',
           endDate: '',
           timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '' }],
-          teachers: []
+          teachers: [],
+          maxParticipants: 10 
         },
         teachers: [] // Initialize the teachers array to hold the fetched teacher data
       };
@@ -97,7 +104,8 @@
               ...newVal,
               startDate: newVal.startDate.split('T')[0],
               endDate: newVal.endDate.split('T')[0],
-              timeSlots: newVal.timeSlots.length > 0 ? newVal.timeSlots : [{ dayOfWeek: '', startTime: '', endTime: '' }]
+              timeSlots: newVal.timeSlots.length > 0 ? newVal.timeSlots : [{ dayOfWeek: '', startTime: '', endTime: '' }],
+              maxParticipants: newVal.maxParticipants || 10 // Provide a default if it's not set
             };
           } else {
             this.resetActivity();
@@ -152,6 +160,7 @@
           endDate: '',
           timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '' }],
           teachers: [],
+          maxParticipants: 10 
         };
       },
       fetchTeachers() {

@@ -113,8 +113,8 @@ export default {
 }
 
 .calendar {
-  width: 75%;
-  height: auto;
+  inline-size: 75%;
+  block-size: auto;
   margin: auto;
 }
 </style>

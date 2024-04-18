@@ -66,11 +66,11 @@
       <div class="modal-content">
         <span @click="showBookingModal = false" class="close">&times;</span>
         <h3>Book This Activity</h3>
-        <select v-model="selectedChild" v-if="children.length > 1">
+        <select v-model="selectedChild" v-if="children.length > 1" class="select-child">
           <option disabled value="">Select Child</option>
           <option v-for="child in children" :value="child.id" :key="child.id">{{ child.name }}</option>
         </select>
-        <button @click="bookActivity">Book Activity</button>
+        <button @click="bookActivity" class="book-button">Book Activity</button>
       </div>
     </div>
   </div>
@@ -208,22 +208,32 @@ export default {
 <style scoped>
 .book-activity-button, .cancel-button {
   font-size: 16px;
-  padding: 10px 20px;
+  padding: 12px 24px;
   border-radius: 8px;
   background-color: #4CAF50;
   color: white;
   border: none;
   cursor: pointer;
   outline: none;
-  display: block; /* Makes the button block level for better layout control */
-  margin-block-start: 20px; 
+  display: block;
+  margin-block-start: 20px;
+  transition: background-color 0.3s ease;
 }
+
+.book-activity-button:hover, .cancel-button:hover {
+  background-color: #367c39; /* Darker shade for hover state */
+}
+
 .activity-detail-container {
   display: flex;
   flex-direction: column;
-  max-block-size: 100vh;
-  overflow: hidden;
+  max-block-size: 90vh; /* Adjusted for better responsive behavior */
+  padding: 20px;
+  background: #ffffff; /* Better contrast */
+  border: 1px solid #dddddd; /* Subtle borders for depth */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Soft shadow for pop */
 }
+
 .activity-detail-tabs {
   display: flex;
   justify-content: space-around;
@@ -232,7 +242,9 @@ export default {
   position: sticky;
   inset-block-start: 0;
   z-index: 1000;
+  border-block-end: 2px solid #cccccc; /* Adds a line to distinguish from content */
 }
+
 .activity-detail h1, .activity-detail h2, .activity-detail h3, .loading {
   color: #333;
 }
@@ -275,4 +287,72 @@ li {
 .tab-content {
   margin-block-start: 20px;
 }
+.modal {
+  position: fixed;
+  inset-inline-start: 0;
+  inset-block-start: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  inline-size: 90%;
+  max-inline-size: 500px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  inset-block-start: 10px;
+  inset-inline-end: 10px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+h3 {
+  margin-block-start: 0;
+  color: #333;
+  font-size: 22px;
+}
+
+.select-child {
+  inline-size: 100%;
+  padding: 8px;
+  margin-block-start: 20px;
+  margin-block-end: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.book-button {
+  inline-size: 100%;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.book-button:hover {
+  background-color: #367C39;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 </style>

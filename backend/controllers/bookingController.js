@@ -1,20 +1,55 @@
 // bookingController.js
+const Activity = require('../models/Activity'); 
 const Booking = require('../models/Booking'); 
 const User = require('../models/User');
 
 // Create a new booking
 exports.createBooking = async (req, res) => {
   try {
-    const newBooking = await Booking.create({
-      childId: req.body.childId,
-      activityId: req.body.activityId,
+    const { childId, activityId } = req.body;
+
+    // First, fetch the activity to check for participant limits
+    const activity = await Activity.findById(activityId);
+    if (!activity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
+
+    // Check if the maximum participants have been reached
+    const currentBookings = await Booking.countDocuments({
+      activityId: activityId,
+      status: 'confirmed'
     });
+
+    let newBooking;
+    if (currentBookings < activity.maxParticipants) {
+      // There is still room for more confirmed participants
+      newBooking = await Booking.create({
+        childId: childId,
+        activityId: activityId,
+        status: 'confirmed'
+      });
+
+      // Increment the current participant count
+      await Activity.findByIdAndUpdate(activityId, { $inc: { currentParticipants: 1 } });
+    } else {
+      // Maximum participants reached, add to waitlist
+      newBooking = await Booking.create({
+        childId: childId,
+        activityId: activityId,
+        status: 'waitlisted'
+      });
+
+      // Increment the waitlist count
+      await Activity.findByIdAndUpdate(activityId, { $inc: { waitlistCount: 1 } });
+    }
 
     res.status(201).json(newBooking);
   } catch (error) {
+    console.error('Failed to create booking:', error);
     res.status(400).json({ message: 'Failed to book activity', error: error.message });
   }
 };
+
 
 // Delete a booking
 exports.deleteBooking = async (req, res) => {

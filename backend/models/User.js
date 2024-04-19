@@ -9,20 +9,19 @@ const userSchema = new Schema({
   role: { 
     type: String, 
     required: true, 
-    enum: ['admin', 'parent', 'teacher'], 
+    enum: ['admin', 'parent', 'teacher', 'child'],  // Added 'child' here
   },
-
   parent: { 
     type: Schema.Types.ObjectId, 
     ref: 'User',
     required: function() { return this.role === 'parent'; } 
   },
-
   children: [{
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: function() { return this.role === 'parent'; } 
   }]
 });
+
 
 module.exports = mongoose.model('User', userSchema);

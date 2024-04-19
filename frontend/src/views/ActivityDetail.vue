@@ -33,26 +33,35 @@
             </ul>
           </div>
           <!-- Booking status for Parents -->
-        <div v-if="!isAdmin && children.length > 0">
-          <h3>Booking Details:</h3>
-          <ul>
-            <li v-for="child in children" :key="child.id">
-              <span>{{ child.name }}:</span>
-              <button v-if="child.isBooked" @click="cancelBooking(child.id, child.bookingId)" class="cancel-button">
-                Cancel Booking
-              </button>
-            </li>
-          </ul>
-        </div>
-        <!-- Book Activity Button for Parents -->
-        <button v-if="!isAdmin && !allChildrenBooked" class="book-activity-button" @click="showBookingModal = true">Book This Activity</button>
+          <div v-if="!isAdmin && children.length > 0">
+            <h3>Booking Details:</h3>
+            <ul>
+              <li v-for="child in children" :key="child.id">
+                <span>{{ child.name }}:</span>
+                <button v-if="child.isBooked" @click="cancelBooking(child.id, child.bookingId)" class="cancel-button">
+                  Cancel Booking
+                </button>
+                <span v-else-if="child.isWaitlisted" class="waitlisted-status">
+                  On Waitlist
+                </span>
+                <button v-else @click="bookActivity(child.id)" class="book-activity-button">
+                  Book Activity
+                </button>
+              </li>
+            </ul>
+            <p v-if="allChildrenBooked" class="full-capacity-message">
+              All slots are currently booked. Any new bookings will be placed on the waitlist.
+            </p>
+          </div>
+          <!-- Book Activity Button for Parents -->
+          <button v-if="!isAdmin && !allChildrenBooked" class="book-activity-button" @click="showBookingModal = true">Book This Activity</button>
         </div>
         <div v-if="currentTab === 'participants' && isAdmin">
           <h2>Participants ({{ participants.length }}):</h2>
           <ul class="participant-list">
             <li v-for="participant in participants" :key="participant.id">
               <span>{{ participant.username }}</span>
-              <button class="remove-button" @click="removeUserFromActivity(participant.bookingId)">Remove</button>
+              <button class="remove-button" @click="removeBooking(participant.id, participant.bookingId)">Remove</button>
             </li>
           </ul>
         </div>
@@ -77,7 +86,6 @@
   </div>
 </template>
 
-
 <script>
 import API from '@/services/api';
 import AdminNavbar from '@/components/AdminNavbar.vue';
@@ -98,8 +106,7 @@ export default {
       children: [],
       selectedChild: '',
       currentTab: 'about',
-      bookingStatus: '', 
-      allChildrenBooked: true,
+      allChildrenBooked: false,
     };
   },
   created() {
@@ -135,7 +142,8 @@ export default {
         .then(response => {
           this.participants = response.data.map(booking => ({
             id: booking.childId._id,
-            username: booking.childId.username
+            username: booking.childId.username,
+            bookingId: booking._id // Include bookingId
           }));
         })
         .catch(error => {
@@ -163,18 +171,20 @@ export default {
       const activityId = this.$route.params.activityId;
       API.get(`activity/${activityId}/parent/${parentId}/booking-status`)
         .then(response => {
-          let allChildrenBooked = true;
+          let allChildrenBookedOrWaitlisted = true;
           this.children = this.children.map(child => {
-            const booking = response.data.find(booking => booking.childName === child.name && booking.status === 'Booked');
-            const isBooked = booking !== undefined;
-            if (!isBooked) allChildrenBooked = false;
+            const booking = response.data.find(booking => booking.childName === child.name);
+            const isBooked = booking !== undefined && booking.status === 'Booked';
+            const isWaitlisted = booking !== undefined && booking.status === 'Waitlisted';
+            if (!isBooked && !isWaitlisted) allChildrenBookedOrWaitlisted = false;
             return {
               ...child,
               isBooked,
+              isWaitlisted,
               bookingId: booking ? booking.bookingId : null // Include bookingId if available
             };
           });
-          this.allChildrenBooked = allChildrenBooked;
+          this.allChildrenBooked = allChildrenBookedOrWaitlisted;
         })
         .catch(error => {
           console.error("There was an error fetching the booking status:", error);
@@ -219,13 +229,28 @@ export default {
       .catch(error => {
         console.error("There was an error cancelling the booking:", error);
       });
+    },
+    removeBooking(participantId, bookingId) {
+      API.delete(`/deleteBooking/${bookingId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('user-token')}`
+        }
+      })
+      .then(() => {
+        alert('Booking cancelled successfully.');
+        this.fetchParticipants(); // Refresh the participants list
+        this.fetchBookingStatus(); // Optionally refresh the booking status
+      })
+      .catch(error => {
+        console.error("There was an error cancelling the booking:", error);
+      });
     }
   }
 };
 </script>
 
 <style scoped>
-.book-activity-button, .cancel-button {
+.book-activity-button, .cancel-button, .waitlisted-status {
   font-size: 16px;
   padding: 12px 24px;
   border-radius: 8px;
@@ -237,6 +262,10 @@ export default {
   display: block;
   margin-block-start: 20px;
   transition: background-color 0.3s ease;
+}
+
+.cancel-button, .waitlisted-status {
+  background-color: #FFA07A; /* Light salmon for cancel/waitlist */
 }
 
 .book-activity-button:hover, .cancel-button:hover {
@@ -326,7 +355,7 @@ li {
   inline-size: 90%;
   max-inline-size: 500px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  position: relative;
+  position:relative;
 }
 
 .close {
@@ -334,7 +363,7 @@ li {
   inset-block-start: 10px;
   inset-inline-end: 10px;
   font-size: 24px;
-  cursor: pointer;
+  cursor:pointer;
 }
 
 h3 {
@@ -361,7 +390,7 @@ h3 {
   padding: 10px;
   font-size: 16px;
   border-radius: 4px;
-  cursor: pointer;
+  cursor:pointer;
   transition: background-color 0.3s;
 }
 
@@ -370,8 +399,8 @@ h3 {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {opacity: 0;}
+  to {opacity: 1;}
 }
 
 </style>

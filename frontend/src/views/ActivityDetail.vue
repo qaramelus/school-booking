@@ -55,11 +55,18 @@
           </div>
         </div>
         <div v-if="currentTab === 'participants' && isAdmin">
-          <h2>Participants ({{ participants.length }}):</h2>
+          <h2>Confirmed Participants ({{ confirmedParticipants.length }}):</h2>
           <ul class="participant-list">
-            <li v-for="participant in participants" :key="participant.id">
+            <li v-for="participant in confirmedParticipants" :key="participant.id">
               <span>{{ participant.username }}</span>
               <button class="remove-button" @click="removeBooking(participant.id, participant.bookingId)">Remove</button>
+            </li>
+          </ul>
+          <h2>Waitlisted Participants ({{ waitlistedParticipants.length }}):</h2>
+          <ul class="participant-list">
+            <li v-for="participant in waitlistedParticipants" :key="participant.id">
+              <span>{{ participant.username }}</span>
+              <!-- Additional controls for waitlisted participants can go here -->
             </li>
           </ul>
         </div>
@@ -138,10 +145,15 @@ export default {
       const activityId = this.activity._id;
       API.get(`activity/${activityId}/bookings`)
         .then(response => {
-          this.participants = response.data.map(booking => ({
+          this.confirmedParticipants = response.data.filter(booking => booking.status === 'confirmed').map(booking => ({
             id: booking.childId._id,
             username: booking.childId.username,
-            bookingId: booking._id // Include bookingId
+            bookingId: booking._id
+          }));
+          this.waitlistedParticipants = response.data.filter(booking => booking.status === 'waitlisted').map(booking => ({
+            id: booking.childId._id,
+            username: booking.childId.username,
+            bookingId: booking._id
           }));
         })
         .catch(error => {

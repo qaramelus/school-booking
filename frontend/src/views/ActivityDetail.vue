@@ -50,11 +50,9 @@
               </li>
             </ul>
             <p v-if="allChildrenBooked" class="full-capacity-message">
-              All slots are currently booked. Any new bookings will be placed on the waitlist.
+              The activity is booked out, new bookings will be placed on the waitlist.
             </p>
           </div>
-          <!-- Book Activity Button for Parents -->
-          <button v-if="!isAdmin && !allChildrenBooked" class="book-activity-button" @click="showBookingModal = true">Book This Activity</button>
         </div>
         <div v-if="currentTab === 'participants' && isAdmin">
           <h2>Participants ({{ participants.length }}):</h2>
@@ -80,7 +78,7 @@
           <option disabled value="">Select Child</option>
           <option v-for="child in children" :value="child.id" :key="child.id">{{ child.name }}</option>
         </select>
-        <button @click="bookActivity" class="book-button">Book Activity</button>
+        <button @click="bookActivity(selectedChild)" class="book-button">Book Activity</button>
       </div>
     </div>
   </div>
@@ -191,14 +189,14 @@ export default {
           this.bookingStatus = "Error fetching booking status";
         });
     },
-    bookActivity() {
-      if (!this.selectedChild) {
+    bookActivity(childId) {
+      if (!childId) {
         alert('Please select a child');
         return;
       }
 
       const bookingInfo = {
-        childId: this.selectedChild,
+        childId: childId,
         activityId: this.activity._id,
       };
       API.post('/bookActivity', bookingInfo, {
@@ -206,17 +204,21 @@ export default {
           Authorization: `Bearer ${localStorage.getItem('user-token')}`
         }
       })
-      .then(() => {
-        alert('Activity booked successfully');
+      .then(response => {
+        if (response.data.status === 'waitlisted') {
+          alert('The activity is booked out, you have been put on the waitlist.');
+        } else {
+          alert('Activity booked successfully');
+        }
         this.showBookingModal = false;
         this.fetchBookingStatus(); // Refresh booking status after booking
       })
       .catch(error => {
         console.error("There was an error booking the activity:", error);
+        alert('Failed to book activity. Please try again.');
       });
     },
     cancelBooking(childId, bookingId) {
-      // Use DELETE method and include bookingId in the URL
       API.delete(`/deleteBooking/${bookingId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('user-token')}`
@@ -237,12 +239,12 @@ export default {
         }
       })
       .then(() => {
-        alert('Booking cancelled successfully.');
+        alert('Booking removed successfully.');
         this.fetchParticipants(); // Refresh the participants list
         this.fetchBookingStatus(); // Optionally refresh the booking status
       })
       .catch(error => {
-        console.error("There was an error cancelling the booking:", error);
+        console.error("There was an error removing the booking:", error);
       });
     }
   }

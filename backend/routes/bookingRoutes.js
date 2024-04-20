@@ -4,6 +4,7 @@ const router = express.Router();
 const bookingController = require('../controllers/bookingController');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
+
 // Routes related to booking activities
 router.post('/bookActivity', authMiddleware, bookingController.createBooking); // Booking an activity
 router.delete('/deleteBooking/:bookingId', authMiddleware, bookingController.deleteBooking); // Deleting a booking

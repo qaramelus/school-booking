@@ -2,6 +2,7 @@
 const Activity = require('../models/Activity'); 
 const Booking = require('../models/Booking'); 
 const User = require('../models/User');
+const mongoose = require('mongoose');
 
 // Create a new booking
 exports.createBooking = async (req, res) => {
@@ -50,19 +51,39 @@ exports.createBooking = async (req, res) => {
   }
 };
 
-
-// Delete a booking
+// Delete a booking and potentially promote someone from the waiting list
 exports.deleteBooking = async (req, res) => {
   try {
     const bookingId = req.params.bookingId;
-    const deletedBooking = await Booking.findByIdAndDelete(bookingId);
+    const booking = await Booking.findById(bookingId);
 
-    if (!deletedBooking) {
+    if (!booking) {
       return res.status(404).json({ message: 'Booking not found' });
     }
 
-    res.status(200).json({ message: 'Booking deleted successfully', deletedBooking });
+    // Delete the booking
+    await Booking.findByIdAndDelete(bookingId);
+
+    // Decrement the current participants count or the waitlist count
+    const update = booking.status === 'confirmed' ? { $inc: { currentParticipants: -1 } } : { $inc: { waitlistCount: -1 } };
+    await Activity.findByIdAndUpdate(booking.activityId, update);
+
+    // If the deleted booking was a confirmed booking, check for waitlisted bookings
+    if (booking.status === 'confirmed') {
+      const waitlistedBooking = await Booking.findOne({ activityId: booking.activityId, status: 'waitlisted' });
+      if (waitlistedBooking) {
+        // Promote the first waitlisted booking to confirmed
+        waitlistedBooking.status = 'confirmed';
+        await waitlistedBooking.save();
+
+        // Adjust counts
+        await Activity.findByIdAndUpdate(booking.activityId, { $inc: { currentParticipants: 1, waitlistCount: -1 } });
+      }
+    }
+
+    res.status(200).json({ message: 'Booking deleted successfully' });
   } catch (error) {
+    console.error('Failed to delete booking:', error);
     res.status(500).json({ message: 'Failed to delete booking', error: error.message });
   }
 };

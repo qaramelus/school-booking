@@ -508,4 +508,3 @@ exports.fetchAllNonCancelledSessionsForChild = async (req, res) => {
     res.status(500).json({ message: "Error fetching non-cancelled sessions for the child across all activities", error: error.message });
   }
 };
-

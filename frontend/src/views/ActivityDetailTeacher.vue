@@ -1,38 +1,39 @@
 <template>
-    <div class="activity-detail-container">
-      <TeacherNavbar />
-      <div v-if="activity" class="activity-detail-tabs">
-        <!-- Tab Headers -->
-        <button @click="currentTab = 'about'" :class="{'active-tab': currentTab === 'about'}">About</button>
-        <button @click="currentTab = 'participants'" :class="{'active-tab': currentTab === 'participants'}">Participants</button>
-        <!-- Tab Content -->
-        <div class="tab-content">
-          <div v-if="currentTab === 'about'" class="activity-detail">
-            <h1>{{ activity.name }}</h1>
-            <p>{{ activity.description }}</p>
-            <p>Date: {{ new Date(activity.startDate).toLocaleDateString() }} to {{ new Date(activity.endDate).toLocaleDateString() }}</p>
-          </div>
-          <div v-if="currentTab === 'participants'">
-            <h2>Session Participation</h2>
-            <ul>
-              <li v-for="(session, index) in sessionInfo" :key="index" @click="toggleParticipantList(index)">
-                <div>
-                  {{ session.date }}: {{ session.startTime }} - {{ session.endTime }} ({{ session.count }} participants)
-                </div>
-                <ul v-if="expandedSlots.includes(index)">
-                  <li v-for="participant in session.participants" :key="participant.childId">
-                    {{ participant.username }} ({{ participant.email }})
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </div>
+  <div class="activity-detail-container">
+    <TeacherNavbar />
+    <div v-if="activity" class="activity-detail-tabs">
+      <button @click="currentTab = 'about'" :class="{'active-tab': currentTab === 'about'}">About</button>
+      <button @click="currentTab = 'participants'" :class="{'active-tab': currentTab === 'participants'}">Participants</button>
+      <div class="tab-content">
+        <div v-if="currentTab === 'about'" class="activity-detail">
+          <h1>{{ activity.name }}</h1>
+          <p>{{ activity.description }}</p>
+          <p>Date: {{ new Date(activity.startDate).toLocaleDateString() }} to {{ new Date(activity.endDate).toLocaleDateString() }}</p>
+        </div>
+        <div v-if="currentTab === 'participants'">
+          <h2>Session Participation</h2>
+          <ul>
+            <li v-for="(session, index) in sessionInfo" :key="index" @click="toggleParticipantList(index)">
+              <div>
+                {{ session.date }}: {{ session.startTime }} - {{ session.endTime }} ({{ session.count }} participants)
+              </div>
+              <ul v-if="expandedSlots.includes(index)">
+                <li v-for="participant in session.participants" :key="participant.childId">
+                  {{ participant.username }} ({{ participant.email }})
+                  <!-- Conditionally render button or checkmark -->
+                  <span v-if="isAttended(participant.childId, index)" class="checkmark">✔️</span>
+                  <button v-else @click.stop="markAttendance(participant.childId, session, index)" class="mark-attendance-btn">Mark Attended</button>
+                </li>
+              </ul>
+            </li>
+          </ul>
         </div>
       </div>
-      <div v-else class="loading">
-        Loading activity details...
-      </div>
     </div>
+    <div v-else class="loading">
+      Loading activity details...
+    </div>
+  </div>
 </template>
 
 <script>
@@ -47,9 +48,10 @@ export default {
   data() {
     return {
       activity: null,
-      currentTab: 'about', // Default tab
-      expandedSlots: [], // Tracks which slots are expanded
-      sessionInfo: []
+      currentTab: 'about',
+      expandedSlots: [],
+      sessionInfo: [],
+      attendedSessions: {}  // Changed to track session and participant
     };
   },
   created() {
@@ -71,7 +73,7 @@ export default {
       const activityId = this.$route.params.activityId;
       API.get(`http://localhost:5005/api/activities/${activityId}/sessions-info`)
         .then(response => {
-          this.sessionInfo = Object.values(response.data)[0]; // Assuming the response data is the object shown above
+          this.sessionInfo = Object.values(response.data)[0];
         })
         .catch(error => {
           console.error("Error fetching session information:", error);
@@ -84,40 +86,54 @@ export default {
       } else {
         this.expandedSlots.push(index);
       }
+    },
+    markAttendance(childId, session, index) {
+        const payload = {
+            activityId: this.$route.params.activityId,
+            childId: childId,
+            timeSlot: {
+                startDate: session.date,
+                startTime: session.startTime,
+                endTime: session.endTime
+            },
+            attended: true
+        };
+        API.post('http://localhost:5005/api/attendance/', payload)
+            .then(() => {
+                if (!this.attendedSessions[index]) {
+                    this.attendedSessions[index] = [];
+                }
+                this.attendedSessions[index].push(childId);  // Track by session index and childId
+                alert('Attendance marked successfully.');
+            })
+            .catch(error => {
+                console.error('Error marking attendance:', error);
+                alert('Failed to mark attendance.');
+            });
+    },
+    isAttended(childId, sessionIndex) {
+      return this.attendedSessions[sessionIndex] && this.attendedSessions[sessionIndex].includes(childId);
     }
   }
 };
 </script>
 
 <style scoped>
-.activity-detail-container, .activity-detail-tabs, .tab-content {
-  display: flex;
-  flex-direction: column;
+.checkmark {
+  color: green;
+  font-size: 20px;
+  margin-left: 10px;
 }
-.activity-detail-tabs {
-  justify-content: space-around;
-  background-color: #f5f5f5;
-  padding: 10px 0;
-  position: sticky;
-  inset-block-start: 0;
-  z-index: 1000;
-}
-.activity-detail h1, .activity-detail h2, .activity-detail h3, .loading {
-  color: #333;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  background: #e9ecef;
-  margin: 5px 0;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-.active-tab {
-  background-color: #007bff;
+.mark-attendance-btn {
+  background-color: #4CAF50; /* Green */
+  border: none;
   color: white;
+  padding: 5px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  cursor: pointer;
 }
 </style>

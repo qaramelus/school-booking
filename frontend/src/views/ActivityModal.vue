@@ -2,7 +2,7 @@
   <div class="modal-overlay" v-if="isVisible">
     <div class="modal-content">
       <span class="close" @click="closeModal">&times;</span>
-      <h2>Add New Activity</h2>
+      <h2>{{ editingActivity ? 'Edit Activity' : 'Add New Activity' }}</h2>
       <form @submit.prevent="submitActivity" class="activity-form">
         <!-- Title field -->
         <div class="form-group">
@@ -14,10 +14,10 @@
         <div class="form-group">
           <label for="activity-teachers">Teachers:</label>
           <select id="activity-teachers" v-model="activity.teachers" multiple required>
-          <option disabled value="">Select Teachers</option>
-          <option v-for="teacher in teachers" :value="teacher._id" :key="teacher._id">
-          {{ teacher.username }}
-          </option>
+            <option disabled value="">Select Teachers</option>
+            <option v-for="teacher in teachers" :value="teacher._id" :key="teacher._id">
+              {{ teacher.username }}
+            </option>
           </select>
         </div>
 
@@ -47,22 +47,38 @@
 
         <!-- Time Slot Section -->
         <div class="time-slot-section">
-          <div class="form-group" v-for="(slot, index) in activity.timeSlots" :key="index">
-            <label>Day of the Week:</label>
-            <select v-model="slot.dayOfWeek" required>
-              <option disabled value="">Select a Day</option>
-              <option value="Monday">Monday</option>
-              <option value="Tuesday">Tuesday</option>
-              <option value="Wednesday">Wednesday</option>
-              <option value="Thursday">Thursday</option>
-              <option value="Friday">Friday</option>
-              <option value="Saturday">Saturday</option>
-              <option value="Sunday">Sunday</option>
-            </select>
-            <label>Start Time:</label>
-            <input type="time" v-model="slot.startTime" required>
-            <label>End Time:</label>
-            <input type="time" v-model="slot.endTime" required>
+          <div class="time-slot" v-for="(slot, index) in activity.timeSlots" :key="index">
+            <h3>Time Slot {{ index + 1 }}</h3>
+            <div class="form-group">
+              <label>Location:</label>
+              <select v-model="slot.location" required>
+                <option disabled value="">Select Location</option>
+                <option v-for="location in locations" :value="location._id" :key="location._id">
+                  {{ location.name }} - {{ location.address }}
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Day of the Week:</label>
+              <select v-model="slot.dayOfWeek" required>
+                <option disabled value="">Select a Day</option>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Start Time:</label>
+              <input type="time" v-model="slot.startTime" required>
+            </div>
+            <div class="form-group">
+              <label>End Time:</label>
+              <input type="time" v-model="slot.endTime" required>
+            </div>
             <button type="button" @click.prevent="removeTimeSlot(index)">Remove Time Slot</button>
           </div>
           <div class="add-slot-button-container">
@@ -70,7 +86,7 @@
           </div>
         </div>
 
-        <button type="submit" class="submit-button">Add Activity</button>
+        <button type="submit" class="submit-button">{{ editingActivity ? 'Update Activity' : 'Add Activity' }}</button>
       </form>
     </div>
   </div>
@@ -89,11 +105,12 @@
           description: '',
           startDate: '',
           endDate: '',
-          timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '' }],
+          timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '', location: '' }],
           teachers: [],
-          maxParticipants: 10 
+          maxParticipants: 10
         },
-        teachers: [] // Initialize the teachers array to hold the fetched teacher data
+        teachers: [],
+        locations: []
       };
     },
     watch: {
@@ -104,7 +121,7 @@
               ...newVal,
               startDate: newVal.startDate.split('T')[0],
               endDate: newVal.endDate.split('T')[0],
-              timeSlots: newVal.timeSlots.length > 0 ? newVal.timeSlots : [{ dayOfWeek: '', startTime: '', endTime: '' }],
+              timeSlots: newVal.timeSlots.length > 0 ? newVal.timeSlots : [{ dayOfWeek: '', startTime: '', endTime: '', location: '' }],
               maxParticipants: newVal.maxParticipants || 10 // Provide a default if it's not set
             };
           } else {
@@ -117,7 +134,7 @@
     },
     methods: {
       addTimeSlot() {
-        this.activity.timeSlots.push({ dayOfWeek: '', startTime: '', endTime: '' });
+        this.activity.timeSlots.push({ dayOfWeek: '', startTime: '', endTime: '', location: '' });
       },
       removeTimeSlot(index) {
         this.activity.timeSlots.splice(index, 1);
@@ -158,7 +175,7 @@
           description: '',
           startDate: '',
           endDate: '',
-          timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '' }],
+          timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '', location: '' }],
           teachers: [],
           maxParticipants: 10 
         };
@@ -175,13 +192,22 @@
             console.error('Error fetching teachers:', error);
           });
       },
+      fetchLocations() {
+        API.get('/location/locations')
+          .then(response => {
+            this.locations = response.data;
+          })
+          .catch(error => {
+            console.error('Error fetching locations:', error);
+          });
+      },
     },
     created() {
-      this.fetchTeachers(); // Fetch teachers when the component is created
+      this.fetchTeachers();
+      this.fetchLocations();
     },
   };
 </script>
-
 
 <style scoped>
 .modal-overlay {

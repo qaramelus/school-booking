@@ -1,7 +1,6 @@
 // activityController.js
-const Activity = require('../models/Activity'); 
-const Booking = require('../models/Booking'); 
-const User = require('../models/User'); 
+const Activity = require('../models/Activity');
+const Location = require('../models/Location'); // Import Location model
 
 // Function to create an Activity with scheduling
 exports.createActivity = async (req, res) => {
@@ -49,7 +48,7 @@ exports.deleteActivity = async (req, res) => {
 // Function to update an activity
 exports.updateActivity = async (req, res) => {
   try {
-    const { maxParticipants } = req.body;
+    const { maxParticipants, location } = req.body; // Include location in the request body
     const activity = await Activity.findById(req.params.id);
 
     if (!activity) {
@@ -61,7 +60,8 @@ exports.updateActivity = async (req, res) => {
 
     const updatedActivity = await Activity.findByIdAndUpdate(req.params.id, {
       ...req.body,
-      maxParticipants: maxParticipants || activity.maxParticipants // Ensure maxParticipants is updated or maintained
+      maxParticipants: maxParticipants || activity.maxParticipants, // Ensure maxParticipants is updated or maintained
+      location: location || activity.location // Ensure location is updated or maintained
     }, { new: true });
 
     res.status(200).json(updatedActivity);
@@ -74,7 +74,7 @@ exports.updateActivity = async (req, res) => {
 exports.getActivityById = async (req, res) => {
   try {
     const activity = await Activity.findById(req.params.id)
-      .populate('teachers', 'username') 
+      .populate('teachers', 'username')
       .exec();
 
     if (!activity) {
@@ -85,7 +85,6 @@ exports.getActivityById = async (req, res) => {
     res.status(500).json({ message: 'Error fetching activity', error: error.message });
   }
 };
-
 
 // Fetch list of participants per activity
 exports.getActivityParticipants = async (req, res) => {
@@ -106,7 +105,7 @@ exports.fetchActivitiesWithParticipants = async (req, res) => {
 
     activities = await Promise.all(activities.map(async (activity) => {
       const participantCount = await Booking.countDocuments({ activityId: activity._id });
-      return { ...activity.toObject(), participantCount }; 
+      return { ...activity.toObject(), participantCount };
     }));
 
     res.json(activities);
@@ -118,7 +117,7 @@ exports.fetchActivitiesWithParticipants = async (req, res) => {
 // Function to fetch a single Activity with its participant count
 exports.getActivityWithParticipants = async (req, res) => {
   try {
-    const activityId = req.params.id; 
+    const activityId = req.params.id;
     const activity = await Activity.findById(activityId);
 
     if (!activity) {
@@ -139,7 +138,7 @@ exports.fetchActivitiesForTeacher = async (req, res) => {
   try {
     const teacherId = req.params.teacherId;
     const activities = await Activity.find({ teachers: teacherId })
-      .populate('teachers', 'username') 
+      .populate('teachers', 'username')
       .exec();
 
     res.json(activities);
@@ -208,161 +207,160 @@ exports.fetchActivitiesForParents = async (req, res) => {
 
 exports.calculateTimeslotsPerActivity = async (req, res) => {
   try {
-      const { activityId } = req.params;
-      const activity = await Activity.findById(activityId);
+    const { activityId } = req.params;
+    const activity = await Activity.findById(activityId);
 
-      if (!activity) {
-          return res.status(404).json({ message: 'Activity not found' });
-      }
+    if (!activity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
 
-      // Fetch all bookings for the given activity
-      const bookings = await Booking.find({ activityId: activity._id })
-          .populate('childId', 'username email')
-          .lean();
+    // Fetch all bookings for the given activity
+    const bookings = await Booking.find({ activityId: activity._id })
+      .populate('childId', 'username email')
+      .lean();
 
-      let timeSlotsInfo = {};
+    let timeSlotsInfo = {};
 
-      // Initialize each timeslot with an empty array of participants and count
-      activity.timeSlots.forEach(slot => {
-          const key = `${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`;
-          timeSlotsInfo[key] = {
-              participants: [],
-              count: 0
-          };
-      });
+    // Initialize each timeslot with an empty array of participants and count
+    activity.timeSlots.forEach(slot => {
+      const key = `${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`;
+      timeSlotsInfo[key] = {
+        participants: [],
+        count: 0
+      };
+    });
 
-      // Aggregate participants and counts for each timeslot
-      bookings.forEach(booking => {
-          booking.timeSlots.forEach(slot => {
-              const key = `${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`;
-              const isCancelled = booking.cancellations.some(cancellation => 
-                  cancellation.date.toISOString() === slot.startDate.toISOString() &&
-                  cancellation.startTime === slot.startTime);
+    // Aggregate participants and counts for each timeslot
+    bookings.forEach(booking => {
+      booking.timeSlots.forEach(slot => {
+        const key = `${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`;
+        const isCancelled = booking.cancellations.some(cancellation =>
+          cancellation.date.toISOString() === slot.startDate.toISOString() &&
+          cancellation.startTime === slot.startTime);
 
-              if (!isCancelled && timeSlotsInfo[key]) {
-                  timeSlotsInfo[key].participants.push({
-                      childId: booking.childId._id,
-                      username: booking.childId.username,
-                      email: booking.childId.email
-                  });
-                  timeSlotsInfo[key].count++;
-              }
+        if (!isCancelled && timeSlotsInfo[key]) {
+          timeSlotsInfo[key].participants.push({
+            childId: booking.childId._id,
+            username: booking.childId.username,
+            email: booking.childId.email
           });
+          timeSlotsInfo[key].count++;
+        }
       });
+    });
 
-      res.json(timeSlotsInfo);
+    res.json(timeSlotsInfo);
   } catch (error) {
-      console.error('Error calculating timeslots per activity:', error);
-      res.status(500).send({ message: "Error calculating timeslots per activity", error: error.toString() });
+    console.error('Error calculating timeslots per activity:', error);
+    res.status(500).send({ message: "Error calculating timeslots per activity", error: error.toString() });
   }
 };
 
-
 exports.fetchParticipantsPerTimeSlot = async (req, res) => {
   try {
-      const { activityId } = req.params;
-      const activity = await Activity.findById(activityId);
+    const { activityId } = req.params;
+    const activity = await Activity.findById(activityId);
 
-      if (!activity) {
-          return res.status(404).json({ message: 'Activity not found' });
-      }
+    if (!activity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
 
-      // Fetch all bookings for the given activity
-      const bookings = await Booking.find({ activityId: activity._id })
-          .populate('childId', 'username email')
-          .lean();
+    // Fetch all bookings for the given activity
+    const bookings = await Booking.find({ activityId: activity._id })
+      .populate('childId', 'username email')
+      .lean();
 
-      let timeSlotParticipants = {};
+    let timeSlotParticipants = {};
 
-      // Initialize each timeslot with an empty array of participants
-      activity.timeSlots.forEach(slot => {
-          const key = `${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`;
-          timeSlotParticipants[key] = [];
-      });
+    // Initialize each timeslot with an empty array of participants
+    activity.timeSlots.forEach(slot => {
+      const key = `${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`;
+      timeSlotParticipants[key] = [];
+    });
 
-      bookings.forEach(booking => {
-          booking.timeSlots.forEach(slot => {
-              // Form a key that uniquely identifies each timeslot
-              const key = `${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`;
-              const isCancelled = booking.cancellations.some(cancellation => 
-                  cancellation.date.toISOString() === slot.startDate.toISOString() &&
-                  cancellation.startTime === slot.startTime);
+    bookings.forEach(booking => {
+      booking.timeSlots.forEach(slot => {
+        // Form a key that uniquely identifies each timeslot
+        const key = `${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`;
+        const isCancelled = booking.cancellations.some(cancellation =>
+          cancellation.date.toISOString() === slot.startDate.toISOString() &&
+          cancellation.startTime === slot.startTime);
 
-              if (!isCancelled && timeSlotParticipants[key]) {
-                  timeSlotParticipants[key].push({
-                      childId: booking.childId._id,
-                      username: booking.childId.username,
-                      email: booking.childId.email
-                  });
-              }
+        if (!isCancelled && timeSlotParticipants[key]) {
+          timeSlotParticipants[key].push({
+            childId: booking.childId._id,
+            username: booking.childId.username,
+            email: booking.childId.email
           });
+        }
       });
+    });
 
-      res.json(timeSlotParticipants);
+    res.json(timeSlotParticipants);
   } catch (error) {
-      console.error('Error fetching participants per time slot:', error);
-      res.status(500).send({ message: "Error fetching participants per time slot", error: error.toString() });
+    console.error('Error fetching participants per time slot:', error);
+    res.status(500).send({ message: "Error fetching participants per time slot", error: error.toString() });
   }
 };
 
 exports.calculateSessionsPerTimeSlot = async (req, res) => {
   try {
-      const { activityId } = req.params;
-      const activity = await Activity.findById(activityId);
+    const { activityId } = req.params;
+    const activity = await Activity.findById(activityId);
 
-      if (!activity) {
-          return res.status(404).json({ message: 'Activity not found' });
+    if (!activity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
+
+    const bookings = await Booking.find({ activityId: activity._id })
+      .populate('childId', 'username email')
+      .lean();
+
+    let sessionDetails = {};
+
+    activity.timeSlots.forEach(slot => {
+      const key = `${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`;
+      sessionDetails[key] = [];
+
+      let currentDate = new Date(activity.startDate);
+      const dayOfWeek = dayOfWeekToNumber(slot.dayOfWeek);
+      currentDate = nextDay(currentDate, dayOfWeek);
+
+      while (currentDate <= activity.endDate) {
+        const dateString = currentDate.toISOString().split('T')[0];
+
+        sessionDetails[key].push({
+          date: dateString,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+          participants: [],
+          count: 0
+        });
+
+        currentDate.setDate(currentDate.getDate() + 7);
       }
+    });
 
-      const bookings = await Booking.find({ activityId: activity._id })
-          .populate('childId', 'username email')
-          .lean();
-
-      let sessionDetails = {};
-
-      activity.timeSlots.forEach(slot => {
-          const key = `${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`;
-          sessionDetails[key] = [];
-
-          let currentDate = new Date(activity.startDate);
-          const dayOfWeek = dayOfWeekToNumber(slot.dayOfWeek);
-          currentDate = nextDay(currentDate, dayOfWeek);
-
-          while (currentDate <= activity.endDate) {
-              const dateString = currentDate.toISOString().split('T')[0];
-
-              sessionDetails[key].push({
-                  date: dateString,
-                  startTime: slot.startTime,
-                  endTime: slot.endTime,
-                  participants: [],
-                  count: 0
-              });
-
-              currentDate.setDate(currentDate.getDate() + 7);
+    bookings.forEach(booking => {
+      Object.keys(sessionDetails).forEach(timeSlotKey => {
+        sessionDetails[timeSlotKey].forEach(session => {
+          if (!booking.cancellations.some(cancellation =>
+            cancellation.date.toISOString().split('T')[0] === session.date)) {
+            session.participants.push({
+              childId: booking.childId._id,
+              username: booking.childId.username,
+              email: booking.childId.email
+            });
+            session.count++;
           }
+        });
       });
+    });
 
-      bookings.forEach(booking => {
-          Object.keys(sessionDetails).forEach(timeSlotKey => {
-              sessionDetails[timeSlotKey].forEach(session => {
-                  if (!booking.cancellations.some(cancellation => 
-                      cancellation.date.toISOString().split('T')[0] === session.date)) {
-                      session.participants.push({
-                          childId: booking.childId._id,
-                          username: booking.childId.username,
-                          email: booking.childId.email
-                      });
-                      session.count++;
-                  }
-              });
-          });
-      });
-
-      res.json(sessionDetails);
+    res.json(sessionDetails);
   } catch (error) {
-      console.error('Error calculating sessions per time slot:', error);
-      res.status(500).send({ message: "Error calculating sessions per time slot", error: error.toString() });
+    console.error('Error calculating sessions per time slot:', error);
+    res.status(500).send({ message: "Error calculating sessions per time slot", error: error.toString() });
   }
 };
 
@@ -459,7 +457,6 @@ function calculateSessions(activity) {
   return sessions;
 }
 
-
 function dayOfWeekToNumber(day) {
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   return days.indexOf(day);
@@ -485,7 +482,7 @@ exports.fetchAllNonCancelledSessionsForChild = async (req, res) => {
       const calculatedSessions = calculateSessions(activityId);
 
       calculatedSessions.forEach(session => {
-        const isCancelled = booking.cancellations.some(cancellation => 
+        const isCancelled = booking.cancellations.some(cancellation =>
           new Date(session.date).toISOString().split('T')[0] === new Date(cancellation.date).toISOString().split('T')[0] &&
           session.startTime === cancellation.startTime
         );

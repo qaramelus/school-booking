@@ -38,7 +38,7 @@ export default {
 .teacher-nav {
   background-color: #34495e;
   padding: 1rem 0; /* Remove horizontal padding */
-  width: 100%; /* Ensure the nav is full-width */
+  inline-size: 100%; /* Ensure the nav is full-width */
   margin: 0; /* Remove any default margin */
   display: flex;
   justify-content: space-between;
@@ -55,7 +55,7 @@ export default {
 }
 
 .teacher-nav li {
-  margin-right: 20px;
+  margin-inline-end: 20px;
 }
 
 .teacher-nav a {
@@ -87,17 +87,17 @@ export default {
   color: #bdc3c7;
 }
 
-@media (max-width: 768px) {
+@media (max-inline-size: 768px) {
   .burger {
     display: block;
   }
 
   .teacher-nav ul {
     flex-direction: column;
-    width: 100%;
+    inline-size: 100%;
     position: absolute;
-    top: 58px;
-    left: 0;
+    inset-block-start: 58px;
+    inset-inline-start: 0;
     background-color: #34495e;
     padding: 1rem;
     align-items: center;
@@ -110,8 +110,8 @@ export default {
 
   .logout-button {
     position: absolute;
-    top: 18px;
-    right: 2rem;
+    inset-block-start: 18px;
+    inset-inline-end: 2rem;
   }
 }
 </style>

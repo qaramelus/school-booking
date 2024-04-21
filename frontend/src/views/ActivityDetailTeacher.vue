@@ -12,16 +12,15 @@
         </div>
         <div v-if="currentTab === 'participants'">
           <h2>Session Participation</h2>
-          <ul>
+          <ul class="session-list">
             <li v-for="(session, index) in sessionInfo" :key="index" @click="toggleParticipantList(index)">
-              <div>
-                {{ session.date }}: {{ session.startTime }} - {{ session.endTime }} ({{ session.count }} participants)
+              <div class="session-header">
+                {{ session.date }}: {{ session.startTime }} - {{ session.endTime }} ({{ session.participants.length }} participants)
               </div>
-              <ul v-if="expandedSlots.includes(index)">
-                <li v-for="participant in session.participants" :key="participant.childId">
-                  {{ participant.username }} ({{ participant.email }})
-                  <!-- Conditionally render button or checkmark -->
-                  <span v-if="isAttended(participant.childId, index)" class="checkmark">✔️</span>
+              <ul v-if="expandedSlots.includes(index)" class="participant-list">
+                <li v-for="participant in session.participants" :key="participant.childId" class="participant-item">
+                  {{ participant.childName }} ({{ participant.email }})
+                  <span v-if="participant.attended === 'attended'" class="checkmark">✔️</span>
                   <button v-else @click.stop="markAttendance(participant.childId, session, index)" class="mark-attendance-btn">Mark Attended</button>
                 </li>
               </ul>
@@ -30,9 +29,7 @@
         </div>
       </div>
     </div>
-    <div v-else class="loading">
-      Loading activity details...
-    </div>
+    <div v-else class="loading">Loading activity details...</div>
   </div>
 </template>
 
@@ -50,8 +47,7 @@ export default {
       activity: null,
       currentTab: 'about',
       expandedSlots: [],
-      sessionInfo: [],
-      attendedSessions: {}  // Changed to track session and participant
+      sessionInfo: []
     };
   },
   created() {
@@ -71,9 +67,9 @@ export default {
     },
     fetchSessionInfo() {
       const activityId = this.$route.params.activityId;
-      API.get(`http://localhost:5005/api/activities/${activityId}/sessions-info`)
+      API.get(`http://localhost:5005/api/attendance/${activityId}/enhanced-sessions`)
         .then(response => {
-          this.sessionInfo = Object.values(response.data)[0];
+          this.sessionInfo = response.data;
         })
         .catch(error => {
           console.error("Error fetching session information:", error);
@@ -88,42 +84,67 @@ export default {
       }
     },
     markAttendance(childId, session, index) {
-        const payload = {
-            activityId: this.$route.params.activityId,
-            childId: childId,
-            timeSlot: {
-                startDate: session.date,
-                startTime: session.startTime,
-                endTime: session.endTime
-            },
-            attended: true
-        };
-        API.post('http://localhost:5005/api/attendance/', payload)
-            .then(() => {
-                if (!this.attendedSessions[index]) {
-                    this.attendedSessions[index] = [];
-                }
-                this.attendedSessions[index].push(childId);  // Track by session index and childId
-                alert('Attendance marked successfully.');
-            })
-            .catch(error => {
-                console.error('Error marking attendance:', error);
-                alert('Failed to mark attendance.');
-            });
-    },
-    isAttended(childId, sessionIndex) {
-      return this.attendedSessions[sessionIndex] && this.attendedSessions[sessionIndex].includes(childId);
+      const payload = {
+        activityId: this.$route.params.activityId,
+        childId: childId,
+        timeSlot: {
+          startDate: session.date,
+          startTime: session.startTime,
+          endTime: session.endTime
+        },
+        attended: true
+      };
+      API.post('http://localhost:5005/api/attendance/', payload)
+        .then(() => {
+          this.sessionInfo[index].participants.find(p => p.childId === childId).attended = 'attended';
+          alert('Attendance marked successfully.');
+        })
+        .catch(error => {
+          console.error('Error marking attendance:', error);
+          alert('Failed to mark attendance.');
+        });
     }
   }
 };
 </script>
 
 <style scoped>
+.activity-detail-tabs button.active-tab {
+  background-color: #007BFF;
+  color: white;
+}
+
+.session-list {
+  list-style: none;
+  padding: 0;
+}
+
+.session-header {
+  background-color: #f7f7f7;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+}
+
+.participant-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 5px;
+}
+
+.participant-item {
+  background-color: #fff;
+  padding: 5px;
+  border-bottom: 1px solid #eee;
+}
+
 .checkmark {
   color: green;
   font-size: 20px;
   margin-left: 10px;
 }
+
 .mark-attendance-btn {
   background-color: #4CAF50; /* Green */
   border: none;
@@ -136,4 +157,9 @@ export default {
   margin: 4px 2px;
   cursor: pointer;
 }
+
+.loading {
+  text-align: center;
+}
 </style>
+

@@ -55,7 +55,7 @@ export default {
     const fetchNonCancelledSessions = async () => {
       if (selectedChildId.value) {
         try {
-          const url = `/activities/children/${selectedChildId.value}/non-cancelled-sessions`;
+          const url = `/activity-participants/children/${selectedChildId.value}/non-cancelled-sessions`;
           const { data } = await API.get(url);
           const events = data.map(session => ({
             title: session.activityName,

@@ -36,7 +36,7 @@ export default {
   methods: {
     fetchActivitiesForTeacher() {
       const teacherId = localStorage.getItem('user-id');
-      API.get(`/activities/forteacher/${teacherId}`)
+      API.get(`/activity-participants/forteacher/${teacherId}`)
         .then(response => {
           this.activities = response.data;
         })

@@ -27,7 +27,8 @@
             <p><strong>Start Date:</strong> {{ new Date(activity.startDate).toLocaleDateString() }}</p>
             <p><strong>End Date:</strong> {{ new Date(activity.endDate).toLocaleDateString() }}</p>
             <div v-for="(slot, index) in activity.timeSlots" :key="index">
-              <p>{{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}</p>
+              <p><strong>{{ slot.dayOfWeek }}:</strong> {{ slot.startTime }} - {{ slot.endTime }}</p>
+              <p><strong>Location:</strong> {{ getLocationName(slot.location) }}</p>
             </div>
           </div>
           <div class="card-icons">
@@ -39,8 +40,6 @@
     </div>
   </div>
 </template>
-
-
 
 <script>
 import API from '@/services/api';
@@ -62,6 +61,7 @@ export default {
       editingActivity: null,
       trashIcon,
       editIcon,
+      locations: [] // Add a locations array to hold fetched location data
     };
   },
   methods: {
@@ -113,10 +113,24 @@ export default {
     prepareNewActivity() {
       this.editingActivity = null;
       this.showModal = true;
-    }
+    },
+    getLocationName(locationId) {
+      const location = this.locations.find(loc => loc._id === locationId);
+      return location ? location.name : 'Unknown'; // Return 'Unknown' if location not found
+    },
+    fetchLocations() {
+      API.get('/location/locations')
+        .then(response => {
+          this.locations = response.data;
+        })
+        .catch(error => {
+          console.error('Error fetching locations:', error);
+        });
+    },
   },
   created() {
     this.fetchActivities();
+    this.fetchLocations(); // Fetch locations when the component is created
   }
 };
 </script>

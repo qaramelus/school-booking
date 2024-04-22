@@ -130,19 +130,19 @@ export default {
 .participant-list {
   list-style: none;
   padding: 0;
-  margin-top: 5px;
+  margin-block-start: 5px;
 }
 
 .participant-item {
   background-color: #fff;
   padding: 5px;
-  border-bottom: 1px solid #eee;
+  border-block-end: 1px solid #eee;
 }
 
 .checkmark {
   color: green;
   font-size: 20px;
-  margin-left: 10px;
+  margin-inline-start: 10px;
 }
 
 .mark-attendance-btn {

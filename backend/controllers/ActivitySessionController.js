@@ -1,46 +1,31 @@
 // Manages session-related operations
-const { calculateSessionsPerTimeslot } = require('../utils/sessionCalculator');
+const { calculateSessionsPerTimeslot, calculateSessionsPerTimeslotWithChanges } = require('../utils/sessionCalculator');
 const Activity = require('../models/Activity');
 const Booking = require('../models/Booking');
+const moment = require('moment'); 
 
 // Calculate sessions for an activity
 exports.calculateSessionsPerActivity = async (req, res) => {
     try {
-      const { activityId } = req.params;
-      const activity = await Activity.findById(activityId);
-      if (!activity) {
-        return res.status(404).json({ message: 'Activity not found' });
-      }
-  
-      const sessions = [];
-      const { startDate, endDate, timeSlots } = activity;
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-  
-      timeSlots.forEach(slot => {
-        const current = new Date(start);
-        const day = dayOfWeekToNumber(slot.dayOfWeek);
-        current.setDate(current.getDate() + ((day - current.getDay() + 7) % 7));
-  
-        while (current <= end) {
-          sessions.push({
-            date: current.toISOString().split('T')[0],
-            startTime: slot.startTime,
-            endTime: slot.endTime,
-            dayOfWeek: slot.dayOfWeek
-          });
-          current.setDate(current.getDate() + 7);
+        const { activityId } = req.params;
+        const activity = await Activity.findById(activityId);
+        if (!activity) {
+            return res.status(404).json({ message: 'Activity not found' });
         }
-      });
-  
-      // Sort sessions by date
-      sessions.sort((a, b) => new Date(a.date) - new Date(b.date));
-  
-      res.json(sessions);
+
+        const { startDate, endDate, timeSlots } = activity;
+        const sessions = timeSlots.flatMap(slot =>
+            calculateSessionsPerTimeslot(slot, startDate, endDate)
+        );
+
+        // Sort sessions by date
+        sessions.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        res.json(sessions);
     } catch (error) {
-      res.status(500).send({ message: "Error calculating sessions", error: error.toString() });
+        res.status(500).send({ message: "Error calculating sessions", error: error.toString() });
     }
-  };
+};
 
   exports.calculateTimeslotsPerActivity = async (req, res) => {
     try {
@@ -200,3 +185,100 @@ exports.calculateSessionsPerTimeSlot = async (req, res) => {
       res.status(500).send({ message: "Error calculating sessions per time slot", error: error.toString() });
     }
   };
+
+// Function to cancel a session
+exports.cancelSession = async (req, res) => {
+    const { activityId, date, startTime, endTime } = req.body;
+    try {
+        const activity = await Activity.findById(activityId);
+        if (!activity) {
+            throw new Error('Activity not found');
+        }
+
+        // Find the correct timeslot based on date, startTime, and endTime
+        const slotIndex = activity.timeSlots.findIndex(slot =>
+            slot.startTime === startTime && slot.endTime === endTime
+        );
+
+        if (slotIndex === -1) {
+            throw new Error('Slot not found');
+        }
+
+        // Add cancellation info
+        activity.timeSlots[slotIndex].sessionChanges.push({
+            date: new Date(date),
+            status: 'cancelled'
+        });
+
+        await activity.save();
+        res.status(200).json({ message: 'Session cancelled successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to cancel session', error: error.toString() });
+    }
+};
+
+// Function to reschedule a session
+exports.rescheduleSession = async (req, res) => {
+    const { activityId, currentDate, startTime, endTime, newDate, newStartTime, newEndTime } = req.body;
+
+    // Convert string dates to Date objects
+    const parsedCurrentDate = new Date(currentDate);
+    const parsedNewDate = new Date(newDate);
+
+    // Check if dates are valid
+    if (isNaN(parsedCurrentDate.getTime()) || isNaN(parsedNewDate.getTime())) {
+        return res.status(400).json({ message: "Invalid date format provided" });
+    }
+
+    try {
+        const activity = await Activity.findById(activityId);
+        if (!activity) {
+            throw new Error('Activity not found');
+        }
+
+        const slotIndex = activity.timeSlots.findIndex(slot =>
+            slot.startTime === startTime && slot.endTime === endTime
+        );
+
+        if (slotIndex === -1) {
+            throw new Error('Slot not found');
+        }
+
+        // Add reschedule info
+        activity.timeSlots[slotIndex].sessionChanges.push({
+            date: parsedCurrentDate,
+            status: 'rescheduled',
+            rescheduledTo: parsedNewDate,
+            newStartTime: newStartTime || startTime,
+            newEndTime: newEndTime || endTime
+        });
+
+        await activity.save();
+        res.status(200).json({ message: 'Session rescheduled successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to reschedule session', error: error.toString() });
+    }
+};
+
+// Calculate the current state of sessions per activity with session changes considered
+exports.calculateCurrentSessionsPerActivity = async (req, res) => {
+    try {
+        const { activityId } = req.params;
+        const activity = await Activity.findById(activityId);
+        if (!activity) {
+            return res.status(404).json({ message: 'Activity not found' });
+        }
+
+        const { startDate, endDate, timeSlots } = activity;
+        const sessions = timeSlots.flatMap(slot =>
+            calculateSessionsPerTimeslotWithChanges(slot, startDate, endDate)
+        );
+
+        // Filter out cancelled sessions if they should not be shown
+        const currentSessions = sessions.filter(session => session.status !== 'cancelled');
+
+        res.json(currentSessions);
+    } catch (error) {
+        res.status(500).send({ message: "Error calculating current sessions", error: error.toString() });
+    }
+};

@@ -1,59 +1,45 @@
-const Session = require('../models/Session');
-const Booking = require('../models/Booking');
+// sessionController.js
 const Activity = require('../models/Activity');
 
+// Function to cancel a session
 exports.cancelSession = async (req, res) => {
-  try {
-    const { activityId, date, startTime, endTime, cancellationReason } = req.body;
+    const { activityId, slotId, date } = req.body;
+    try {
+        const activity = await Activity.findById(activityId);
+        const slotIndex = activity.timeSlots.findIndex(slot => slot._id.toString() === slotId);
+        if (slotIndex === -1) throw new Error('Slot not found');
 
-    // Create a new session with the provided details
-    const session = new Session({
-      activityId,
-      date,
-      startTime,
-      endTime,
-      cancelled: true,
-      cancellationReason
-    });
+        // Add cancellation info
+        activity.timeSlots[slotIndex].sessionChanges.push({
+            date: new Date(date),
+            status: 'cancelled'
+        });
 
-    // Save the session
-    await session.save();
-
-    res.status(200).json({ message: 'Session cancelled successfully', session });
-  } catch (error) {
-    console.error('Error cancelling session:', error);
-    res.status(500).json({ message: 'Error cancelling session', error: error.message });
-  }
+        await activity.save();
+        res.status(200).json({ message: 'Session cancelled successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to cancel session', error: error.toString() });
+    }
 };
 
+// Function to reschedule a session
 exports.rescheduleSession = async (req, res) => {
-  try {
-    const { activityId, oldDate, oldStartTime, oldEndTime, newDate, newStartTime, newEndTime } = req.body;
+    const { activityId, slotId, currentDate, newDate } = req.body;
+    try {
+        const activity = await Activity.findById(activityId);
+        const slotIndex = activity.timeSlots.findIndex(slot => slot._id.toString() === slotId);
+        if (slotIndex === -1) throw new Error('Slot not found');
 
-    // Assuming you have logic to find the session to be rescheduled based on old date, start time, and end time
-    const sessionToReschedule = await Session.findOne({
-      activityId,
-      date: oldDate,
-      startTime: oldStartTime,
-      endTime: oldEndTime
-    });
+        // Add reschedule info
+        activity.timeSlots[slotIndex].sessionChanges.push({
+            date: new Date(currentDate),
+            status: 'rescheduled',
+            rescheduledTo: new Date(newDate)
+        });
 
-    if (!sessionToReschedule) {
-      return res.status(404).json({ message: 'Session not found for rescheduling' });
+        await activity.save();
+        res.status(200).json({ message: 'Session rescheduled successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to reschedule session', error: error.toString() });
     }
-
-    // Update session details with new start and end times
-    sessionToReschedule.date = newDate;
-    sessionToReschedule.startTime = newStartTime;
-    sessionToReschedule.endTime = newEndTime;
-    sessionToReschedule.rescheduled = true;
-
-    // Save the updated session
-    await sessionToReschedule.save();
-
-    res.status(200).json({ message: 'Session rescheduled successfully', session: sessionToReschedule });
-  } catch (error) {
-    console.error('Error rescheduling session:', error);
-    res.status(500).json({ message: 'Error rescheduling session', error: error.message });
-  }
 };

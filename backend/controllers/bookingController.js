@@ -1,15 +1,15 @@
 // bookingController.js
-const Activity = require('../models/Activity'); 
-const Booking = require('../models/Booking'); 
-const User = require('../models/User');
 const mongoose = require('mongoose');
+const Activity = require('../models/Activity');
+const Attendance = require('../models/Attendance');
+const Booking = require('../models/Booking');
 
 // Create a new booking
 exports.createBooking = async (req, res) => {
   try {
     const { childId, activityId } = req.body;
 
-    // First, fetch the activity to check for participant limits
+    // Fetch the activity to get time slots
     const activity = await Activity.findById(activityId);
     if (!activity) {
       return res.status(404).json({ message: 'Activity not found' });
@@ -27,7 +27,11 @@ exports.createBooking = async (req, res) => {
       newBooking = await Booking.create({
         childId: childId,
         activityId: activityId,
-        status: 'confirmed'
+        status: 'confirmed',
+        timeSlots: activity.timeSlots.map(slot => ({
+          startDate: slot.startDate,
+          endDate: slot.endDate
+        })) // Include time slots from the activity
       });
 
       // Increment the current participant count
@@ -37,7 +41,11 @@ exports.createBooking = async (req, res) => {
       newBooking = await Booking.create({
         childId: childId,
         activityId: activityId,
-        status: 'waitlisted'
+        status: 'waitlisted',
+        timeSlots: activity.timeSlots.map(slot => ({
+          startDate: slot.startDate,
+          endDate: slot.endDate
+        })) // Include time slots from the activity
       });
 
       // Increment the waitlist count
@@ -50,6 +58,7 @@ exports.createBooking = async (req, res) => {
     res.status(400).json({ message: 'Failed to book activity', error: error.message });
   }
 };
+
 
 // Delete a booking and potentially promote someone from the waiting list
 exports.deleteBooking = async (req, res) => {
@@ -300,7 +309,7 @@ exports.fetchBookingStatusForActivityAndParent = async (req, res) => {
     const bookings = await Booking.find({
       activityId: activityId,
       childId: { $in: childIds },
-      cancellations: { $size: 0 } // Ensure no cancellations are present
+      cancellations: { $size: 0 } 
     }).populate('childId', 'username');
 
     // Map results to include necessary details
@@ -309,12 +318,12 @@ exports.fetchBookingStatusForActivityAndParent = async (req, res) => {
         bookingId: booking._id,
         activityId: activityId,
         childName: booking.childId.username,
-        status: 'Booked' // Only booked entries are returned, hence status is always 'Booked'
+        status: 'Booked' 
       };
     });
 
     if (bookingDetails.length === 0) {
-      res.status(200).json([]); // Return an empty array with a 200 OK status
+      res.status(200).json([]); 
     } else {
       res.json(bookingDetails);
     }

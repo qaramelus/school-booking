@@ -42,7 +42,7 @@
         // Map over activities and fetch participant count for each
         const eventsPromises = activities.map(async (activity) => {
           try {
-            const { data: activityWithParticipants } = await API.get(`/activities/${activity._id}/with-participants`);
+            const { data: activityWithParticipants } = await API.get(`/activity-participants/${activity._id}/with-participants`);
             return (activityWithParticipants.timeSlots || []).map((slot) => {
               const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
                 .map((day, index) => (day === slot.dayOfWeek ? index : null))

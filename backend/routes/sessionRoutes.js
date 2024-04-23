@@ -1,11 +1,18 @@
-// sessionRoutes.js
-
 const express = require('express');
 const router = express.Router();
 const sessionController = require('../controllers/sessionController');
 
-// Routes for session manipulation
-router.post('/cancel/:activityId', sessionController.cancelSession);
-router.post('/reschedule/:activityId', sessionController.rescheduleSession);
+// New route to fetch all sessions
+router.get('/all', sessionController.fetchAllSessions);
+
+// Fetch all sessions for a specific activity by activity ID
+router.get('/:activityId', sessionController.fetchSessionsByActivityId);
+
+// Fetch a specific session by its session ID
+router.get('/session/:sessionId', sessionController.fetchSessionById);
+
+// Reschedule a specific session by its session ID
+router.patch('/reschedule/:sessionId', sessionController.rescheduleSession);
+
 
 module.exports = router;

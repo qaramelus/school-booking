@@ -193,7 +193,7 @@
           });
       },
       fetchLocations() {
-        API.get('/location/locations')
+        API.get('/locations')
           .then(response => {
             this.locations = response.data;
           })

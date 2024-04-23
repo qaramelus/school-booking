@@ -13,9 +13,10 @@
         <div v-if="currentTab === 'participants'">
           <h2>Session Participation</h2>
           <ul class="session-list">
-            <li v-for="(session, index) in sessionInfo" :key="index" @click="toggleParticipantList(index)">
-              <div class="session-header">
+            <li v-for="(session, index) in sessionInfo" :key="index">
+              <div class="session-header" @click="toggleParticipantList(index)">
                 {{ session.date }}: {{ session.startTime }} - {{ session.endTime }} ({{ session.participants.length }} participants)
+                <button @click.stop="startRescheduleSession(session)" class="reschedule-btn">Reschedule</button>
               </div>
               <ul v-if="expandedSlots.includes(index)" class="participant-list">
                 <li v-for="participant in session.participants" :key="participant.childId" class="participant-item">
@@ -27,6 +28,24 @@
             </li>
           </ul>
         </div>
+      </div>
+    </div>
+    <div v-if="showRescheduleModal" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="showRescheduleModal = false">&times;</span>
+        <h3>Reschedule Session</h3>
+        <form @submit.prevent="confirmReschedule">
+          <label for="newDate">New Date:</label>
+          <input type="date" v-model="rescheduleData.newDate" required>
+
+          <label for="newStartTime">New Start Time:</label>
+          <input type="time" v-model="rescheduleData.newStartTime" required>
+
+          <label for="newEndTime">New End Time:</label>
+          <input type="time" v-model="rescheduleData.newEndTime" required>
+
+          <button type="submit">Submit</button>
+        </form>
       </div>
     </div>
     <div v-else class="loading">Loading activity details...</div>
@@ -47,7 +66,14 @@ export default {
       activity: null,
       currentTab: 'about',
       expandedSlots: [],
-      sessionInfo: []
+      sessionInfo: [],
+      rescheduleData: {
+        session: null,
+        newDate: '',
+        newStartTime: '',
+        newEndTime: ''
+      },
+      showRescheduleModal: false
     };
   },
   created() {
@@ -103,7 +129,40 @@ export default {
           console.error('Error marking attendance:', error);
           alert('Failed to mark attendance.');
         });
-    }
+    },
+    startRescheduleSession(session) {
+      this.rescheduleData.session = session;
+      this.rescheduleData.newDate = session.date;
+      this.rescheduleData.newStartTime = session.startTime;
+      this.rescheduleData.newEndTime = session.endTime;
+      this.showRescheduleModal = true;
+    },
+    confirmReschedule() {
+  const { session, newDate, newStartTime, newEndTime } = this.rescheduleData;
+  const activityId = this.$route.params.activityId;
+
+  const payload = {
+    activityId: activityId,
+    currentDate: session.date,
+    startTime: session.startTime,
+    endTime: session.endTime,
+    newDate,
+    newStartTime,
+    newEndTime
+  };
+
+  API.post(`http://localhost:5005/api/activity-sessions/${activityId}/reschedule`, payload)
+    .then(() => {
+      alert('Session rescheduled successfully.');
+      this.showRescheduleModal = false;
+      this.fetchSessionInfo(); // Refresh the session data
+    })
+    .catch(error => {
+      console.error('Error rescheduling session:', error);
+      alert('Failed to reschedule session.');
+    });
+}
+
   }
 };
 </script>
@@ -145,7 +204,7 @@ export default {
   margin-inline-start: 10px;
 }
 
-.mark-attendance-btn {
+.mark-attendance-btn, .reschedule-btn {
   background-color: #4CAF50; /* Green */
   border: none;
   color: white;
@@ -155,6 +214,32 @@ export default {
   display: inline-block;
   font-size: 14px;
   margin: 4px 2px;
+  cursor: pointer;
+}
+
+.modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: 90%;
+  max-width: 500px;
+}
+
+.close {
+  float: right;
   cursor: pointer;
 }
 

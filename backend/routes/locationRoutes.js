@@ -4,9 +4,9 @@ const router = express.Router();
 const locationController = require('../controllers/locationController');
 
 // Route to create a new location
-router.post('/locations', locationController.createLocation);
+router.post('/', locationController.createLocation);
 
 // Route to get all locations
-router.get('/locations', locationController.getAllLocations);
+router.get('/', locationController.getAllLocations);
 
 module.exports = router;

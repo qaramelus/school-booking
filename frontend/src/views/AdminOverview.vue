@@ -119,7 +119,7 @@ export default {
       return location ? location.name : 'Unknown'; // Return 'Unknown' if location not found
     },
     fetchLocations() {
-      API.get('/location/locations')
+      API.get('/locations')
         .then(response => {
           this.locations = response.data;
         })

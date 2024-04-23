@@ -1,142 +1,72 @@
-// controllers/attendanceController.js
 const mongoose = require('mongoose');
 const Activity = require('../models/Activity');
+const Session = require('../models/Session');
 const Attendance = require('../models/Attendance');
 const Booking = require('../models/Booking');
-const { calculateSessionsPerTimeslot } = require('../utils/sessionCalculator');
 
 // Function to mark attendance per session
 exports.markAttendance = async (req, res) => {
-  try {
-    const { activityId, childId, timeSlot, attended } = req.body;
-    if (!activityId || !childId || !timeSlot || !attended) {
-      return res.status(400).json({ message: 'Please provide all required fields' });
-    }
-
-    const attendanceRecord = new Attendance({
-      activityId: activityId,
-      childId: childId,
-      timeSlot: timeSlot,
-      attended: attended
-    });
-
-    await attendanceRecord.save();
-    res.status(200).json({ message: 'Attendance marked successfully', attendanceRecord });
-  } catch (error) {
-    console.error('Error marking attendance:', error);
-    res.status(500).json({ message: 'Failed to mark attendance', error: error.message });
-  }
-};
-
-// Function to fetch attendance for a specific activity
-exports.getAttendanceForActivity = async (req, res) => {
-  try {
-    const { activityId } = req.params;
-    const attendanceRecords = await Attendance.find({ activityId });
-    res.status(200).json({ attendanceRecords });
-  } catch (error) {
-    console.error('Error fetching attendance:', error);
-    res.status(500).json({ message: 'Failed to fetch attendance', error: error.message });
-  }
-};
-
-// Function to fetch attendance per timeslot for a specific activity
-exports.getAttendancePerTimeslot = async (req, res) => {
-  try {
-    const { activityId } = req.params;
-    const activity = await Activity.findById(activityId);
-    if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
-    }
-
-    const attendanceRecords = await Attendance.find({ activityId, attended: true }).populate('childId', 'name');
-    let timeslotAttendance = {};
-
-    activity.timeSlots.forEach(slot => {
-      const sessions = calculateSessionsPerTimeslot(slot, activity.startDate, activity.endDate);
-      sessions.forEach(session => {
-        const key = `${session.date} ${session.startTime}-${session.endTime}`;
-        timeslotAttendance[key] = {
-          date: session.date,
-          startTime: session.startTime,
-          endTime: session.endTime,
-          children: []
-        };
-      });
-    });
-
-    attendanceRecords.forEach(record => {
-      const recordDate = new Date(record.timeSlot.startDate).toISOString().split('T')[0];
-      const key = `${recordDate} ${record.timeSlot.startTime}-${record.timeSlot.endTime}`;
-      if (timeslotAttendance[key]) {
-        const childEntry = {
-          childId: record.childId._id,
-          childName: record.childId.name
-        };
-        if (!timeslotAttendance[key].children.some(child => child.childId.equals(childEntry.childId))) {
-          timeslotAttendance[key].children.push(childEntry);
+    try {
+        const { sessionId, childId, attended } = req.body;
+        if (!sessionId || !childId || attended === undefined) {
+            return res.status(400).json({ message: 'Please provide all required fields' });
         }
-      }
-    });
 
-    res.json(Object.values(timeslotAttendance).sort((a, b) => new Date(a.date) - new Date(b.date)));
-  } catch (error) {
-    console.error('Error fetching attendance per timeslot:', error);
-    res.status(500).json({ message: 'Error fetching attendance per timeslot', error: error.message });
-  }
-};
+        const session = await Session.findById(sessionId);
+        if (!session) {
+            return res.status(404).json({ message: 'Session not found' });
+        }
 
-// Enhanced function to fetch session information with participant attendance
-exports.getEnhancedSessionInfo = async (req, res) => {
-  try {
-    const { activityId } = req.params;
-    const activity = await Activity.findById(activityId);
-    if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+        const attendanceRecord = new Attendance({
+            activityId: session.activityId,
+            childId: childId,
+            sessionId: sessionId,
+            attended: attended
+        });
+
+        await attendanceRecord.save();
+        res.status(200).json({ message: 'Attendance marked successfully', attendanceRecord });
+    } catch (error) {
+        console.error('Error marking attendance:', error);
+        res.status(500).json({ message: 'Failed to mark attendance', error: error.message });
     }
-
-    const bookings = await Booking.find({ activityId: activityId, cancelled: false }).populate('childId');
-    const attendanceRecords = await Attendance.find({ activityId: activityId }).populate('childId');
-
-    let sessions = [];
-
-    activity.timeSlots.forEach(slot => {
-      let sessionDates = calculateSessionsPerTimeslot(slot, activity.startDate, activity.endDate);
-      sessionDates.forEach(session => {
-        const sessionKey = `${session.date} ${session.startTime}-${session.endTime}`;
-        const participants = bookings.map(booking => ({
-          childId: booking.childId._id.toString(),
-          childName: booking.childId.username,
-          email: booking.childId.email,
-          attended: 'unconfirmed' // Default status
-        }));
-
-        participants.forEach(participant => {
-          const attendance = attendanceRecords.find(record =>
-            record.childId._id.toString() === participant.childId &&
-            record.timeSlot.startDate.toISOString().split('T')[0] === session.date &&
-            record.timeSlot.startTime === session.startTime &&
-            record.timeSlot.endTime === session.endTime
-          );
-          if (attendance) {
-            participant.attended = attendance.attended ? 'attended' : 'absent';
-          }
-        });
-
-        sessions.push({
-          date: session.date,
-          startTime: session.startTime,
-          endTime: session.endTime,
-          participants: participants
-        });
-      });
-    });
-
-    // Sort the sessions array by date before sending it in the response
-    sessions.sort((a, b) => new Date(a.date) - new Date(b.date));
-    res.json(sessions);
-  } catch (error) {
-    console.error('Error fetching enhanced session info:', error);
-    res.status(500).json({ message: 'Error fetching enhanced session info', error: error.message });
-  }
 };
+
+// Function to fetch all attendance records for a specific session
+exports.getAttendanceForSession = async (req, res) => {
+    try {
+        const { sessionId } = req.params;
+        const attendanceRecords = await Attendance.find({ sessionId }).populate('childId', 'name');
+        res.status(200).json({ attendanceRecords });
+    } catch (error) {
+        console.error('Error fetching attendance:', error);
+        res.status(500).json({ message: 'Failed to fetch attendance', error: error.message });
+    }
+};
+
+// Function to fetch all sessions with their attendance records for an activity
+exports.getSessionsWithAttendance = async (req, res) => {
+    try {
+        const { activityId } = req.params;
+        const sessions = await Session.find({ activityId }).populate('locationId');
+        const attendanceRecords = await Attendance.find({ activityId }).populate('childId', 'name');
+
+        const sessionDetails = sessions.map(session => {
+            const attendees = attendanceRecords.filter(record => record.sessionId.toString() === session._id.toString());
+            return {
+                ...session._doc,
+                attendees: attendees.map(a => ({
+                    childId: a.childId._id,
+                    childName: a.childId.name,
+                    attended: a.attended
+                }))
+            };
+        });
+
+        res.json(sessionDetails);
+    } catch (error) {
+        console.error('Error fetching sessions with attendance:', error);
+        res.status(500).json({ message: 'Error fetching sessions with attendance', error: error.message });
+    }
+};
+

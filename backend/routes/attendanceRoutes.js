@@ -6,14 +6,11 @@ const attendanceController = require('../controllers/attendanceController');
 // Route to mark or update attendance
 router.post('/', attendanceController.markAttendance);
 
-// Route to fetch attendance for a specific activity
-router.get('/:activityId', attendanceController.getAttendanceForActivity);
+// Route to fetch all attendance records for a specific session
+router.get('/session/:sessionId', attendanceController.getAttendanceForSession);
 
-// Route to fetch attendance per timeslot for a specific activity
-router.get('/:activityId/timeslots', attendanceController.getAttendancePerTimeslot);
-
-// New route to fetch enhanced session information with attendance status
-router.get('/:activityId/enhanced-sessions', attendanceController.getEnhancedSessionInfo);
-
+// Route to fetch all sessions with their attendance records for an activity
+router.get('/:activityId/sessions-with-attendance', attendanceController.getSessionsWithAttendance);
 
 module.exports = router;
+

@@ -26,9 +26,9 @@ app.use('/api/activity-participants', activityParticipantRoutes);
 // Other Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/', bookingRoutes);
+app.use('/api/', bookingRoutes); 
 app.use('/api/attendance', attendanceRoutes);
-app.use('/api/location', locationRoutes);
+app.use('/api/locations', locationRoutes);  
 app.use('/api/sessions', sessionRoutes); 
 
 mongoose.connect(process.env.MONGODB_URI, {

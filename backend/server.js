@@ -26,7 +26,7 @@ app.use('/api/activity-participants', activityParticipantRoutes);
 // Other Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/', bookingRoutes); 
+app.use('/api/booking', bookingRoutes); 
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/locations', locationRoutes);  
 app.use('/api/sessions', sessionRoutes); 

@@ -19,6 +19,7 @@ router.get('/parent/:parentId/child/:childId/bookings', authMiddleware, bookingC
 router.get('/activity/:activityId/participants', authMiddleware, bookingController.fetchActivityParticipants); // Get participants for a specific activity
 router.get('/activity/:activityId/bookings', bookingController.fetchBookingsForActivity);
 router.get('/activities-with-participants', bookingController.fetchActivities); // Get participants count for all activities
+router.get('/activity/:activityId/parent/:parentId/booking-status', bookingController.fetchBookingStatusForActivityAndParent);
 
 // Route to fetch cancellations for a specific child and activity
 router.get('/cancellations/:childId/:activityId', authMiddleware, bookingController.fetchCancellations); // Fetch all cancellations for a specific child and activity

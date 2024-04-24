@@ -37,13 +37,10 @@
             <h3>Booking Details:</h3>
             <ul>
               <li v-for="child in children" :key="child.id">
-                <span>{{ child.name }}:</span>
+                <span>{{ child.name }}: {{ child.status }}</span>
                 <button v-if="child.isBooked" @click="cancelBooking(child.id, child.bookingId)" class="cancel-button">
                   Cancel Booking
                 </button>
-                <span v-else-if="child.isWaitlisted" class="waitlisted-status">
-                  On Waitlist
-                </span>
                 <button v-else @click="bookActivity(child.id)" class="book-activity-button">
                   Book Activity
                 </button>
@@ -112,6 +109,8 @@ export default {
       selectedChild: '',
       currentTab: 'about',
       allChildrenBooked: false,
+      confirmedParticipants: [],
+      waitlistedParticipants: []
     };
   },
   created() {
@@ -179,18 +178,19 @@ export default {
     fetchBookingStatus() {
       const parentId = localStorage.getItem('parent-id');
       const activityId = this.$route.params.activityId;
-      API.get(`activity/${activityId}/parent/${parentId}/booking-status`)
+      API.get(`booking/activity/${activityId}/parent/${parentId}/booking-status`)
         .then(response => {
           let allChildrenBookedOrWaitlisted = true;
           this.children = this.children.map(child => {
             const booking = response.data.find(booking => booking.childName === child.name);
-            const isBooked = booking !== undefined && booking.status === 'Booked';
-            const isWaitlisted = booking !== undefined && booking.status === 'Waitlisted';
+            const isBooked = booking !== undefined && booking.status === 'confirmed';
+            const isWaitlisted = booking !== undefined && booking.status === 'waitlisted';
             if (!isBooked && !isWaitlisted) allChildrenBookedOrWaitlisted = false;
             return {
               ...child,
               isBooked,
               isWaitlisted,
+              status: booking ? booking.status : 'Not booked', // Include booking status if available
               bookingId: booking ? booking.bookingId : null // Include bookingId if available
             };
           });
@@ -211,7 +211,7 @@ export default {
         childId: childId,
         activityId: this.activity._id,
       };
-      API.post('/bookActivity', bookingInfo, {
+      API.post('/booking/bookActivity', bookingInfo, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('user-token')}`
         }
@@ -231,7 +231,7 @@ export default {
       });
     },
     cancelBooking(childId, bookingId) {
-      API.delete(`/deleteBooking/${bookingId}`, {
+      API.delete(`/booking/deleteBooking/${bookingId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('user-token')}`
         }
@@ -245,7 +245,7 @@ export default {
       });
     },
     removeBooking(participantId, bookingId) {
-      API.delete(`/deleteBooking/${bookingId}`, {
+      API.delete(`/booking/deleteBooking/${bookingId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('user-token')}`
         }

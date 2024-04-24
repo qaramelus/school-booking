@@ -107,8 +107,23 @@ export default {
           console.error("Error fetching the activity details:", error);
         });
     },
+    fetchBookingStatus(activityId) {
+      const parentId = this.$route.query.parentId;
+      if (!parentId) {
+        alert('Parent ID not specified. Please check the URL.');
+        return;
+      }
+      API.get(`/booking/activity/${activityId}/parent/${parentId}/booking-status`)
+        .then(response => {
+          this.bookingStatus = response.data;
+          console.log("Booking Status fetched:", this.bookingStatus);
+        })
+        .catch(error => {
+          console.error('Error fetching booking status:', error);
+        });
+    },
     fetchCancellations() {
-      const url = `/cancellations/${this.childId}/${this.activity._id}`;
+      const url = `booking/cancellations/${this.childId}/${this.activity._id}`;
       API.get(url)
         .then(response => {
         this.activity = { ...this.activity, cancellations: response.data.map(booking => booking.cancellations).flat() };

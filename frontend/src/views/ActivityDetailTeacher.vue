@@ -11,22 +11,23 @@
           <p>Date: {{ new Date(activity.startDate).toLocaleDateString() }} to {{ new Date(activity.endDate).toLocaleDateString() }}</p>
         </div>
         <div v-if="currentTab === 'participants'">
-          <h2>Session Participation</h2>
-          <ul class="session-list">
-            <li v-for="(session, index) in sessionInfo" :key="index">
-              <div class="session-header" @click="toggleParticipantList(index)">
-                {{ session.date }}: {{ session.startTime }} - {{ session.endTime }} ({{ session.participants.length }} participants)
-                <button @click.stop="startRescheduleSession(session)" class="reschedule-btn">Reschedule</button>
-              </div>
-              <ul v-if="expandedSlots.includes(index)" class="participant-list">
-                <li v-for="participant in session.participants" :key="participant.childId" class="participant-item">
-                  {{ participant.childName }} ({{ participant.email }})
-                  <span v-if="participant.attended === 'attended'" class="checkmark">✔️</span>
-                  <button v-else @click.stop="markAttendance(participant.childId, session, index)" class="mark-attendance-btn">Mark Attended</button>
+            <h2>Session Participation</h2>
+            <ul class="session-list">
+                <li v-for="(session, index) in sessionInfo" :key="index">
+                    <div class="session-header" @click="toggleParticipantList(index)">
+                        {{ session.date }}: {{ session.startTime }} - {{ session.endTime }} ({{ session.participants.length }} participants)
+                        <button @click.stop="startRescheduleSession(session)" class="reschedule-btn">Reschedule</button>
+                    </div>
+                    <ul v-if="expandedSlots.includes(index)" class="participant-list">
+                        <li v-for="participant in session.participants" :key="participant.participantId" class="participant-item">
+                            {{ participant.name }}
+                            <span v-if="participant.attended" class="checkmark">✔️</span>
+                            <button v-if="!participant.attended" @click.stop="toggleAttendance(participant.participantId, session, index, true)" class="mark-attendance-btn">Mark Attended</button>
+                            <button v-else @click.stop="toggleAttendance(participant.participantId, session, index, false)" class="mark-attendance-btn">Mark Unattended</button>
+                        </li>
+                    </ul>
                 </li>
-              </ul>
-            </li>
-          </ul>
+            </ul>
         </div>
       </div>
     </div>
@@ -93,9 +94,15 @@ export default {
     },
     fetchSessionInfo() {
       const activityId = this.$route.params.activityId;
-      API.get(`http://localhost:5005/api/attendance/${activityId}/enhanced-sessions`)
+      API.get(`http://localhost:5005/api/sessions/${activityId}/sessions-with-participants`)
         .then(response => {
-          this.sessionInfo = response.data;
+          this.sessionInfo = response.data.map(session => ({
+            ...session,
+            participants: session.participants.map(participant => ({
+              ...participant,
+              attended: participant.attended // Directly using the fetched attended status
+            }))
+          }));
         })
         .catch(error => {
           console.error("Error fetching session information:", error);
@@ -109,25 +116,23 @@ export default {
         this.expandedSlots.push(index);
       }
     },
-    markAttendance(childId, session, index) {
+    toggleAttendance(childId, session, index, status) {
       const payload = {
-        activityId: this.$route.params.activityId,
-        childId: childId,
-        timeSlot: {
-          startDate: session.date,
-          startTime: session.startTime,
-          endTime: session.endTime
-        },
-        attended: true
+        attended: status
       };
-      API.post('http://localhost:5005/api/attendance/', payload)
+      const sessionId = session.sessionId;
+      API.post(`http://localhost:5005/api/attendance/${sessionId}/${childId}`, payload)
         .then(() => {
-          this.sessionInfo[index].participants.find(p => p.childId === childId).attended = 'attended';
-          alert('Attendance marked successfully.');
+          const participantIndex = this.sessionInfo[index].participants.findIndex(p => p.participantId === childId);
+          if (participantIndex !== -1) {
+            // Directly update the attended status in the participants array
+            this.sessionInfo[index].participants[participantIndex].attended = status;
+          }
+          alert(`Attendance ${status ? 'marked' : 'unmarked'} successfully.`);
         })
         .catch(error => {
-          console.error('Error marking attendance:', error);
-          alert('Failed to mark attendance.');
+          console.error(`Error ${status ? 'marking' : 'unmarking'} attendance:`, error);
+          alert(`Failed to ${status ? 'mark' : 'unmark'} attendance.`);
         });
     },
     startRescheduleSession(session) {
@@ -138,34 +143,35 @@ export default {
       this.showRescheduleModal = true;
     },
     confirmReschedule() {
-  const { session, newDate, newStartTime, newEndTime } = this.rescheduleData;
-  const activityId = this.$route.params.activityId;
+      const { session, newDate, newStartTime, newEndTime } = this.rescheduleData;
+      const activityId = this.$route.params.activityId;
 
-  const payload = {
-    activityId: activityId,
-    currentDate: session.date,
-    startTime: session.startTime,
-    endTime: session.endTime,
-    newDate,
-    newStartTime,
-    newEndTime
-  };
+      const payload = {
+        activityId: activityId,
+        currentDate: session.date,
+        startTime: session.startTime,
+        endTime: session.endTime,
+        newDate,
+        newStartTime,
+        newEndTime
+      };
 
-  API.post(`http://localhost:5005/api/activity-sessions/${activityId}/reschedule`, payload)
-    .then(() => {
-      alert('Session rescheduled successfully.');
-      this.showRescheduleModal = false;
-      this.fetchSessionInfo(); // Refresh the session data
-    })
-    .catch(error => {
-      console.error('Error rescheduling session:', error);
-      alert('Failed to reschedule session.');
-    });
-}
-
+      API.post(`http://localhost:5005/api/activity-sessions/${activityId}/reschedule`, payload)
+        .then(() => {
+          alert('Session rescheduled successfully.');
+          this.showRescheduleModal = false;
+          this.fetchSessionInfo(); // Refresh the session data
+        })
+        .catch(error => {
+          console.error('Error rescheduling session:', error);
+          alert('Failed to reschedule session.');
+        });
+    }
   }
 };
 </script>
+
+
 
 <style scoped>
 .activity-detail-tabs button.active-tab {

@@ -1,5 +1,7 @@
 // sessionController.js
-const Session = require('../models/Session'); // Ensure path correctness
+const Attendance = require('../models/Attendance'); // Import the Attendance model
+const Session = require('../models/Session');
+
 
 exports.fetchSessionsByActivityId = async (req, res) => {
     try {
@@ -114,5 +116,50 @@ exports.unmarkAsAbsent = async (req, res) => {
         res.status(200).json({ message: 'Child unmarked as absent', session });
     } catch (error) {
         res.status(500).json({ message: 'Failed to unmark as absent', error: error.message });
+    }
+};
+
+exports.fetchSessionsWithParticipants = async (req, res) => {
+    try {
+        const { activityId } = req.params;
+        const sessions = await Session.find({ activityId }).populate({
+            path: 'participants',
+            model: 'User', // Assuming the model name is 'User'
+            select: 'username' // Selecting only the 'username' field of the participant
+        }).populate('activityId').populate('locationId');
+
+        // Fetch attendance records for the sessions
+        const attendanceRecords = await Attendance.find({ activityId });
+
+        // Map attendance records to session IDs for easier access
+        const attendanceMap = {};
+        attendanceRecords.forEach(record => {
+            if (!attendanceMap[record.sessionId]) {
+                attendanceMap[record.sessionId] = [];
+            }
+            attendanceMap[record.sessionId].push(record);
+        });
+
+        // Enhance session data to include participant details and attendance status
+        const sessionDetails = sessions.map(session => {
+            const attendanceForSession = attendanceMap[session._id] || [];
+            return {
+                sessionId: session._id,
+                date: session.date,
+                startTime: session.startTime,
+                endTime: session.endTime,
+                participants: session.participants.map(participant => ({
+                    participantId: participant._id,
+                    name: participant.username, // Accessing the username field of the participant
+                    attended: attendanceForSession.some(record => record.childId.toString() === participant._id.toString())
+                    // Add more participant fields as needed
+                })),
+                // Include other session fields as needed
+            };
+        });
+
+        res.json(sessionDetails);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching sessions with participants', error: error.message });
     }
 };

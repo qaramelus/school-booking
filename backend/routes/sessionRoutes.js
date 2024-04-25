@@ -23,4 +23,7 @@ router.post('/mark-absent/:sessionId/:childId', sessionController.markAsAbsent);
 // Route to unmark a child as absent
 router.post('/unmark-absent/:sessionId/:childId', sessionController.unmarkAsAbsent);
 
+// Route to fetch all participants for all sessions of a specific activity
+router.get('/:activityId/sessions-with-participants', sessionController.fetchSessionsWithParticipants);
+
 module.exports = router;

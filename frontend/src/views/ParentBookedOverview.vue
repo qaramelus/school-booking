@@ -53,7 +53,7 @@ export default {
           console.error("Parent ID is undefined.");
           return;
         }
-        const response = await API.get(`parent/${parentId}/bookings`);
+        const response = await API.get(`booking/parent/${parentId}/bookings`);
         this.bookingsGroupedByChild = this.groupBookingsByChild(response.data);
       } catch (error) {
         console.error("There was an error fetching the bookings:", error);

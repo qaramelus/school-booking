@@ -55,3 +55,28 @@ exports.fetchAllSessions = async (req, res) => {
         res.status(500).json({ message: 'Error fetching all sessions', error: error.message });
     }
 };
+
+exports.fetchSessionsForParticipant = async (req, res) => {
+    try {
+        const { childId } = req.params; // childId passed as URL parameter
+        const sessions = await Session.find({
+            participants: childId,
+            status: { $ne: 'cancelled' } // Excludes cancelled sessions
+        }).populate({
+            path: 'activityId',
+            select: 'name description' // Only fetch the name and description of the activity
+        }).populate({
+            path: 'locationId',
+            select: 'name' // Assuming you might also want to show the location name
+        });
+
+        res.json(sessions.map(session => ({
+            ...session.toObject(),
+            activityName: session.activityId.name, // Flatten the activity name for easier access
+            activityDescription: session.activityId.description,
+            locationName: session.locationId.name
+        })));
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching sessions for participant', error: error.message });
+    }
+};

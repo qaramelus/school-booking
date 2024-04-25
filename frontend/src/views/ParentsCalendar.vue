@@ -3,7 +3,6 @@
     <ParentNavbar />
     <div class="calendar-container">
       <div class="controls">
-        <!-- @change event will call fetchNonCancelledSessions function -->
         <select v-model="selectedChildId" @change="fetchNonCancelledSessions">
           <option value="" disabled>Select Child</option>
           <option v-for="child in children" :key="child._id" :value="child._id">{{ child.username }}</option>
@@ -36,7 +35,7 @@ export default {
     const children = ref([]);
     const calendarEl = ref(null);
     const currentView = ref('dayGridMonth');
-    const calendarInstance = ref(null);
+    let calendarInstance = null;
 
     const fetchChildren = async () => {
       try {
@@ -47,45 +46,66 @@ export default {
         const { data } = await API.get(`/users/${parentId}/children`);
         children.value = data;
       } catch (error) {
-        console.error("There was an error fetching the children:", error.message);
+        console.error("Error fetching children:", error.message);
       }
     };
 
-    // Ensuring function is within the setup() scope and used
     const fetchNonCancelledSessions = async () => {
-      if (selectedChildId.value) {
-        try {
-          const url = `/activity-participants/children/${selectedChildId.value}/non-cancelled-sessions`;
-          const { data } = await API.get(url);
-          const events = data.map(session => ({
-            title: session.activityName,
-            start: `${session.date}T${session.startTime}`,
-            end: `${session.date}T${session.endTime}`,
-            classNames: ['custom-class-for-event']
-          }));
-          calendarInstance.value.removeAllEvents();
-          calendarInstance.value.addEventSource(events);
-        } catch (error) {
-          console.error("There was an error fetching the non-cancelled sessions for the child:", error.message);
-        }
-      }
-    };
+  if (selectedChildId.value) {
+    try {
+      const { data } = await API.get(`/sessions/participant/${selectedChildId.value}`);
+      const events = data.map(session => {
+        // Extract just the date part from the ISO string
+        const datePart = session.date.split('T')[0];
+        const startTime = datePart + 'T' + session.startTime;
+        const endTime = datePart + 'T' + session.endTime;
 
-    onMounted(() => {
-      fetchChildren();
-      calendarInstance.value = new Calendar(calendarEl.value, {
+        // Validate the dates to avoid adding invalid entries
+        if (isNaN(new Date(startTime).getTime()) || isNaN(new Date(endTime).getTime())) {
+          console.error(`Invalid date found: start: ${startTime}, end: ${endTime}`);
+          return null;
+        }
+
+        return {
+          title: `${session.activityName} - ${session.locationName}`,
+          start: startTime,
+          end: endTime,
+          classNames: ['custom-class-for-event']
+        };
+      }).filter(event => event !== null); // Filter out invalid events
+
+      if (calendarInstance) {
+        calendarInstance.removeAllEvents();
+        calendarInstance.addEventSource(events);
+      }
+    } catch (error) {
+      console.error("Error fetching non-cancelled sessions:", error.message);
+    }
+  }
+};
+
+    const initializeCalendar = () => {
+      calendarInstance = new Calendar(calendarEl.value, {
         plugins: [dayGridPlugin, timeGridPlugin],
         initialView: currentView.value,
         eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
         slotMinTime: "09:00:00",
         slotMaxTime: "18:00:00",
+        events: [] // Start with an empty array of events
       });
-      calendarInstance.value.render();
+      calendarInstance.render();
+    };
+
+    onMounted(() => {
+      fetchChildren();
+      if (calendarEl.value) {
+        initializeCalendar();
+      }
     });
 
     watch(currentView, (newValue) => {
-      if (calendarInstance.value) {
-        calendarInstance.value.changeView(newValue);
+      if (calendarInstance) {
+        calendarInstance.changeView(newValue);
       }
     });
 
@@ -94,11 +114,12 @@ export default {
       children,
       calendarEl,
       currentView,
-      fetchNonCancelledSessions, // Make sure to return the function if it's going to be used in the template
+      fetchNonCancelledSessions,
     };
   },
 };
 </script>
+
 
 <style scoped>
 .calendar-container {
@@ -113,8 +134,8 @@ export default {
 }
 
 .calendar {
-  inline-size: 75%;
-  block-size: auto;
+  width: 75%;
+  height: auto;
   margin: auto;
 }
 </style>

@@ -32,23 +32,26 @@
       </div>
     </div>
     <div v-if="showRescheduleModal" class="modal">
-      <div class="modal-content">
-        <span class="close" @click="showRescheduleModal = false">&times;</span>
-        <h3>Reschedule Session</h3>
-        <form @submit.prevent="confirmReschedule">
+    <div class="modal-content">
+      <span class="close" @click="showRescheduleModal = false">&times;</span>
+      <h3>Reschedule Session</h3>
+      <form @submit.prevent="confirmReschedule" class="reschedule-form">
+        <div class="form-group">
           <label for="newDate">New Date:</label>
           <input type="date" v-model="rescheduleData.newDate" required>
-
+        </div>
+        <div class="form-group">
           <label for="newStartTime">New Start Time:</label>
           <input type="time" v-model="rescheduleData.newStartTime" required>
-
+        </div>
+        <div class="form-group">
           <label for="newEndTime">New End Time:</label>
           <input type="time" v-model="rescheduleData.newEndTime" required>
-
-          <button type="submit">Submit</button>
-        </form>
-      </div>
+        </div>
+        <button type="submit" class="submit-btn">Submit</button>
+      </form>
     </div>
+  </div>
     <div v-else class="loading">Loading activity details...</div>
   </div>
 </template>
@@ -229,27 +232,67 @@ export default {
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
+  z-index: 1000;
+  animation: fadeIn 0.3s;
 }
 
 .modal-content {
   background: white;
-  padding: 20px;
-  border-radius: 5px;
+  padding: 30px;
+  border-radius: 8px;
   width: 90%;
-  max-width: 500px;
+  max-width: 400px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s;
 }
 
 .close {
   float: right;
+  font-size: 1.5rem;
   cursor: pointer;
 }
 
-.loading {
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+input[type="date"],
+input[type="time"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.submit-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
   text-align: center;
+  display: block;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 </style>

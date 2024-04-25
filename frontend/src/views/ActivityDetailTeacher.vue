@@ -156,7 +156,7 @@ export default {
         newEndTime
       };
 
-      API.post(`http://localhost:5005/api/activity-sessions/${activityId}/reschedule`, payload)
+      API.patch(`http://localhost:5005/api/sessions/reschedule/${session.sessionId}`, payload)
         .then(() => {
           alert('Session rescheduled successfully.');
           this.showRescheduleModal = false;

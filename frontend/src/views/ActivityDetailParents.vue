@@ -1,20 +1,17 @@
 <template>
-  <div>
+  <div class="activity-detail-wrapper">
     <ParentNavbar />
     <div v-if="activity" class="activity-detail-container">
-      <div class="activity-detail-tabs">
-        <!-- Tab Headers -->
-        <button @click="currentTab = 'about'" :class="{'active-tab': currentTab === 'about'}">About</button>
-        <button @click="currentTab = 'schedule'" :class="{'active-tab': currentTab === 'schedule'}">Schedule</button>
+      <div class="activity-tabs">
+        <button @click="currentTab = 'about'" :class="{ active: currentTab === 'about' }">About</button>
+        <button @click="currentTab = 'schedule'" :class="{ active: currentTab === 'schedule' }">Schedule</button>
       </div>
-      <!-- Tab Content -->
       <div class="tab-content">
-        <div v-if="currentTab === 'about'" class="activity-detail">
+        <div v-if="currentTab === 'about'" class="about-section">
           <h1>{{ activity.name }}</h1>
           <p>{{ activity.description }}</p>
-          <p>Date: {{ new Date(activity.startDate).toLocaleDateString() }} to {{ new Date(activity.endDate).toLocaleDateString() }}</p>
-          <!-- Teachers Information -->
-          <div v-if="activity.teachers && activity.teachers.length">
+          <p>Date: {{ formatDate(activity.startDate) }} to {{ formatDate(activity.endDate) }}</p>
+          <div v-if="activity.teachers && activity.teachers.length" class="teachers-section">
             <h3>Teachers</h3>
             <ul>
               <li v-for="teacher in activity.teachers" :key="teacher._id">
@@ -23,21 +20,21 @@
             </ul>
           </div>
         </div>
-        <div v-if="currentTab === 'schedule'" class="activity-schedule">
+        <div v-if="currentTab === 'schedule'" class="schedule-section">
           <h2>Schedule:</h2>
           <ul>
-            <li v-for="(slot, index) in scheduledTimeSlots" :key="index">
-              {{ slot.dayOfWeek }} {{ slot.date }}: {{ slot.startTime }} - {{ slot.endTime }}
-              <button v-if="!slot.cancelled" class="cancel-button" @click="cancelClass(slot)">Cancel</button>
-              <button v-else class="revert-button" @click="revertCancellation(slot)">Revert Cancellation</button>
+            <li v-for="session in activity.sessions" :key="session._id" class="session-item">
+              {{ formatDate(session.date) }}: {{ session.startTime }} - {{ session.endTime }}
+              <button :class="{'absent-button': !session.absentees.includes(childId), 'present-button': session.absentees.includes(childId)}"
+                      @click="toggleAbsence(session)">
+                {{ session.absentees.includes(childId) ? 'Unmark As Absent' : 'Mark As Absent' }}
+              </button>
             </li>
           </ul>
         </div>
       </div>
     </div>
-    <div v-else class="loading">
-      Loading activity details...
-    </div>
+    <div v-else class="loading">Loading activity details...</div>
   </div>
 </template>
 
@@ -55,40 +52,10 @@ export default {
       childId: null,
     };
   },
-  computed: {
-    scheduledTimeSlots() {
-        let occurrences = [];
-        if (this.activity && this.activity.startDate && this.activity.endDate && this.activity.timeSlots) {
-        const startDate = new Date(this.activity.startDate);
-        const endDate = new Date(this.activity.endDate);
-
-        this.activity.timeSlots.forEach(slot => {
-            let currentDate = new Date(startDate.getTime());
-            while (currentDate.getDay() !== this.dayOfWeekToNumber(slot.dayOfWeek)) {
-            currentDate.setDate(currentDate.getDate() + 1);
-            }
-            while (currentDate <= endDate) {
-            const cancellations = this.activity.cancellations || [];
-            const cancelled = cancellations.some(cancellation =>
-                new Date(cancellation.date).toISOString().slice(0, 10) === currentDate.toISOString().slice(0, 10)
-            );
-            occurrences.push({
-                dayOfWeek: slot.dayOfWeek,
-                date: currentDate.toISOString().slice(0, 10),
-                startTime: slot.startTime,
-                endTime: slot.endTime,
-                cancelled: cancelled
-            });
-            currentDate.setDate(currentDate.getDate() + 7);
-            }
-        });
-        occurrences.sort((a, b) => new Date(a.date) - new Date(b.date) || a.startTime.localeCompare(b.startTime));
-        }
-        console.log("Scheduled Time Slots Computed:", occurrences);
-        return occurrences;
-    }
-    },
   methods: {
+    formatDate(date) {
+      return new Date(date).toLocaleDateString();
+    },
     fetchActivity() {
       const activityId = this.$route.params.activityId;
       const childId = this.$route.query.childId;
@@ -97,96 +64,51 @@ export default {
         return;
       }
       this.childId = childId;
-      API.get(`/activities/${activityId}`, { params: { childId } })
+      API.get(`/activities/${activityId}`)
         .then(response => {
           this.activity = response.data;
-          console.log("Activity data fetched:", this.activity);
-          this.fetchCancellations(); 
+          this.fetchSessions(activityId);
         })
         .catch(error => {
           console.error("Error fetching the activity details:", error);
         });
     },
-    fetchBookingStatus(activityId) {
-      const parentId = this.$route.query.parentId;
-      if (!parentId) {
-        alert('Parent ID not specified. Please check the URL.');
-        return;
-      }
-      API.get(`/booking/activity/${activityId}/parent/${parentId}/booking-status`)
+    fetchSessions(activityId) {
+      API.get(`/sessions/${activityId}`)
         .then(response => {
-          this.bookingStatus = response.data;
-          console.log("Booking Status fetched:", this.bookingStatus);
+          this.activity.sessions = response.data;
+          console.log("Session data fetched:", this.activity.sessions);
         })
         .catch(error => {
-          console.error('Error fetching booking status:', error);
+          console.error("Error fetching session details:", error);
         });
     },
-    fetchCancellations() {
-      const url = `booking/cancellations/${this.childId}/${this.activity._id}`;
-      API.get(url)
-        .then(response => {
-        this.activity = { ...this.activity, cancellations: response.data.map(booking => booking.cancellations).flat() };
-        console.log("Cancellations fetched and applied:", this.activity.cancellations);
-        this.$forceUpdate(); 
-        })
-        .catch(error => {
-          console.error('Error fetching updated cancellations:', error);
-        });
-    },
-    updateSlotStatus(slot, cancelled) {
-      const index = this.scheduledTimeSlots.findIndex(s => 
-        s.date === slot.date && s.startTime === slot.startTime);
-
-      if (index !== -1) {
-        this.scheduledTimeSlots[index].cancelled = cancelled;
-        console.log(`Slot status updated: ${slot.date} at ${slot.startTime} now cancelled: ${cancelled}`);
-        this.fetchCancellations(); // Re-fetch cancellations to sync with backend
+    toggleAbsence(session) {
+      if (session.absentees.includes(this.childId)) {
+        this.unmarkAsAbsent(session._id);
+      } else {
+        this.markAsAbsent(session._id);
       }
     },
-    cancelClass(slot) {
-      if (!this.childId) {
-        alert('Error: No child ID specified.');
-        return;
-      }
-      if (confirm(`Are you sure you want to cancel ${slot.dayOfWeek}'s class on ${slot.date}?`)) {
-        API.post(`/cancelClass`, {
-          childId: this.childId,
-          activityId: this.activity._id,
-          slotDate: slot.date,
-          startTime: slot.startTime
-        })
+    markAsAbsent(sessionId) {
+      API.post(`/sessions/mark-absent/${sessionId}/${this.childId}`)
         .then(() => {
-          alert('Class cancelled successfully.');
-          this.updateSlotStatus(slot, true);
+          alert('Absence marked successfully.');
+          this.fetchSessions(this.activity._id);
         })
         .catch(error => {
-          console.error('Error cancelling class:', error);
+          console.error('Error marking absence:', error);
         });
-      }
     },
-    revertCancellation(slot) {
-        if (!this.childId) {
-            alert('Error: No child ID specified.');
-            return;
-        }
-        API.post(`/revertCancellation`, {
-            childId: this.childId,
-            activityId: this.activity._id,
-            slotDate: slot.date,
-            startTime: slot.startTime
-        })
+    unmarkAsAbsent(sessionId) {
+      API.post(`/sessions/unmark-absent/${sessionId}/${this.childId}`)
         .then(() => {
-            alert('Cancellation reverted successfully.');
-            this.updateSlotStatus(slot, false);
-            this.fetchCancellations(); // Refetch cancellations to update all data
+          alert('Absence unmarked successfully.');
+          this.fetchSessions(this.activity._id);
         })
         .catch(error => {
-            console.error('Error reverting cancellation:', error);
+          console.error('Error unmarking absence:', error);
         });
-        },
-    dayOfWeekToNumber(day) {
-        return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(day);
     }
   },
   created() {
@@ -198,23 +120,25 @@ export default {
 
 
 <style scoped>
-.activity-detail-container {
+.activity-detail-wrapper {
   display: flex;
   flex-direction: column;
 }
 
-.activity-detail-tabs {
+.activity-tabs {
   display: flex;
   justify-content: space-around;
   background-color: #f5f5f5;
   padding: 10px 0;
-  position: sticky;
-  inset-block-start: 0;
-  z-index: 1000;
 }
 
-.activity-detail h1, .activity-detail h2, .activity-detail h3, .loading {
+.about-section, .schedule-section, .teachers-section, .loading {
   color: #333;
+  padding: 15px;
+  background: #fff;
+  border-radius: 8px;
+  margin: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 ul {
@@ -222,7 +146,7 @@ ul {
   padding: 0;
 }
 
-li {
+li.session-item {
   background: #e9ecef;
   margin: 5px 0;
   padding: 10px;
@@ -232,8 +156,8 @@ li {
   align-items: center;
 }
 
-.cancel-button {
-  background-color: #ff4d4d;
+.absent-button, .present-button {
+  background-color: #007bff;
   color: white;
   border: none;
   padding: 5px 10px;
@@ -241,15 +165,20 @@ li {
   cursor: pointer;
 }
 
-.cancel-button:hover {
-  background-color: #ff3333;
+.absent-button:hover {
+  background-color: #0056b3;
 }
 
-.active-tab {
+.present-button {
+  background-color: #28a745;
+}
+
+.present-button:hover {
+  background-color: #218838;
+}
+
+.active {
   background-color: #007bff;
   color: white;
-}
-.tab-content {
-  margin-block-start: 20px;
 }
 </style>

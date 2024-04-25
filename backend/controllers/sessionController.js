@@ -80,3 +80,39 @@ exports.fetchSessionsForParticipant = async (req, res) => {
         res.status(500).json({ message: 'Error fetching sessions for participant', error: error.message });
     }
 };
+
+// Method to mark a child as absent for a session
+exports.markAsAbsent = async (req, res) => {
+    try {
+        const { sessionId, childId } = req.params;
+        const session = await Session.findById(sessionId);
+        if (!session) {
+            return res.status(404).json({ message: 'Session not found' });
+        }
+        // Add childId to the absentees array if not already present
+        if (!session.absentees.includes(childId)) {
+            session.absentees.push(childId);
+            await session.save();
+        }
+        res.status(200).json({ message: 'Child marked as absent', session });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to mark as absent', error: error.message });
+    }
+};
+
+// Method to unmark a child as absent for a session
+exports.unmarkAsAbsent = async (req, res) => {
+    try {
+        const { sessionId, childId } = req.params;
+        const session = await Session.findById(sessionId);
+        if (!session) {
+            return res.status(404).json({ message: 'Session not found' });
+        }
+        // Remove childId from the absentees array if present
+        session.absentees = session.absentees.filter(id => id.toString() !== childId);
+        await session.save();
+        res.status(200).json({ message: 'Child unmarked as absent', session });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to unmark as absent', error: error.message });
+    }
+};

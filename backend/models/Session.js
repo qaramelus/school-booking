@@ -17,7 +17,8 @@ const sessionSchema = new Schema({
     rescheduledTo: { type: Date }, // New date if the session is rescheduled
     createdBy: { type: Schema.Types.ObjectId, ref: 'User' }, // Who created the session
     teachers: [{ type: Schema.Types.ObjectId, ref: 'User' }], // Teachers for the session
-    participants: [{ type: Schema.Types.ObjectId, ref: 'User' }] // Children booked into the session
-});
+    participants: [{ type: Schema.Types.ObjectId, ref: 'User' }], // Children booked into the session
+    absentees: [{ type: Schema.Types.ObjectId, ref: 'User' }] // Array of children marked as absent
+  });
 
 module.exports = mongoose.model('Session', sessionSchema);

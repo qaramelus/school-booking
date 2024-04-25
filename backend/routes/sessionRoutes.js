@@ -17,4 +17,10 @@ router.patch('/reschedule/:sessionId', sessionController.rescheduleSession);
 // Route to fetch all sessions for a specific participant by child ID
 router.get('/participant/:childId', sessionController.fetchSessionsForParticipant);
 
+// Route to mark a child as absent
+router.post('/mark-absent/:sessionId/:childId', sessionController.markAsAbsent);
+
+// Route to unmark a child as absent
+router.post('/unmark-absent/:sessionId/:childId', sessionController.unmarkAsAbsent);
+
 module.exports = router;

@@ -17,7 +17,7 @@
           <ul class="session-list">
             <li v-for="(session, index) in sessionInfo" :key="index">
               <div class="session-header" @click="toggleParticipantList(index)">
-                {{ session.date }}: {{ session.startTime }} - {{ session.endTime }} ({{ session.participants.length }} participants)
+                {{ formatDate(session.date) }}: {{ session.startTime }} - {{ session.endTime }} ({{ session.participants.length }} participants)
                 <button @click.stop="startRescheduleSession(session)" class="reschedule-btn">Reschedule</button>
               </div>
               <ul v-if="expandedSlots.includes(index)" class="participant-list">
@@ -54,7 +54,6 @@
         </form>
       </div>
     </div>
-    <div v-else class="loading">Loading activity details...</div>
   </div>
 </template>
 
@@ -87,6 +86,10 @@ export default {
     this.fetchSessionInfo();
   },
   methods: {
+    formatDate(dateString) {
+      const date = new Date(dateString);
+      return `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear()}`;
+    },
     fetchActivity() {
       const activityId = this.$route.params.activityId;
       API.get(`/activities/${activityId}`)
@@ -175,6 +178,8 @@ export default {
   }
 };
 </script>
+
+
 
 <style scoped>
 .activity-detail-container {

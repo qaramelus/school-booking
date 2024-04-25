@@ -26,4 +26,6 @@ router.post('/unmark-absent/:sessionId/:childId', sessionController.unmarkAsAbse
 // Route to fetch all participants for all sessions of a specific activity
 router.get('/:activityId/sessions-with-participants', sessionController.fetchSessionsWithParticipants);
 
+router.get('/teacher/:teacherId', sessionController.fetchSessionsByTeacher);
+
 module.exports = router;

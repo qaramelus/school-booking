@@ -5,6 +5,8 @@
     </div>
     <ul :class="{ 'nav-active': navOpen }">
       <li><router-link to="/teacher-overview" @click="closeNav">Overview</router-link></li>
+      <li><router-link to="/teacher-calendar" @click="closeNav">My Calendar</router-link></li>
+      <!-- Additional links can be added here -->
     </ul>
     <button @click="performLogout" class="logout-button">Logout</button>
   </nav>

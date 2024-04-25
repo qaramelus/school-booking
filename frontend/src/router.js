@@ -11,6 +11,7 @@ import AdminCalendar from './views/AdminCalendar.vue';
 import TeacherOverview from './views/TeacherOverview.vue';
 import ActivityDetailParents from './views/ActivityDetailParents.vue';
 import ActivityDetailTeacher from './views/ActivityDetailTeacher.vue'; 
+import TeacherCalendar from './views/TeacherCalendar.vue'; 
 
 
 const routes = [
@@ -120,6 +121,19 @@ const routes = [
     component: ActivityDetailTeacher,
     beforeEnter: (to, from, next) => {
       const role = (localStorage.getItem('user-role') || '').trim();
+      if (role === 'teacher') {
+        next();
+      } else {
+        next('/login');
+      }
+    }
+  },
+  {
+    path: '/teacher-calendar',  // Define the path for the teacher's calendar
+    name: 'TeacherCalendar',
+    component: TeacherCalendar,
+    beforeEnter: (to, from, next) => {
+      const role = localStorage.getItem('user-role');
       if (role === 'teacher') {
         next();
       } else {

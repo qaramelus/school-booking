@@ -163,3 +163,34 @@ exports.fetchSessionsWithParticipants = async (req, res) => {
         res.status(500).json({ message: 'Error fetching sessions with participants', error: error.message });
     }
 };
+
+// Fetch sessions by teacher
+exports.fetchSessionsByTeacher = async (req, res) => {
+    try {
+        const { teacherId } = req.params;
+        const sessions = await Session.find({ teachers: teacherId })
+            .populate('teachers', 'name')  // Optionally populate teacher details
+            .populate('participants', 'name')  // Optionally populate participant details
+            .populate('activityId', 'name'); // Populate activity name
+
+        if (!sessions.length) {
+            return res.status(404).json({ message: 'No sessions found for this teacher' });
+        }
+
+        const formattedSessions = sessions.map(session => ({
+            id: session._id,
+            activity: session.activityId.name,
+            date: session.date,
+            startTime: session.startTime,
+            endTime: session.endTime,
+            participants: session.participants.map(participant => participant.name),
+            numParticipants: session.participants.length, // Calculate number of participants
+            status: session.status
+        }));
+
+        res.json(formattedSessions);
+    } catch (error) {
+        console.error('Error fetching sessions by teacher:', error);
+        res.status(500).send({ message: 'Failed to fetch sessions', error: error.toString() });
+    }
+};

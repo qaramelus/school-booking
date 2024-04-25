@@ -1,9 +1,11 @@
 <template>
   <div class="activity-detail-container">
     <TeacherNavbar />
-    <div v-if="activity" class="activity-detail-tabs">
-      <button @click="currentTab = 'about'" :class="{'active-tab': currentTab === 'about'}">About</button>
-      <button @click="currentTab = 'participants'" :class="{'active-tab': currentTab === 'participants'}">Participants</button>
+    <div v-if="activity" class="activity-detail-header">
+      <div class="activity-detail-tabs">
+        <button @click="currentTab = 'about'" :class="{'active-tab': currentTab === 'about'}" class="tab-button">About</button>
+        <button @click="currentTab = 'participants'" :class="{'active-tab': currentTab === 'participants'}" class="tab-button">Participants</button>
+      </div>
       <div class="tab-content">
         <div v-if="currentTab === 'about'" class="activity-detail">
           <h1>{{ activity.name }}</h1>
@@ -11,47 +13,47 @@
           <p>Date: {{ new Date(activity.startDate).toLocaleDateString() }} to {{ new Date(activity.endDate).toLocaleDateString() }}</p>
         </div>
         <div v-if="currentTab === 'participants'">
-            <h2>Session Participation</h2>
-            <ul class="session-list">
-                <li v-for="(session, index) in sessionInfo" :key="index">
-                    <div class="session-header" @click="toggleParticipantList(index)">
-                        {{ session.date }}: {{ session.startTime }} - {{ session.endTime }} ({{ session.participants.length }} participants)
-                        <button @click.stop="startRescheduleSession(session)" class="reschedule-btn">Reschedule</button>
-                    </div>
-                    <ul v-if="expandedSlots.includes(index)" class="participant-list">
-                        <li v-for="participant in session.participants" :key="participant.participantId" class="participant-item">
-                            {{ participant.name }}
-                            <span v-if="participant.attended" class="checkmark">✔️</span>
-                            <button v-if="!participant.attended" @click.stop="toggleAttendance(participant.participantId, session, index, true)" class="mark-attendance-btn">Mark Attended</button>
-                            <button v-else @click.stop="toggleAttendance(participant.participantId, session, index, false)" class="mark-attendance-btn">Mark Unattended</button>
-                        </li>
-                    </ul>
+          <h2>Session Participation</h2>
+          <ul class="session-list">
+            <li v-for="(session, index) in sessionInfo" :key="index">
+              <div class="session-header" @click="toggleParticipantList(index)">
+                {{ session.date }}: {{ session.startTime }} - {{ session.endTime }} ({{ session.participants.length }} participants)
+                <button @click.stop="startRescheduleSession(session)" class="reschedule-btn">Reschedule</button>
+              </div>
+              <ul v-if="expandedSlots.includes(index)" class="participant-list">
+                <li v-for="participant in session.participants" :key="participant.participantId" class="participant-item">
+                  {{ participant.name }}
+                  <span v-if="participant.attended" class="checkmark">✔️</span>
+                  <button v-if="!participant.attended" @click.stop="toggleAttendance(participant.participantId, session, index, true)" class="mark-attendance-btn">Mark Attended</button>
+                  <button v-else @click.stop="toggleAttendance(participant.participantId, session, index, false)" class="mark-attendance-btn">Mark Unattended</button>
                 </li>
-            </ul>
+              </ul>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
     <div v-if="showRescheduleModal" class="modal">
-    <div class="modal-content">
-      <span class="close" @click="showRescheduleModal = false">&times;</span>
-      <h3>Reschedule Session</h3>
-      <form @submit.prevent="confirmReschedule" class="reschedule-form">
-        <div class="form-group">
-          <label for="newDate">New Date:</label>
-          <input type="date" v-model="rescheduleData.newDate" required>
-        </div>
-        <div class="form-group">
-          <label for="newStartTime">New Start Time:</label>
-          <input type="time" v-model="rescheduleData.newStartTime" required>
-        </div>
-        <div class="form-group">
-          <label for="newEndTime">New End Time:</label>
-          <input type="time" v-model="rescheduleData.newEndTime" required>
-        </div>
-        <button type="submit" class="submit-btn">Submit</button>
-      </form>
+      <div class="modal-content">
+        <span class="close" @click="showRescheduleModal = false">&times;</span>
+        <h3>Reschedule Session</h3>
+        <form @submit.prevent="confirmReschedule" class="reschedule-form">
+          <div class="form-group">
+            <label for="newDate">New Date:</label>
+            <input type="date" v-model="rescheduleData.newDate" required>
+          </div>
+          <div class="form-group">
+            <label for="newStartTime">New Start Time:</label>
+            <input type="time" v-model="rescheduleData.newStartTime" required>
+          </div>
+          <div class="form-group">
+            <label for="newEndTime">New End Time:</label>
+            <input type="time" v-model="rescheduleData.newEndTime" required>
+          </div>
+          <button type="submit" class="submit-btn">Submit</button>
+        </form>
+      </div>
     </div>
-  </div>
     <div v-else class="loading">Loading activity details...</div>
   </div>
 </template>
@@ -174,56 +176,76 @@ export default {
 };
 </script>
 
-
-
 <style scoped>
-.activity-detail-tabs button.active-tab {
+.activity-detail-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-detail-header {
+  display: flex;
+  flex-direction: column; /* Align tabs at the top */
+}
+
+.activity-detail-tabs {
+  display: flex;
+  justify-content: center; /* Center tabs in the container */
+  padding: 10px 0;
+}
+
+.activity-detail-tabs .tab-button {
+  background-color: #e7e7e7;
+  color: black;
+  border: none;
+  padding: 15px 30px; /* Increased size for easier interaction */
+  margin: 0 10px;
+  font-size: 18px; /* Larger font for better readability */
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.activity-detail-tabs .tab-button:hover {
+  background-color: #ddd; /* Subtle hover effect */
+}
+
+.activity-detail-tabs .tab-button.active-tab {
   background-color: #007BFF;
   color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Added shadow for active state */
 }
 
-.session-list {
+.tab-content {
+  flex-grow: 1; /* Allow the content area to take up the rest of the space */
+  padding: 20px;
+  border-top: 1px solid #ccc;
+}
+
+.session-list, .participant-list {
   list-style: none;
   padding: 0;
 }
 
-.session-header {
-  background-color: #f7f7f7;
+.session-header, .participant-item {
   padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
+  background-color: #f7f7f7;
   border: 1px solid #ccc;
-}
-
-.participant-list {
-  list-style: none;
-  padding: 0;
-  margin-block-start: 5px;
-}
-
-.participant-item {
-  background-color: #fff;
-  padding: 5px;
-  border-block-end: 1px solid #eee;
+  margin-bottom: 5px;
 }
 
 .checkmark {
   color: green;
   font-size: 20px;
-  margin-inline-start: 10px;
+  margin-left: 10px;
 }
 
 .mark-attendance-btn, .reschedule-btn {
-  background-color: #4CAF50; /* Green */
-  border: none;
+  background-color: #4CAF50;
   color: white;
   padding: 5px 10px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 14px;
-  margin: 4px 2px;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
+  margin-left: 5px;
 }
 
 .modal {
@@ -261,7 +283,7 @@ export default {
 }
 
 label {
-  display: block;
+  display:block;
   margin-bottom: 5px;
   font-weight: 500;
 }
@@ -277,13 +299,11 @@ input[type="time"] {
 .submit-btn {
   background-color: #4CAF50;
   color: white;
-  border: none;
   padding: 10px 20px;
-  text-align: center;
-  display: block;
+  border: none;
   width: 100%;
-  cursor: pointer;
   border-radius: 4px;
+  cursor: pointer;
 }
 
 @keyframes fadeIn {

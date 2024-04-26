@@ -9,6 +9,9 @@ router.get('/', isAdmin, userController.fetchAllUsers);
 // Fetch teachers
 router.get('/teachers', authMiddleware, userController.fetchTeachers);
 
+// Route for creating a parent user
+router.post('/parent', userController.createParentUser);
+
 // Fetch user details by ID - Admins only
 router.get('/:userId', isAdminOrParent, userController.fetchUserDetails);
 
@@ -19,3 +22,4 @@ router.post('/:parentId/children', isAdminOrParent, userController.createChildUs
 router.get('/:parentId/children', isAdminOrParent, userController.fetchChildrenForParent);
 
 module.exports = router;
+

@@ -1,3 +1,4 @@
+// server.js
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -10,7 +11,8 @@ const userRoutes = require('./routes/userRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const locationRoutes = require('./routes/locationRoutes');
-const sessionRoutes = require('./routes/sessionRoutes'); 
+const sessionRoutes = require('./routes/sessionRoutes');
+const notificationRoutes = require('./routes/notificationRoutes'); // Import notification routes
 
 const app = express();
 dotenv.config();
@@ -26,10 +28,11 @@ app.use('/api/activity-participants', activityParticipantRoutes);
 // Other Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/booking', bookingRoutes); 
+app.use('/api/booking', bookingRoutes);
 app.use('/api/attendance', attendanceRoutes);
-app.use('/api/locations', locationRoutes);  
-app.use('/api/sessions', sessionRoutes); 
+app.use('/api/locations', locationRoutes);
+app.use('/api/sessions', sessionRoutes);
+app.use('/api/notifications', notificationRoutes); // Apply notification routes
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,

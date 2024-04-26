@@ -155,3 +155,34 @@ exports.getActivityById = async (req, res) => {
       res.status(500).json({ message: 'Error fetching activity', error: error.message });
     }
   };
+
+  // Function to fetch current activities
+exports.fetchCurrentActivities = async (req, res) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);  // Normalize today's date to start of day
+
+    try {
+        const currentActivities = await Activity.find({
+            startDate: { $lte: today },
+            endDate: { $gte: today }
+        });
+        res.json(currentActivities);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching current activities', error: error.message });
+    }
+};
+
+// Function to fetch future activities
+exports.fetchFutureActivities = async (req, res) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);  // Normalize today's date to start of day
+
+    try {
+        const futureActivities = await Activity.find({
+            startDate: { $gt: today }
+        });
+        res.json(futureActivities);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching future activities', error: error.message });
+    }
+};

@@ -3,6 +3,11 @@
     <admin-navbar />
     <h1>All Activities</h1>
     <div class="button-container">
+      <button @click="fetchActivities('all')">All Activities</button>
+      <button @click="fetchActivities('current')">Current Activities</button>
+      <button @click="fetchActivities('future')">Upcoming Activities</button>
+    </div>
+    <div class="button-container">
       <button class="add-activity-button" @click="prepareNewActivity">Add Activity</button>
     </div>
     <ActivityModal
@@ -61,24 +66,31 @@ export default {
       editingActivity: null,
       trashIcon,
       editIcon,
-      locations: [] // Add a locations array to hold fetched location data
+      locations: [] 
     };
   },
   methods: {
-    fetchActivities() {
-      API.get('activities')
-        .then(response => {
-          this.activities = response.data.map(activity => ({
-            ...activity,
-            startDate: activity.startDate || new Date(),
-            endDate: activity.endDate || new Date(),
-            timeSlots: activity.timeSlots || []
-          }));
-        })
-        .catch(error => {
-          console.error("There was an error fetching the activities:", error);
-        });
-    },
+    fetchActivities(type = 'all') {
+    let endpoint = '/activities/'; 
+    if (type === 'current') {
+      endpoint = '/activities/current/';
+    } else if (type === 'future') {
+      endpoint = '/activities/future/';
+    }
+
+    API.get(endpoint)
+      .then(response => {
+        this.activities = response.data.map(activity => ({
+          ...activity,
+          startDate: activity.startDate || new Date(),
+          endDate: activity.endDate || new Date(),
+          timeSlots: activity.timeSlots || []
+        }));
+      })
+      .catch(error => {
+        console.error(`There was an error fetching the ${type} activities:`, error);
+      });
+  },
     handleActivityAdded() {
       this.fetchActivities();
       this.showModal = false;

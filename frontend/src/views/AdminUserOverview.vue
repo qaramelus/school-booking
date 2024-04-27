@@ -2,31 +2,118 @@
   <div class="admin-user-overview">
     <admin-navbar />
     <h1>User Administration</h1>
-    <button @click="showModal = true">Add Parent</button>
+    <button class="add-btn" @click="showAddParentModal = true">Add Parent</button>
+    <button class="add-btn" @click="showAddTeacherModal = true">Add Teacher</button>
 
-    <!-- Modal -->
-    <div v-if="showModal" class="modal">
+    <!-- Add Parent Modal -->
+    <div v-if="showAddParentModal" class="modal">
       <div class="modal-content">
-        <span class="close" @click="showModal = false">&times;</span>
+        <span class="close" @click="showAddParentModal = false">&times;</span>
         <h2>Add Parent</h2>
         <form @submit.prevent="addParent">
-          <label for="firstName">First Name</label>
-          <input type="text" id="firstName" v-model="parent.firstName" required>
-          <label for="lastName">Last Name</label>
-          <input type="text" id="lastName" v-model="parent.lastName" required>
-          <label for="street">Street</label>
-          <input type="text" id="street" v-model="parent.address.street" required>
-          <label for="city">City</label>
-          <input type="text" id="city" v-model="parent.address.city" required>
-          <label for="zipCode">Zip Code</label>
-          <input type="text" id="zipCode" v-model="parent.address.zipCode" required>
-          <label for="phone">Phone</label>
-          <input type="text" id="phone" v-model="parent.phone" required>
-          <label for="email">Email</label>
-          <input type="email" id="email" v-model="parent.email" required>
-          <label for="password">Password</label>
-          <input type="password" id="password" v-model="parent.password" required>
-          <button type="submit">Add Parent</button>
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" v-model="parent.firstName" required>
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" v-model="parent.lastName" required>
+          </div>
+          <div class="form-group">
+            <label for="address.street">Street</label>
+            <input type="text" id="address.street" v-model="parent.address.street" required>
+          </div>
+          <div class="form-group">
+            <label for="address.city">City</label>
+            <input type="text" id="address.city" v-model="parent.address.city" required>
+          </div>
+          <div class="form-group">
+            <label for="address.zipCode">Zip Code</label>
+            <input type="text" id="address.zipCode" v-model="parent.address.zipCode" required>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input type="text" id="phone" v-model="parent.phone" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" v-model="parent.email" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" v-model="parent.password" required>
+          </div>
+          <button type="submit" class="submit-btn">Add Parent</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add Teacher Modal -->
+    <div v-if="showAddTeacherModal" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="showAddTeacherModal = false">&times;</span>
+        <h2>Add Teacher</h2>
+        <form @submit.prevent="addTeacher">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" v-model="teacher.firstName" required>
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" v-model="teacher.lastName" required>
+          </div>
+          <div class="form-group">
+            <label for="address.street">Street</label>
+            <input type="text" id="address.street" v-model="parent.address.street" required>
+          </div>
+          <div class="form-group">
+            <label for="address.city">City</label>
+            <input type="text" id="address.city" v-model="parent.address.city" required>
+          </div>
+          <div class="form-group">
+            <label for="address.zipCode">Zip Code</label>
+            <input type="text" id="address.zipCode" v-model="parent.address.zipCode" required>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input type="text" id="phone" v-model="parent.phone" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" v-model="teacher.email" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" v-model="teacher.password" required>
+          </div>
+          <button type="submit" class="submit-btn">Add Teacher</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit Parent Modal showEditModal-->
+    <div v-if="showEditModal" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="showEditModal = false">&times;</span>
+        <h2>Edit Parent</h2>
+        <form @submit.prevent="updateParent">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" v-model="editedParent.firstName" required>
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" v-model="editedParent.lastName" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" v-model="editedParent.email" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" v-model="editedParent.password" required>
+          </div>
+          <button type="submit" class="submit-btn">Update Parent</button>
         </form>
       </div>
     </div>
@@ -34,14 +121,16 @@
     <table>
       <thead>
         <tr>
-          <th>Username</th>
+          <th>Name</th>
           <th>Role</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="user in users" :key="user._id" @click="navigateToUser(user._id)" style="cursor: pointer;">
-          <td>{{ user.username }}</td>
+          <td>{{ user.firstName }} {{ user.lastName }} <img v-if="user.role === 'parent'" src="@/assets/editicon.png" alt="Edit" @click.stop="openEditModal(user)" class="edit-icon"></td>
           <td>{{ user.role }}</td>
+          <td></td>
         </tr>
       </tbody>
     </table>
@@ -73,7 +162,16 @@ export default {
         password: '',
         role: 'parent'
       },
-      showModal: false
+      teacher: {
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: ''
+      },
+      editedParent: {},
+      showAddParentModal: false,
+      showAddTeacherModal: false,
+      showEditModal: false
     };
   },
   mounted() {
@@ -97,7 +195,7 @@ export default {
         console.log('New parent added:', response.data);
         this.users.push(response.data);
         this.resetParentForm();
-        this.showModal = false;
+        this.showAddParentModal = false;
       } catch (error) {
         console.error("Error adding parent:", error.message);
       }
@@ -116,12 +214,65 @@ export default {
         password: '',
         role: 'parent'
       };
+    },
+    async addTeacher() {
+      try {
+        const response = await API.post('users/teachers', this.teacher);
+        console.log('New teacher added:', response.data);
+        this.users.push(response.data);
+        this.resetTeacherForm();
+        this.showAddTeacherModal = false;
+      } catch (error) {
+        console.error("Error adding teacher:", error.message);
+      }
+    },
+    resetTeacherForm() {
+      this.teacher = {
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: ''
+      };
+    },
+    openEditModal(user) {
+      this.editedParent = { ...user };
+      this.showEditModal = true;
+    },
+    async updateParent() {
+      try {
+        const response = await API.put(`users/parent/${this.editedParent._id}`, this.editedParent);
+        console.log('Parent updated:', response.data);
+        // Update the parent in the users array or perform any other necessary actions
+        this.showEditModal = false;
+      } catch (error) {
+        console.error("Error updating parent:", error.message);
+      }
     }
   }
 };
 </script>
 
 <style scoped>
+/* CSS styles omitted for brevity */
+</style>
+
+<style scoped>
+
+.add-btn {
+  background-color: #2c3e50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-block-end: 20px;
+  margin-inline-end: 10px;
+}
+
+.add-btn:hover {
+  background-color: #1a252f;
+}
+
 .admin-user-overview {
   margin: 0 auto;
   text-align: center;
@@ -151,10 +302,10 @@ th {
   display: block;
   position: fixed;
   z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  inset-inline-start: 0;
+  inset-block-start: 0;
+  inline-size: 100%;
+  block-size: 100%;
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.4);
 }
@@ -164,14 +315,14 @@ th {
   margin: 15% auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 30%;
+  inline-size: 30%;
   border-radius: 5px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .close {
   color: #aaa;
-  float: right;
+  float: inline-end;
   font-size: 28px;
   font-weight: bold;
 }
@@ -184,17 +335,17 @@ th {
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-block-end: 15px;
 }
 
 label {
   display: block;
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-block-end: 5px;
 }
 
 input {
-  width: 100%;
+  inline-size: 100%;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -221,10 +372,17 @@ input {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  margin-bottom: 20px;
+  margin-block-end: 20px;
 }
 
 .add-parent-btn:hover {
   background-color: #1a252f;
+}
+
+.edit-icon {
+  inline-size: 16px;
+  block-size: 16px;
+  margin-inline-start: 5px;
+  cursor: pointer;
 }
 </style>

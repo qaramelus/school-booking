@@ -222,7 +222,7 @@ export default {
 .tab-content {
   flex-grow: 1; /* Allow the content area to take up the rest of the space */
   padding: 20px;
-  border-top: 1px solid #ccc;
+  border-block-start: 1px solid #ccc;
 }
 
 .session-list, .participant-list {
@@ -234,13 +234,13 @@ export default {
   padding: 10px;
   background-color: #f7f7f7;
   border: 1px solid #ccc;
-  margin-bottom: 5px;
+  margin-block-end: 5px;
 }
 
 .checkmark {
   color: green;
   font-size: 20px;
-  margin-left: 10px;
+  margin-inline-start: 10px;
 }
 
 .mark-attendance-btn, .reschedule-btn {
@@ -250,15 +250,15 @@ export default {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  margin-left: 5px;
+  margin-inline-start: 5px;
 }
 
 .modal {
   position: fixed;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  inset-inline-start: 0;
+  inset-block-start: 0;
+  inline-size: 100%;
+  block-size: 100%;
   background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
@@ -271,31 +271,31 @@ export default {
   background: white;
   padding: 30px;
   border-radius: 8px;
-  width: 90%;
-  max-width: 400px;
+  inline-size: 90%;
+  max-inline-size: 400px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   animation: slideIn 0.3s;
 }
 
 .close {
-  float: right;
+  float: inline-end;
   font-size: 1.5rem;
   cursor: pointer;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-block-end: 20px;
 }
 
 label {
   display:block;
-  margin-bottom: 5px;
+  margin-block-end: 5px;
   font-weight: 500;
 }
 
 input[type="date"],
 input[type="time"] {
-  width: 100%;
+  inline-size: 100%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -306,7 +306,7 @@ input[type="time"] {
   color: white;
   padding: 10px 20px;
   border: none;
-  width: 100%;
+  inline-size: 100%;
   border-radius: 4px;
   cursor: pointer;
 }

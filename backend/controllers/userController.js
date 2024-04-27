@@ -1,5 +1,4 @@
-// userController.js
-const User = require('../models/User'); 
+const User = require('../models/User');
 const { generateUsername } = require('../middlewares/userMiddleware');
 
 exports.fetchAllUsers = async (req, res) => {
@@ -15,8 +14,8 @@ exports.fetchUserDetails = async (req, res) => {
     try {
         const userId = req.params.userId;
         const user = await User.findById(userId)
-                               .populate('parent', 'username email role') 
-                               .populate('children', 'username email role'); 
+                               .populate('parent', 'username email role')
+                               .populate('children', 'username email role');
         if (!user) {
             return res.status(404).send({ message: "User not found" });
         }
@@ -27,21 +26,39 @@ exports.fetchUserDetails = async (req, res) => {
 };
 
 exports.createChildUser = async (req, res) => {
-    const { parentId } = req.params; 
-    const childUserInfo = req.body; 
+    const { parentId } = req.params;
+    const childUserInfo = req.body;
 
     try {
         const childUser = new User({
             ...childUserInfo,
-            parent: parentId 
+            parent: parentId,
+            role: 'child'
         });
 
         await childUser.save();
-        await User.findByIdAndUpdate(parentId, { $push: { children: childUser._id }});
+        await User.findByIdAndUpdate(parentId, { $push: { children: childUser._id } });
 
         res.status(201).send({ message: "Child user created successfully", childUser });
     } catch (error) {
         res.status(500).send({ message: "Error creating child user", error: error.message });
+    }
+};
+
+exports.createTeacherUser = async (req, res) => {
+    const teacherUserInfo = req.body;
+
+    try {
+        const teacherUser = new User({
+            ...teacherUserInfo,
+            role: 'teacher'
+        });
+
+        await teacherUser.save();
+
+        res.status(201).send({ message: "Teacher user created successfully", teacherUser });
+    } catch (error) {
+        res.status(500).send({ message: "Error creating teacher user", error: error.message });
     }
 };
 
@@ -92,3 +109,31 @@ exports.createParentUser = async (req, res) => {
     }
 };
 
+exports.updateParentUser = async (req, res) => {
+    try {
+      const parentId = req.params.parentId;
+      const updatedParentInfo = req.body;
+  
+      // Find the parent user by ID
+      const parentUser = await User.findById(parentId);
+  
+      if (!parentUser) {
+        return res.status(404).send({ message: "Parent user not found" });
+      }
+  
+      // Update the parent user fields
+      parentUser.firstName = updatedParentInfo.firstName || parentUser.firstName;
+      parentUser.lastName = updatedParentInfo.lastName || parentUser.lastName;
+      parentUser.address = updatedParentInfo.address || parentUser.address;
+      parentUser.phone = updatedParentInfo.phone || parentUser.phone;
+      parentUser.email = updatedParentInfo.email || parentUser.email;
+      // Update other fields as needed
+  
+      // Save the updated parent user
+      const updatedUser = await parentUser.save();
+  
+      res.json(updatedUser);
+    } catch (error) {
+      res.status(500).send({ message: "Error updating parent user", error: error.message });
+    }
+  }

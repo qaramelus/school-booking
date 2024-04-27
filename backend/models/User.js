@@ -3,16 +3,15 @@ const mongoose = require('mongoose');
 const { generateUsername } = require('../middlewares/userMiddleware');
 const Schema = mongoose.Schema;
 
-
 const userSchema = new Schema({
-  firstName: { type: String, required: function() { return this.role === 'parent'; } },
-  lastName: { type: String, required: function() { return this.role === 'parent'; } },
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
   address: {
-    street: { type: String, required: function() { return this.role === 'parent'; } },
-    city: { type: String, required: function() { return this.role === 'parent'; } },
-    zipCode: { type: String, required: function() { return this.role === 'parent'; } }
+    street: { type: String },
+    city: { type: String },
+    zipCode: { type: String }
   },
-  phone: { type: String, required: function() { return this.role === 'parent'; } },
+  phone: { type: String },
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -23,17 +22,15 @@ const userSchema = new Schema({
   },
   parent: { 
     type: Schema.Types.ObjectId, 
-    ref: 'User',
-    required: function() { return this.role === 'child'; }
+    ref: 'User'
   },
   children: [{
     type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: function() { return this.role === 'parent'; } 
+    ref: 'User'
   }]
 });
 
 // Applying middleware
 userSchema.pre('save', generateUsername);
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema)

@@ -1,9 +1,20 @@
 <template>
-  <div class="admin-user-overview">
-    <admin-navbar />
+      <admin-navbar />
+<div class="admin-user-overview">
     <h1>User Administration</h1>
-    <button class="add-btn" @click="showAddParentModal = true">Add Parent</button>
-    <button class="add-btn" @click="showAddTeacherModal = true">Add Teacher</button>
+    <div class="controls">
+        <button class="add-btn" @click="showAddParentModal = true">Add Parent</button>
+        <button class="add-btn" @click="showAddTeacherModal = true">Add Teacher</button>
+
+        <div class="filter-section">
+            <select v-model="filterRole">
+                <option value="">All Roles</option>
+                <option value="admin">Admin</option>
+                <option value="parent">Parent</option>
+                <option value="teacher">Teacher</option>
+            </select>
+        </div>
+    </div>
 
     <!-- Add Parent Modal -->
     <div v-if="showAddParentModal" class="modal">
@@ -90,7 +101,6 @@
         </form>
       </div>
     </div>
-
 
     <!-- Edit Parent Modal showEditModal-->
     <div v-if="showEditModal" class="modal">
@@ -182,16 +192,15 @@
         </tr>
       </thead>
       <tbody>
-  <tr v-for="user in users" :key="user._id" @click="navigateToUser(user._id)" style="cursor: pointer;">
-    <td>
-      {{ user.firstName }} {{ user.lastName }}
-      <img v-if="user.role === 'parent' || user.role === 'teacher' || user.role === 'admin'" src="@/assets/editicon.png" alt="Edit" @click.stop="openEditModal(user)" class="edit-icon">
-    </td>
-    <td>{{ user.role }}</td>
-    <td></td>
-  </tr>
-</tbody>
-
+        <tr v-for="user in filteredUsers" :key="user._id" @click="navigateToUser(user._id)" style="cursor: pointer;">
+          <td>{{ user.firstName }} {{ user.lastName }}</td>
+          <td>{{ user.role }}</td>
+          <td>
+            <img v-if="['parent', 'teacher', 'admin'].includes(user.role)" src="@/assets/editicon.png" alt="Edit" @click.stop="openEditModal(user)" class="edit-icon">
+            <img v-if="isAdmin" src="@/assets/trashicon.jpeg" alt="Delete" @click.stop="deleteUser(user._id)" class="delete-icon">
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
 </template>
@@ -227,6 +236,7 @@ export default {
         email: '',
         password: ''
       },
+      filterRole: '',
       editedParent: {},
       editedTeacher: {},
       editedAdmin: {},
@@ -234,11 +244,23 @@ export default {
       showEditAdminModal: false,
       showAddParentModal: false,
       showAddTeacherModal: false,
-      showEditModal: false
+      showEditModal: false,
+      isAdmin: false // Assuming a way to set this based on user role
     };
   },
+
+  computed: {
+    filteredUsers() {
+      if (!this.filterRole) {
+        return this.users;
+      }
+      return this.users.filter(user => user.role === this.filterRole);
+    }
+  },
+
   mounted() {
     this.fetchUsers();
+    this.checkAdminStatus();
   },
   methods: {
     async fetchUsers() {
@@ -248,6 +270,11 @@ export default {
       } catch (error) {
         console.error("There was an error fetching the users:", error.message);
       }
+    },
+    checkAdminStatus() {
+      // You would typically check this based on user authentication status
+      // For example, using Vuex or a global auth state
+      this.isAdmin = true; // Placeholder for actual admin check
     },
     navigateToUser(userId) {
       this.$router.push({ name: 'UserDetail', params: { userId } });
@@ -286,7 +313,7 @@ export default {
         this.users.push(response.data);
         this.resetTeacherForm();
         this.showAddTeacherModal = false;
-        this.fetchUsers(); 
+        this.fetchUsers();
       } catch (error) {
         console.error("Error adding teacher:", error.message);
       }
@@ -344,14 +371,35 @@ export default {
       } catch (error) {
         console.error("Error updating teacher:", error.message);
       }
+    },
+    async deleteUser(userId) {
+    // Assuming this.isAdmin reflects the current user's admin status
+        if (!this.isAdmin) {
+            alert('You are not authorized to delete users.');
+            return;
+        }
+
+        if (!confirm("Are you sure you want to delete this user?")) {
+            return;
+        }
+
+        try {
+            // Correct endpoint as per the provided Express route
+            await API.delete(`users/user/${userId}`);
+
+            // Update the local state to reflect the deletion
+            this.users = this.users.filter(user => user._id !== userId);
+
+            alert("User deleted successfully");
+        } catch (error) {
+            console.error("Error deleting user:", error.message);
+            alert("Failed to delete user.");
+        }
     }
   }
 };
 </script>
 
-<style scoped>
-/* CSS styles omitted for brevity */
-</style>
 
 <style scoped>
 
@@ -362,8 +410,7 @@ export default {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  margin-block-end: 20px;
-  margin-inline-end: 10px;
+  margin-right: 10px;
 }
 
 .add-btn:hover {
@@ -373,20 +420,44 @@ export default {
 .admin-user-overview {
   margin: 0 auto;
   text-align: center;
+  max-width: 90%;
+  padding: 20px;
+}
+
+.controls {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.filter-section {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.filter-section select {
+  padding: 8px 15px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: white;
+  cursor: pointer;
 }
 
 table {
-  inline-size: 100%;
+  width: 100%;
   border-collapse: collapse;
 }
 
 th, td {
-  text-align: start;
-  padding: 8px;
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
-tr:nth-child(even) {
-  background-color: #f2f2f2;
+tr:hover {
+  background-color: #f5f5f5;
 }
 
 th {
@@ -394,32 +465,32 @@ th {
   color: white;
 }
 
-/* Modal styles */
 .modal {
   display: block;
   position: fixed;
   z-index: 1;
-  inset-inline-start: 0;
-  inset-block-start: 0;
-  inline-size: 100%;
-  block-size: 100%;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.4);
 }
 
 .modal-content {
   background-color: #fefefe;
-  margin: 15% auto;
+  margin: 10% auto;
   padding: 20px;
   border: 1px solid #888;
-  inline-size: 30%;
+  width: 80%;
+  max-width: 500px;
   border-radius: 5px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .close {
   color: #aaa;
-  float: inline-end;
+  float: right;
   font-size: 28px;
   font-weight: bold;
 }
@@ -432,18 +503,22 @@ th {
 }
 
 .form-group {
-  margin-block-end: 15px;
+  margin-bottom: 20px;
 }
 
 label {
   display: block;
-  font-weight: bold;
-  margin-block-end: 5px;
+  margin-bottom: 5px;
 }
 
-input {
-  inline-size: 100%;
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select {
+  width: 100%;
   padding: 8px;
+  margin: 8px 0;
+  display: inline-block;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
@@ -452,34 +527,25 @@ input {
 .submit-btn {
   background-color: #4CAF50;
   color: white;
-  padding: 10px 20px;
+  padding: 12px 20px;
+  margin: 8px 0;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  width: 100%;
 }
 
 .submit-btn:hover {
   background-color: #45a049;
 }
 
-.add-parent-btn {
-  background-color: #2c3e50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
+.edit-icon, .delete-icon {
+  width: 16px;  /* Sets the icon width to 16 pixels */
+  height: 16px; /* Sets the icon height to 16 pixels */
+  margin-left: 10px;
   cursor: pointer;
-  margin-block-end: 20px;
+  vertical-align: middle;
 }
 
-.add-parent-btn:hover {
-  background-color: #1a252f;
-}
 
-.edit-icon {
-  inline-size: 16px;
-  block-size: 16px;
-  margin-inline-start: 5px;
-  cursor: pointer;
-}
 </style>

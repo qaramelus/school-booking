@@ -203,3 +203,22 @@ exports.updateChildUser = async (req, res) => {
         res.status(500).send({ message: "Error updating child user", error: error.message });
     }
 };
+
+exports.deleteUser = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+
+        if (req.user.role !== 'admin') {
+            return res.status(403).send({ message: "Unauthorized: Only admins can delete users." });
+        }
+
+        const user = await User.findByIdAndDelete(userId);
+        if (!user) {
+            return res.status(404).send({ message: "User not found" });
+        }
+
+        res.send({ message: "User deleted successfully" });
+    } catch (error) {
+        res.status(500).send({ message: "Error deleting user", error: error.message });
+    }
+};

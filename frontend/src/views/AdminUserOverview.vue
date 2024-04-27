@@ -64,19 +64,19 @@
           </div>
           <div class="form-group">
             <label for="address.street">Street</label>
-            <input type="text" id="address.street" v-model="parent.address.street" required>
+            <input type="text" id="address.street" v-model="teacher.address.street" required>
           </div>
           <div class="form-group">
             <label for="address.city">City</label>
-            <input type="text" id="address.city" v-model="parent.address.city" required>
+            <input type="text" id="address.city" v-model="teacher.address.city" required>
           </div>
           <div class="form-group">
             <label for="address.zipCode">Zip Code</label>
-            <input type="text" id="address.zipCode" v-model="parent.address.zipCode" required>
+            <input type="text" id="address.zipCode" v-model="teacher.address.zipCode" required>
           </div>
           <div class="form-group">
             <label for="phone">Phone</label>
-            <input type="text" id="phone" v-model="parent.phone" required>
+            <input type="text" id="phone" v-model="teacher.phone" required>
           </div>
           <div class="form-group">
             <label for="email">Email</label>
@@ -90,6 +90,7 @@
         </form>
       </div>
     </div>
+
 
     <!-- Edit Parent Modal showEditModal-->
     <div v-if="showEditModal" class="modal">
@@ -118,6 +119,60 @@
       </div>
     </div>
 
+    <!-- Edit Teacher Modal -->
+    <div v-if="showEditTeacherModal" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="showEditTeacherModal = false">&times;</span>
+        <h2>Edit Teacher</h2>
+        <form @submit.prevent="updateTeacher">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" v-model="editedTeacher.firstName" required>
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" v-model="editedTeacher.lastName" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" v-model="editedTeacher.email" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" v-model="editedTeacher.password" required>
+          </div>
+          <button type="submit" class="submit-btn">Update Teacher</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit Admin Modal -->
+    <div v-if="showEditAdminModal" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="showEditAdminModal = false">&times;</span>
+        <h2>Edit Admin</h2>
+        <form @submit.prevent="updateAdmin">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" v-model="editedAdmin.firstName" required>
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" v-model="editedAdmin.lastName" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" v-model="editedAdmin.email" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" v-model="editedAdmin.password" required>
+          </div>
+          <button type="submit" class="submit-btn">Update Admin</button>
+        </form>
+      </div>
+    </div>
+
     <table>
       <thead>
         <tr>
@@ -127,12 +182,16 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in users" :key="user._id" @click="navigateToUser(user._id)" style="cursor: pointer;">
-          <td>{{ user.firstName }} {{ user.lastName }} <img v-if="user.role === 'parent'" src="@/assets/editicon.png" alt="Edit" @click.stop="openEditModal(user)" class="edit-icon"></td>
-          <td>{{ user.role }}</td>
-          <td></td>
-        </tr>
-      </tbody>
+  <tr v-for="user in users" :key="user._id" @click="navigateToUser(user._id)" style="cursor: pointer;">
+    <td>
+      {{ user.firstName }} {{ user.lastName }}
+      <img v-if="user.role === 'parent' || user.role === 'teacher' || user.role === 'admin'" src="@/assets/editicon.png" alt="Edit" @click.stop="openEditModal(user)" class="edit-icon">
+    </td>
+    <td>{{ user.role }}</td>
+    <td></td>
+  </tr>
+</tbody>
+
     </table>
   </div>
 </template>
@@ -169,6 +228,10 @@ export default {
         password: ''
       },
       editedParent: {},
+      editedTeacher: {},
+      editedAdmin: {},
+      showEditTeacherModal: false,
+      showEditAdminModal: false,
       showAddParentModal: false,
       showAddTeacherModal: false,
       showEditModal: false
@@ -196,6 +259,7 @@ export default {
         this.users.push(response.data);
         this.resetParentForm();
         this.showAddParentModal = false;
+        this.fetchUsers();
       } catch (error) {
         console.error("Error adding parent:", error.message);
       }
@@ -222,6 +286,7 @@ export default {
         this.users.push(response.data);
         this.resetTeacherForm();
         this.showAddTeacherModal = false;
+        this.fetchUsers(); 
       } catch (error) {
         console.error("Error adding teacher:", error.message);
       }
@@ -235,17 +300,49 @@ export default {
       };
     },
     openEditModal(user) {
-      this.editedParent = { ...user };
-      this.showEditModal = true;
+      switch(user.role) {
+        case 'parent':
+          this.editedParent = { ...user };
+          this.showEditModal = true;
+          break;
+        case 'teacher':
+          this.editedTeacher = { ...user };
+          this.showEditTeacherModal = true;
+          break;
+        case 'admin':
+          this.editedAdmin = { ...user };
+          this.showEditAdminModal = true;
+          break;
+      }
+    },
+    async updateAdmin() {
+      try {
+        const response = await API.put(`users/admins/${this.editedAdmin._id}`, this.editedAdmin);
+        console.log('Admin updated:', response.data);
+        this.showEditAdminModal = false;
+        this.fetchUsers();
+      } catch (error) {
+        console.error("Error updating admin:", error.message);
+      }
     },
     async updateParent() {
       try {
         const response = await API.put(`users/parent/${this.editedParent._id}`, this.editedParent);
         console.log('Parent updated:', response.data);
-        // Update the parent in the users array or perform any other necessary actions
         this.showEditModal = false;
+        this.fetchUsers();
       } catch (error) {
         console.error("Error updating parent:", error.message);
+      }
+    },
+    async updateTeacher() {
+      try {
+        const response = await API.put(`users/teachers/${this.editedTeacher._id}`, this.editedTeacher);
+        console.log('Teacher updated:', response.data);
+        this.showEditTeacherModal = false;
+        this.fetchUsers();
+      } catch (error) {
+        console.error("Error updating teacher:", error.message);
       }
     }
   }

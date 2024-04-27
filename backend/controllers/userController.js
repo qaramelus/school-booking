@@ -137,3 +137,69 @@ exports.updateParentUser = async (req, res) => {
       res.status(500).send({ message: "Error updating parent user", error: error.message });
     }
   }
+
+  exports.updateTeacherUser = async (req, res) => {
+    const teacherId = req.params.teacherId;
+    const updatedTeacherInfo = req.body;
+  
+    try {
+      const user = await User.findById(teacherId);
+  
+      if (!user) {
+        return res.status(404).send({ message: "User not found" });
+      }
+  
+      // Update the user's fields
+      user.firstName = updatedTeacherInfo.firstName || user.firstName;
+      user.lastName = updatedTeacherInfo.lastName || user.lastName;
+      user.email = updatedTeacherInfo.email || user.email;
+      user.password = updatedTeacherInfo.password || user.password;
+
+      await user.save();
+  
+      res.status(200).send({ message: "User updated successfully", user });
+    } catch (error) {
+      res.status(500).send({ message: "Error updating user", error: error.message });
+    }
+  };
+
+  exports.updateAdminUser = async (req, res) => {
+    try {
+        const adminId = req.params.adminId;
+        const updatedAdminInfo = req.body;
+
+        const adminUser = await User.findById(adminId);
+        if (!adminUser) {
+            return res.status(404).send({ message: "Admin user not found" });
+        }
+
+        // Update the admin user fields
+        adminUser.set(updatedAdminInfo);
+        const updatedUser = await adminUser.save();
+
+        res.status(200).send({ message: "Admin user updated successfully", user: updatedUser });
+    } catch (error) {
+        res.status(500).send({ message: "Error updating admin user", error: error.message });
+    }
+};
+
+exports.updateChildUser = async (req, res) => {
+    try {
+        const parentId = req.params.parentId;
+        const childId = req.params.childId;
+
+        const childUser = await User.findOne({ _id: childId, parent: parentId });
+        if (!childUser) {
+            return res.status(404).send({ message: "Child user not found" });
+        }
+
+        const updatedChildInfo = req.body;
+        // Update child-specific fields
+        childUser.set(updatedChildInfo);
+        await childUser.save();
+
+        res.status(200).send({ message: "Child user updated successfully", user: childUser });
+    } catch (error) {
+        res.status(500).send({ message: "Error updating child user", error: error.message });
+    }
+};

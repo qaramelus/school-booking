@@ -116,12 +116,10 @@ export default {
   transition: background-color 0.3s ease;
 }
 
-/* Change the font color of the selected tab */
 .admin-nav a.router-link-active {
   color: #1a252f;
 }
 
-/* Remove the hover effect for the selected tab */
 .admin-nav a.router-link-active:hover {
   background-color: transparent;
 }

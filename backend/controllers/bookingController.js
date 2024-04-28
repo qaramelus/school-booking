@@ -16,6 +16,12 @@ exports.createBooking = async (req, res) => {
           return res.status(404).json({ message: 'Activity not found' });
       }
 
+      // Check if current date is within the signup period
+      const today = new Date();
+      if (today < new Date(activity.signupStartDate) || today > new Date(activity.signupEndDate)) {
+          return res.status(400).json({ message: 'Booking not allowed outside of signup period' });
+      }
+
       const currentBookings = await Booking.countDocuments({
           activityId,
           status: 'confirmed'

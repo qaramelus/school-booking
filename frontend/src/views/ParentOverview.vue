@@ -8,6 +8,9 @@
       </div>
       <div class="activities">
         <h2>Activities</h2>
+        <div v-if="bookableActivities.length === 0" class="no-activities">
+          <p>No activities available for booking at this time.</p>
+        </div>
         <div class="activity-cards">
           <div v-for="activity in activities" :key="activity._id" class="activity-card" @click="handleCardClick(activity)">
             <div class="card-content">
@@ -27,13 +30,17 @@
         <div class="modal-content">
           <span @click="showBookingModal = false" class="close">&times;</span>
           <h3>Book an Activity</h3>
-          <select v-model="selectedChild">
-            <option disabled value="">Select Child</option>
-            <option v-for="child in children" :value="child.id" :key="child.id">{{ child.name }}</option>
-          </select>
           <select v-model="selectedActivity">
             <option disabled value="">Select Activity</option>
-            <option v-for="activity in activities" :value="activity._id" :key="activity._id">{{ activity.name }}</option>
+            <option v-for="activity in bookableActivities" :value="activity._id" :key="activity._id">
+              {{ activity.name }}
+            </option>
+          </select>
+          <select v-model="selectedChild">
+            <option disabled value="">Select Child</option>
+            <option v-for="child in children" :value="child.id" :key="child.id">
+              {{ child.name }}
+            </option>
           </select>
           <button @click="bookActivity">Book Activity</button>
         </div>
@@ -60,16 +67,31 @@ export default {
       selectedActivity: '',
     };
   },
+  computed: {
+      bookableActivities() {
+        const now = new Date();
+        return this.activities.filter(activity => {
+          const signupStart = new Date(activity.signupStartDate);
+          const signupEnd = new Date(activity.signupEndDate);
+          return now >= signupStart && now <= signupEnd;
+        });
+      }
+    },
   methods: {
     fetchActivities() {
-      API.get('activities')
-        .then(response => {
-          this.activities = response.data;
-        })
-        .catch(error => {
-          console.error("There was an error fetching the activities:", error);
+    API.get('activities')
+      .then(response => {
+        const now = new Date();
+        this.activities = response.data.filter(activity => {
+          const signupStart = new Date(activity.signupStartDate);
+          const signupEnd = new Date(activity.signupEndDate);
+          return now >= signupStart && now <= signupEnd;
         });
-    },
+      })
+      .catch(error => {
+        console.error("There was an error fetching the activities:", error);
+      });
+  },
     fetchChildren() {
       const parentId = localStorage.getItem('parent-id');
       if (!parentId) {
@@ -97,7 +119,7 @@ export default {
         childId: this.selectedChild,
         activityId: this.selectedActivity,
       };
-      API.post('/bookActivity', bookingInfo, {
+      API.post('/booking/bookActivity', bookingInfo, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('user-token')}`
         }

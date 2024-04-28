@@ -24,8 +24,9 @@
         <!-- Detail field -->
         <div class="form-group">
           <label for="activity-description">Detail:</label>
-          <textarea id="activity-description" v-model="activity.description" required></textarea>
+          <ckeditor :editor="editor" v-model="activity.description" :config="editorConfig"></ckeditor>
         </div>
+
 
         <!-- Max Participants field -->
         <div class="form-group">
@@ -105,128 +106,149 @@
 </template>
 
 <script>
-  import API from '@/services/api';
+import API from '@/services/api';
+import CKEditor from '@ckeditor/ckeditor5-vue';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
-  export default {
-    name: "ActivityModal",
-    props: ['isVisible', 'editingActivity'],
-    data() {
-      return {
-        activity: {
-          name: '',
-          description: '',
-          startDate: '',
-          endDate: '',
-          signupStartDate: '',  
-          signupEndDate: '',    
-          timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '', location: '' }],
-          teachers: [],
-          maxParticipants: 10
-        },
+export default {
+  name: "ActivityModal",
+  components: {
+    ckeditor: CKEditor.component
+  },
+  props: {
+    isVisible: {
+      type: Boolean,
+      required: true
+    },
+    editingActivity: {
+      type: Object,
+      default: null
+    }
+  },
+  data() {
+    return {
+      activity: {
+        name: '',
+        description: '',
+        startDate: '',
+        endDate: '',
+        signupStartDate: '',
+        signupEndDate: '',
+        timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '', location: '' }],
         teachers: [],
-        locations: []
+        maxParticipants: 10
+      },
+      teachers: [],
+      locations: [],
+      editor: ClassicEditor,
+      editorConfig: {
+        toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote'],
+        placeholder: 'Enter the activity details...'
+      }
+    };
+  },
+  watch: {
+    editingActivity: {
+      handler(newVal) {
+        if (newVal) {
+          this.activity = {
+            ...newVal,
+            startDate: newVal.startDate.split('T')[0],
+            endDate: newVal.endDate.split('T')[0],
+            signupStartDate: newVal.signupStartDate ? newVal.signupStartDate.split('T')[0] : '',
+            signupEndDate: newVal.signupEndDate ? newVal.signupEndDate.split('T')[0] : '',
+            timeSlots: newVal.timeSlots.length > 0 ? newVal.timeSlots : [{ dayOfWeek: '', startTime: '', endTime: '', location: '' }],
+            maxParticipants: newVal.maxParticipants || 10
+          };
+        } else {
+          this.resetActivity();
+        }
+      },
+      deep: true,
+      immediate: true
+    }
+  },
+  mounted() {
+    console.log('ClassicEditor:', ClassicEditor);
+  },
+  methods: {
+    addTimeSlot() {
+      this.activity.timeSlots.push({ dayOfWeek: '', startTime: '', endTime: '', location: '' });
+    },
+    removeTimeSlot(index) {
+      this.activity.timeSlots.splice(index, 1);
+    },
+    closeModal() {
+      this.resetActivity();
+      this.$emit('close');
+    },
+    submitActivity() {
+      const userId = localStorage.getItem('user-id');
+      if (!userId) {
+        console.error('User ID not found. Please log in.');
+        return; 
+      }
+      
+      const selectedTeacherIds = this.activity.teachers.filter(teacherId => teacherId !== null);
+
+      const activityData = {
+        ...this.activity,
+        createdBy: userId,
+        teachers: selectedTeacherIds,
+      }
+
+      const apiCall = this.editingActivity
+        ? API.put(`/activities/${this.editingActivity._id}`, activityData)
+        : API.post('/activities', activityData);
+
+      apiCall.then(() => {
+        this.$emit(this.editingActivity ? 'activityUpdated' : 'activityAdded');
+        this.closeModal();
+      }).catch(error => {
+        console.error('Error updating or adding activity:', error);
+      });
+    },
+    resetActivity() {
+      this.activity = {
+        name: '',
+        description: '',
+        startDate: '',
+        endDate: '',
+        signupStartDate: '',  
+        signupEndDate: '', 
+        timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '', location: '' }],
+        teachers: [],
+        maxParticipants: 10 
       };
     },
-    watch: {
-      editingActivity: {
-        handler(newVal) {
-          if (newVal) {
-            this.activity = {
-              ...newVal,
-              startDate: newVal.startDate.split('T')[0],
-              endDate: newVal.endDate.split('T')[0],
-              signupStartDate: newVal.signupStartDate ? newVal.signupStartDate.split('T')[0] : '',  
-              signupEndDate: newVal.signupEndDate ? newVal.signupEndDate.split('T')[0] : '',        
-              timeSlots: newVal.timeSlots.length > 0 ? newVal.timeSlots : [{ dayOfWeek: '', startTime: '', endTime: '', location: '' }],
-              maxParticipants: newVal.maxParticipants || 10 
-            };
-          } else {
-            this.resetActivity();
-          }
-        },
-        deep: true,
-        immediate: true
-      }
-    },
-    methods: {
-      addTimeSlot() {
-        this.activity.timeSlots.push({ dayOfWeek: '', startTime: '', endTime: '', location: '' });
-      },
-      removeTimeSlot(index) {
-        this.activity.timeSlots.splice(index, 1);
-      },
-      closeModal() {
-        this.resetActivity();
-        this.$emit('close');
-      },
-      submitActivity() {
-        const userId = localStorage.getItem('user-id');
-        if (!userId) {
-          console.error('User ID not found. Please log in.');
-          return; 
-        }
-        
-        const selectedTeacherIds = this.activity.teachers.filter(teacherId => teacherId !== null);
-
-        const activityData = {
-          ...this.activity,
-          createdBy: userId,
-          teachers: selectedTeacherIds,
-        }
-
-        const apiCall = this.editingActivity
-          ? API.put(`/activities/${this.editingActivity._id}`, activityData)
-          : API.post('/activities', activityData);
-
-        apiCall.then(() => {
-          this.$emit(this.editingActivity ? 'activityUpdated' : 'activityAdded');
-          this.closeModal();
-        }).catch(error => {
-          console.error('Error updating or adding activity:', error);
+    fetchTeachers() {
+      API.get('/users/teachers')
+        .then(response => {
+          this.teachers = response.data.map(teacher => ({
+            _id: teacher._id,
+            username: teacher.username,
+          }));
+        })
+        .catch(error => {
+          console.error('Error fetching teachers:', error);
         });
-      },
-      resetActivity() {
-        this.activity = {
-          name: '',
-          description: '',
-          startDate: '',
-          endDate: '',
-          signupStartDate: '',  
-          signupEndDate: '', 
-          timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '', location: '' }],
-          teachers: [],
-          maxParticipants: 10 
-        };
-      },
-      fetchTeachers() {
-        API.get('/users/teachers')
-          .then(response => {
-            this.teachers = response.data.map(teacher => ({
-              _id: teacher._id,
-              username: teacher.username,
-            }));
-          })
-          .catch(error => {
-            console.error('Error fetching teachers:', error);
-          });
-      },
-      fetchLocations() {
-        API.get('/locations')
-          .then(response => {
-            this.locations = response.data;
-          })
-          .catch(error => {
-            console.error('Error fetching locations:', error);
-          });
-      },
     },
-    created() {
-      this.fetchTeachers();
-      this.fetchLocations();
+    fetchLocations() {
+      API.get('/locations')
+        .then(response => {
+          this.locations = response.data;
+        })
+        .catch(error => {
+          console.error('Error fetching locations:', error);
+        });
     },
-  };
+  },
+  created() {
+    this.fetchTeachers();
+    this.fetchLocations();
+  }
+};
 </script>
-
 <style scoped>
 .modal-overlay {
   position: fixed;

@@ -14,7 +14,7 @@
       :editingActivity="editingActivity"
       @close="handleModalClose"
       @activityAdded="handleActivityAdded"
-      @activityUpdated="fetchActivities"
+      @activityUpdated="handleActivityUpdated"
     />
     <div class="activities">
       <h2>Activities</h2>

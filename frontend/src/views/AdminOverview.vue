@@ -27,7 +27,7 @@
         >
           <div class="card-content">
             <h3>{{ activity.name }}</h3>
-            <p>{{ activity.description }}</p>
+            <p v-html="activity.description"></p>
             <p><strong>Start Date:</strong> {{ new Date(activity.startDate).toLocaleDateString() }}</p>
             <p><strong>End Date:</strong> {{ new Date(activity.endDate).toLocaleDateString() }}</p>
             <div v-for="(slot, index) in activity.timeSlots" :key="index">
@@ -44,6 +44,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import API from '@/services/api';
@@ -182,7 +183,7 @@ export default {
   position: relative;
   border: 1px solid #ccc;
   border-radius: 8px;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   cursor: pointer;
   transition: box-shadow 0.3s;
 }

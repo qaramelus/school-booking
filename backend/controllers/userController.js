@@ -222,3 +222,24 @@ exports.deleteUser = async (req, res) => {
         res.status(500).send({ message: "Error deleting user", error: error.message });
     }
 };
+
+exports.getUserInitials = (user) => {
+    if (!user || !user.firstName || !user.lastName) {
+        return '';
+    }
+    return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+};
+
+exports.fetchUserInitials = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).send({ message: "User not found" });
+        }
+        const initials = exports.getUserInitials(user); 
+        res.send({ initials });
+    } catch (error) {
+        res.status(500).send({ message: "Error fetching user initials", error: error.message });
+    }
+};

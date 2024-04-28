@@ -33,12 +33,8 @@ export default {
   },
   computed: {
     getUserInitials() {
-      if (this.user) {
-        const nameParts = this.user.name.split(' ');
-        return nameParts.map(part => part.charAt(0).toUpperCase()).join('');
-      }
-      return '';
-    }
+    return this.user && this.user.initials ? this.user.initials : '';
+  }
   },
   created() {
     this.fetchUserDetails();
@@ -50,12 +46,15 @@ export default {
         console.error('User ID is undefined.');
         return;
       }
-      axios.get(`/api/users/${userId}`)
+      axios.get(`http://localhost:5005/api/users/${userId}/initials`)
         .then(response => {
-          this.user = response.data;
+          this.user = {
+            ...this.user,
+            initials: response.data.initials
+          };
         })
         .catch(error => {
-          console.error('Error fetching user details:', error);
+          console.error('Error fetching user initials:', error);
         });
     },
     performLogout() {

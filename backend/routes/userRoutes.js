@@ -25,11 +25,14 @@ router.put('/parents/:parentId', isAdminOrParent, userController.updateParentUse
 // Update an admin user - typically, only an Admin should have this right
 router.put('/admins/:adminId', isAdmin, userController.updateAdminUser);
 
-// Delete a user - ensure this is above the ':userId' parameterized routes
-router.delete('/user/:userId', isAdmin, userController.deleteUser);
+// Fetch user initials by ID - accessible by Admins and Parents
+router.get('/:userId/initials', userController.fetchUserInitials);
 
 // Fetch user details by ID - Admins only
 router.get('/:userId', isAdminOrParent, userController.fetchUserDetails);
+
+// Delete a user - ensure this is above the ':userId' parameterized routes
+router.delete('/user/:userId', isAdmin, userController.deleteUser);
 
 // Create a child user
 router.post('/:parentId/children', isAdminOrParent, userController.createChildUser);
@@ -40,4 +43,4 @@ router.put('/:parentId/children/:childId', isAdminOrParent, userController.updat
 // Fetch children for a parent user - Accessible by Admins and Parents
 router.get('/:parentId/children', isAdminOrParent, userController.fetchChildrenForParent);
 
-module.exports = router;
+module.exports = router

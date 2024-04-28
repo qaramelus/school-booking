@@ -13,18 +13,24 @@
           <p>No activities available for booking at this time.</p>
         </div>
         <div class="activity-cards">
-          <div v-for="activity in bookableActivities" :key="activity._id" class="activity-card">
-            <div class="card-content">
-              <h3>{{ activity.name }}</h3>
-              <p>{{ activity.description }}</p>
-              <p><strong>Start Date:</strong> {{ new Date(activity.startDate).toLocaleDateString() }}</p>
-              <p><strong>End Date:</strong> {{ new Date(activity.endDate).toLocaleDateString() }}</p>
-              <div v-for="(slot, index) in activity.timeSlots" :key="index">
-                <p>{{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}</p>
+          <router-link v-for="activity in bookableActivities" :key="activity._id"
+                      :to="`/activities/${activity._id}`" custom>
+            <template v-slot:default="{ navigate }">
+              <div class="activity-card" @click="navigate">
+                <div class="card-content">
+                  <h3>{{ activity.name }}</h3>
+                  <p>{{ activity.description }}</p>
+                  <p><strong>Start Date:</strong> {{ new Date(activity.startDate).toLocaleDateString() }}</p>
+                  <p><strong>End Date:</strong> {{ new Date(activity.endDate).toLocaleDateString() }}</p>
+                  <div v-for="(slot, index) in activity.timeSlots" :key="index">
+                    <p>{{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}</p>
+                  </div>
+                  <button v-if="isWithinSignupPeriod(activity)" class="book-activity-button"
+                          @click.stop="handleBookClick(activity)">Book Activity</button>
+                </div>
               </div>
-              <button v-if="isWithinSignupPeriod(activity)" class="book-activity-button" @click="handleBookClick(activity)">Book Activity</button>
-            </div>
-          </div>
+            </template>
+          </router-link>
         </div>
       </div>
       <!-- Booking Modal -->

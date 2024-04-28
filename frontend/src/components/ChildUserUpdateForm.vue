@@ -49,7 +49,7 @@
   .child-user-update-form {
     background-color: #f0f0f0;
     padding: 20px;
-    margin-top: 20px;
+    margin-block-start: 20px;
   }
   
   form input[type="text"], form input[type="email"] {

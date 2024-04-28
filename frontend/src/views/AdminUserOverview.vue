@@ -410,7 +410,7 @@ export default {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  margin-right: 10px;
+  margin-inline-end: 10px;
 }
 
 .add-btn:hover {
@@ -420,7 +420,7 @@ export default {
 .admin-user-overview {
   margin: 0 auto;
   text-align: center;
-  max-width: 90%;
+  max-inline-size: 90%;
   padding: 20px;
 }
 
@@ -428,11 +428,11 @@ export default {
   display: flex;
   justify-content: start;
   align-items: center;
-  margin-bottom: 20px;
+  margin-block-end: 20px;
 }
 
 .filter-section {
-  margin-left: auto;
+  margin-inline-start: auto;
   display: flex;
   align-items: center;
 }
@@ -446,14 +446,14 @@ export default {
 }
 
 table {
-  width: 100%;
+  inline-size: 100%;
   border-collapse: collapse;
 }
 
 th, td {
   padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
+  text-align: start;
+  border-block-end: 1px solid #ddd;
 }
 
 tr:hover {
@@ -469,10 +469,10 @@ th {
   display: block;
   position: fixed;
   z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  inset-inline-start: 0;
+  inset-block-start: 0;
+  inline-size: 100%;
+  block-size: 100%;
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.4);
 }
@@ -482,15 +482,15 @@ th {
   margin: 10% auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 80%;
-  max-width: 500px;
+  inline-size: 80%;
+  max-inline-size: 500px;
   border-radius: 5px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .close {
   color: #aaa;
-  float: right;
+  float: inline-end;
   font-size: 28px;
   font-weight: bold;
 }
@@ -503,19 +503,19 @@ th {
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-block-end: 20px;
 }
 
 label {
   display: block;
-  margin-bottom: 5px;
+  margin-block-end: 5px;
 }
 
 input[type="text"],
 input[type="email"],
 input[type="password"],
 select {
-  width: 100%;
+  inline-size: 100%;
   padding: 8px;
   margin: 8px 0;
   display: inline-block;
@@ -532,7 +532,7 @@ select {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  width: 100%;
+  inline-size: 100%;
 }
 
 .submit-btn:hover {
@@ -540,9 +540,9 @@ select {
 }
 
 .edit-icon, .delete-icon {
-  width: 16px;  /* Sets the icon width to 16 pixels */
-  height: 16px; /* Sets the icon height to 16 pixels */
-  margin-left: 10px;
+  inline-size: 16px;  /* Sets the icon width to 16 pixels */
+  block-size: 16px; /* Sets the icon height to 16 pixels */
+  margin-inline-start: 10px;
   cursor: pointer;
   vertical-align: middle;
 }

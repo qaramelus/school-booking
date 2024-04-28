@@ -1,7 +1,6 @@
 <template>
   <div class="admin-overview">
-    <admin-navbar />
-    <h1>All Activities</h1>
+    <admin-navbar :userId="currentUserId" />
     <div class="button-container">
       <button @click="fetchActivities('all')">All Activities</button>
       <button @click="fetchActivities('current')">Current Activities</button>

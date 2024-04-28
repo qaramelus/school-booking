@@ -101,14 +101,14 @@ export default {
 
 <style scoped>
 .user-detail-page {
-  max-width: 800px;
+  max-inline-size: 800px;
   margin: 0 auto;
   padding: 20px;
   font-family: Arial, sans-serif;
 }
 
 .user-detail {
-  margin-top: 40px;
+  margin-block-start: 40px;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -118,11 +118,11 @@ export default {
 h1 {
   font-size: 28px;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-block-end: 20px;
 }
 
 p {
-  margin-bottom: 10px;
+  margin-block-end: 10px;
 }
 
 strong {
@@ -132,13 +132,13 @@ strong {
 ul {
   list-style-type: none;
   padding: 0;
-  margin-bottom: 20px;
+  margin-block-end: 20px;
 }
 
 ul li {
   background-color: #f5f5f5;
   border-radius: 4px;
-  margin-bottom: 10px;
+  margin-block-end: 10px;
   padding: 15px;
 }
 
@@ -149,12 +149,12 @@ form {
 }
 
 form input[type="text"], form input[type="email"], form input[type="password"] {
-  width: 100%;
-  max-width: 300px;
+  inline-size: 100%;
+  max-inline-size: 300px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  margin-bottom: 15px;
+  margin-block-end: 15px;
 }
 
 form button[type="submit"] {

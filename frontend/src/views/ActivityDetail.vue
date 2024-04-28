@@ -142,7 +142,7 @@ export default {
     },
     fetchParticipants() {
       const activityId = this.activity._id;
-      API.get(`activity/${activityId}/bookings`)
+      API.get(`booking/activity/${activityId}/bookings`)
         .then(response => {
           this.confirmedParticipants = response.data.filter(booking => booking.status === 'confirmed').map(booking => ({
             id: booking.childId._id,

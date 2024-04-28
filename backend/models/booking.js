@@ -17,11 +17,12 @@ const bookedTimeSlotSchema = new Schema({
 
 const bookingSchema = new Schema({
   childId: { type: Schema.Types.ObjectId, ref: 'User' },
-  activityId: { type: Schema.Types.ObjectId, ref: 'Activity' },
+  activityId: { type: Schema.Types.ObjectId, ref: 'Activity' }, // Ensure this references 'Activity'
   dateBooked: { type: Date, default: Date.now },
   sessions: [{ type: Schema.Types.ObjectId, ref: 'Session' }], 
   status: { type: String, enum: ['confirmed', 'waitlisted'], default: 'confirmed' }
 });
+
 
 
 module.exports = mongoose.model('Booking', bookingSchema);

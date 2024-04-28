@@ -196,8 +196,8 @@
           <td>{{ user.firstName }} {{ user.lastName }}</td>
           <td>{{ user.role }}</td>
           <td>
-            <img v-if="['parent', 'teacher', 'admin'].includes(user.role)" src="@/assets/editicon.png" alt="Edit" @click.stop="openEditModal(user)" class="edit-icon">
-            <img v-if="isAdmin" src="@/assets/trashicon.jpeg" alt="Delete" @click.stop="deleteUser(user._id)" class="delete-icon">
+            <q-icon v-if="['parent', 'teacher', 'admin'].includes(user.role)" name="edit" @click.stop="openEditModal(user)" class="edit-icon"></q-icon>
+            <q-icon v-if="isAdmin" name="delete" @click.stop="deleteUser(user._id)" class="delete-icon"></q-icon>
           </td>
         </tr>
       </tbody>
@@ -207,12 +207,14 @@
 
 <script>
 import AdminNavbar from '@/components/AdminNavbar.vue';
+import { QIcon } from 'quasar'; 
 import API from '@/services/api';
 
 export default {
   name: "AdminUserOverview",
   components: {
     AdminNavbar,
+    QIcon
   },
   data() {
     return {

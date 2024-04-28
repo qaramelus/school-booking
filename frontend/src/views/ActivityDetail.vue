@@ -211,7 +211,8 @@ export default {
         childId: childId,
         activityId: this.activity._id,
       };
-      API.post('/booking/bookActivity', bookingInfo, {
+      const requestBody = { ...bookingInfo }; // Spread the bookingInfo object directly
+      API.post('/booking/bookActivity', requestBody, { 
         headers: {
           Authorization: `Bearer ${localStorage.getItem('user-token')}`
         }
@@ -242,6 +243,11 @@ export default {
       })
       .catch(error => {
         console.error("There was an error cancelling the booking:", error);
+        if (error.response && error.response.data.message === 'Cannot cancel booking after signup end date') {
+          alert('Cannot cancel this booking as it is outside the cancellation period.');
+        } else {
+          alert('Failed to cancel booking. Please try again.');
+        }
       });
     },
     removeBooking(participantId, bookingId) {

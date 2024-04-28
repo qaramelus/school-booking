@@ -62,47 +62,63 @@ exports.createBooking = async (req, res) => {
 // Delete a booking and potentially promote someone from the waiting list
 exports.deleteBooking = async (req, res) => {
   try {
-      const bookingId = req.params.bookingId;
-      const booking = await Booking.findById(bookingId);
-      if (!booking) {
-          return res.status(404).json({ message: 'Booking not found' });
+    const bookingId = req.params.bookingId;
+    const booking = await Booking.findById(bookingId).populate({
+      path: 'activityId',
+      select: 'signupEndDate', // Ensure that signupEndDate is being selected
+      options: { strictPopulate: false }
+    });
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+        // Added a check for booking.activityId to prevent undefined access
+        if (!booking.activityId) {
+          return res.status(404).json({ message: 'Activity not found for this booking' });
+        }
+
+    // Check if the current date is after the signupEndDate
+    const today = new Date();
+    if (today > new Date(booking.activityId.signupEndDate)) {
+      return res.status(400).json({ message: 'Cannot cancel booking after signup end date' });
+    }
+
+
+    if (booking.status === 'confirmed') {
+      const sessions = await Session.find({ _id: { $in: booking.sessions } });
+      sessions.forEach(async session => {
+        session.participants.pull(booking.childId);
+        await session.save();
+      });
+    }
+
+    await Booking.findByIdAndDelete(bookingId);
+    const update = booking.status === 'confirmed' ? { $inc: { currentParticipants: -1 } } : { $inc: { waitlistCount: -1 } };
+    await Activity.findByIdAndUpdate(booking.activityId, update);
+
+    if (booking.status === 'confirmed') {
+      const waitlistedBooking = await Booking.findOneAndUpdate(
+        { activityId: booking.activityId, status: 'waitlisted' },
+        { status: 'confirmed' },
+        { new: true }
+      );
+
+      if (waitlistedBooking) {
+        await Activity.findByIdAndUpdate(booking.activityId, { $inc: { currentParticipants: 1, waitlistCount: -1 } });
+        const waitlistSessions = await Session.find({ activityId: booking.activityId });
+        waitlistSessions.forEach(async session => {
+          session.participants.push(waitlistedBooking.childId);
+          await session.save();
+        });
+        waitlistedBooking.sessions = waitlistSessions.map(session => session._id);
+        await waitlistedBooking.save();
       }
+    }
 
-      if (booking.status === 'confirmed') {
-          const sessions = await Session.find({ _id: { $in: booking.sessions } });
-          sessions.forEach(async session => {
-              session.participants.pull(booking.childId);
-              await session.save();
-          });
-      }
-
-      await Booking.findByIdAndDelete(bookingId);
-      const update = booking.status === 'confirmed' ? { $inc: { currentParticipants: -1 } } : { $inc: { waitlistCount: -1 } };
-      await Activity.findByIdAndUpdate(booking.activityId, update);
-
-      if (booking.status === 'confirmed') {
-          const waitlistedBooking = await Booking.findOneAndUpdate(
-              { activityId: booking.activityId, status: 'waitlisted' },
-              { status: 'confirmed' },
-              { new: true }
-          );
-
-          if (waitlistedBooking) {
-              await Activity.findByIdAndUpdate(booking.activityId, { $inc: { currentParticipants: 1, waitlistCount: -1 } });
-              const waitlistSessions = await Session.find({ activityId: booking.activityId });
-              waitlistSessions.forEach(async session => {
-                  session.participants.push(waitlistedBooking.childId);
-                  await session.save();
-              });
-              waitlistedBooking.sessions = waitlistSessions.map(session => session._id);
-              await waitlistedBooking.save();
-          }
-      }
-
-      res.status(200).json({ message: 'Booking deleted successfully' });
+    res.status(200).json({ message: 'Booking deleted successfully' });
   } catch (error) {
-      console.error('Failed to delete booking:', error);
-      res.status(500).json({ message: 'Failed to delete booking', error: error.message });
+    console.error('Failed to delete booking:', error);
+    res.status(500).json({ message: 'Failed to delete booking', error: error.message });
   }
 };
 
@@ -111,7 +127,11 @@ exports.deleteBooking = async (req, res) => {
 exports.fetchBookingsForActivity = async (req, res) => {
   try {
     const { activityId } = req.params;
-    const bookings = await Booking.find({ activityId: activityId }).populate('childId');
+    const bookings = await Booking.find({ activityId: activityId }).populate({
+      path: 'activityId',
+      model: 'Activity',
+      select: 'name description startDate endDate timeSlots signupEndDate' // Include signupEndDate field
+    }).populate('childId');
     res.json(bookings);
   } catch (error) {
     console.error('Error fetching bookings for activity:', error);
@@ -148,7 +168,7 @@ exports.fetchBookingsForParent = async (req, res) => {
           .populate({
               path: 'activityId',
               model: 'Activity',
-              select: 'name description startDate endDate timeSlots'
+              select: 'name description startDate endDate timeSlots signupEndDate' // Include signupEndDate field
           });
 
       res.json(bookings);
@@ -156,6 +176,7 @@ exports.fetchBookingsForParent = async (req, res) => {
       res.status(500).json({ message: "Error fetching bookings", error: error.message });
   }
 };
+
 
 
 exports.fetchBookingsForParentAndChild = async (req, res) => {

@@ -17,12 +17,14 @@ const timeSlotSchema = new Schema({
   }]
 });
 
-// Updated Activity Schema
+// Updated Activity Schema with signup dates
 const activitySchema = new Schema({
   name: { type: String, required: true },
   description: { type: String },
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
+  signupStartDate: { type: Date, required: true }, // New field for signup start date
+  signupEndDate: { type: Date, required: true }, // New field for signup end date
   timeSlots: [timeSlotSchema],
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   teachers: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],

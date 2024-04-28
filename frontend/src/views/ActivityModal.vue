@@ -45,6 +45,18 @@
           <input type="date" id="activity-end-date" v-model="activity.endDate" required>
         </div>
 
+        <!-- Signup Start Date field -->
+        <div class="form-group">
+          <label for="activity-signup-start-date">Signup Start Date:</label>
+          <input type="date" id="activity-signup-start-date" v-model="activity.signupStartDate" required>
+        </div>
+
+        <!-- Signup End Date field -->
+        <div class="form-group">
+          <label for="activity-signup-end-date">Signup End Date:</label>
+          <input type="date" id="activity-signup-end-date" v-model="activity.signupEndDate" required>
+        </div>
+
         <!-- Time Slot Section -->
         <div class="time-slot-section">
           <div class="time-slot" v-for="(slot, index) in activity.timeSlots" :key="index">
@@ -105,6 +117,8 @@
           description: '',
           startDate: '',
           endDate: '',
+          signupStartDate: '',  
+          signupEndDate: '',    
           timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '', location: '' }],
           teachers: [],
           maxParticipants: 10
@@ -121,8 +135,10 @@
               ...newVal,
               startDate: newVal.startDate.split('T')[0],
               endDate: newVal.endDate.split('T')[0],
+              signupStartDate: newVal.signupStartDate ? newVal.signupStartDate.split('T')[0] : '',  
+              signupEndDate: newVal.signupEndDate ? newVal.signupEndDate.split('T')[0] : '',        
               timeSlots: newVal.timeSlots.length > 0 ? newVal.timeSlots : [{ dayOfWeek: '', startTime: '', endTime: '', location: '' }],
-              maxParticipants: newVal.maxParticipants || 10 // Provide a default if it's not set
+              maxParticipants: newVal.maxParticipants || 10 
             };
           } else {
             this.resetActivity();
@@ -175,6 +191,8 @@
           description: '',
           startDate: '',
           endDate: '',
+          signupStartDate: '',  
+          signupEndDate: '', 
           timeSlots: [{ dayOfWeek: '', startTime: '', endTime: '', location: '' }],
           teachers: [],
           maxParticipants: 10 

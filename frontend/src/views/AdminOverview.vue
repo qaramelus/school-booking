@@ -162,7 +162,7 @@ export default {
   font-size: 16px;
   padding: 10px 20px;
   border-radius: 8px;
-  background-color: #4CAF50;
+  background-color: #1a252f;
   color: white;
   border: none;
   cursor: pointer;

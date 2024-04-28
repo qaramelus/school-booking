@@ -9,7 +9,7 @@
       <div class="tab-content">
         <div v-if="currentTab === 'about'" class="activity-detail">
           <h1>{{ activity.name }}</h1>
-          <p>{{ activity.description }}</p>
+          <p v-html="activity.description"></p> 
           <p>Date: {{ new Date(activity.startDate).toLocaleDateString() }} to {{ new Date(activity.endDate).toLocaleDateString() }}</p>
         </div>
         <div v-if="currentTab === 'participants'">

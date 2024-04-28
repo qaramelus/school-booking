@@ -19,7 +19,7 @@
               <div class="activity-card" @click="navigate">
                 <div class="card-content">
                   <h3>{{ activity.name }}</h3>
-                  <p>{{ activity.description }}</p>
+                  <p v-html="activity.description"></p>
                   <p><strong>Start Date:</strong> {{ new Date(activity.startDate).toLocaleDateString() }}</p>
                   <p><strong>End Date:</strong> {{ new Date(activity.endDate).toLocaleDateString() }}</p>
                   <div v-for="(slot, index) in activity.timeSlots" :key="index">

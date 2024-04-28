@@ -9,7 +9,7 @@
       <div class="tab-content">
         <div v-if="currentTab === 'about'" class="about-section">
           <h1>{{ activity.name }}</h1>
-          <p>{{ activity.description }}</p>
+          <p v-html="activity.description"></p> 
           <p>Date: {{ formatDate(activity.startDate) }} to {{ formatDate(activity.endDate) }}</p>
           <div v-if="activity.teachers && activity.teachers.length" class="teachers-section">
             <h3>Teachers</h3>

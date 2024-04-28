@@ -2,9 +2,6 @@
   <div>
     <parent-navbar></parent-navbar>
     <div class="parent-overview">
-      <div class="button-container">
-        <button class="book-activity-button" @click="showBookingModal = true">Book Activity</button>
-      </div>
       <div class="filter-buttons">
         <button @click="selectedFilter = 'open'" :class="{ active: selectedFilter === 'open' }">Open</button>
         <button @click="selectedFilter = 'current'" :class="{ active: selectedFilter === 'current' }">Current</button>
@@ -16,7 +13,7 @@
           <p>No activities available for booking at this time.</p>
         </div>
         <div class="activity-cards">
-          <div v-for="activity in bookableActivities" :key="activity._id" class="activity-card" @click="handleCardClick(activity)">
+          <div v-for="activity in bookableActivities" :key="activity._id" class="activity-card">
             <div class="card-content">
               <h3>{{ activity.name }}</h3>
               <p>{{ activity.description }}</p>
@@ -25,6 +22,7 @@
               <div v-for="(slot, index) in activity.timeSlots" :key="index">
                 <p>{{ slot.dayOfWeek }}: {{ slot.startTime }} - {{ slot.endTime }}</p>
               </div>
+              <button v-if="isWithinSignupPeriod(activity)" class="book-activity-button" @click="handleBookClick(activity)">Book Activity</button>
             </div>
           </div>
         </div>
@@ -121,6 +119,16 @@ export default {
           console.error("There was an error fetching the children:", error);
         });
     },
+    isWithinSignupPeriod(activity) {
+      const now = new Date();
+      const signupStart = new Date(activity.signupStartDate);
+      const signupEnd = new Date(activity.signupEndDate);
+      return now >= signupStart && now <= signupEnd;
+    },
+    handleBookClick(activity) {
+      this.selectedActivity = activity._id;
+      this.showBookingModal = true;
+    },
     bookActivity() {
       if (!this.selectedChild || !this.selectedActivity) {
         alert('Please select both a child and an activity');
@@ -145,10 +153,6 @@ export default {
         console.error("There was an error booking the activity:", error);
       });
     },
-    handleCardClick(activity) {
-      // Update to point to the new detail page for parents
-      this.$router.push({ name: 'ActivityDetail', params: { activityId: activity._id } });
-    },
   },
   created() {
     this.fetchActivities();
@@ -163,23 +167,6 @@ export default {
   flex-direction: column;
   align-items: center;
   inline-size: 100%;
-}
-
-.button-container {
-  margin-block-start: 20px;
-  text-align: center;
-  inline-size: 100%;
-}
-
-.book-activity-button {
-  font-size: 16px;
-  padding: 10px 20px;
-  border-radius: 8px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
-  outline: none;
 }
 
 .filter-buttons {
@@ -233,6 +220,18 @@ export default {
 
 .card-content {
   padding: 16px;
+}
+
+.book-activity-button {
+  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  margin-top: 10px;
 }
 
 .modal {

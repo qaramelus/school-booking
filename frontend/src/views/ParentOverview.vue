@@ -1,4 +1,3 @@
-// ParentOverview.vue
 <template>
   <div>
     <parent-navbar></parent-navbar>
@@ -6,13 +5,18 @@
       <div class="button-container">
         <button class="book-activity-button" @click="showBookingModal = true">Book Activity</button>
       </div>
+      <div class="filter-buttons">
+        <button @click="selectedFilter = 'open'" :class="{ active: selectedFilter === 'open' }">Open</button>
+        <button @click="selectedFilter = 'current'" :class="{ active: selectedFilter === 'current' }">Current</button>
+        <button @click="selectedFilter = 'all'" :class="{ active: selectedFilter === 'all' }">All</button>
+      </div>
       <div class="activities">
         <h2>Activities</h2>
         <div v-if="bookableActivities.length === 0" class="no-activities">
           <p>No activities available for booking at this time.</p>
         </div>
         <div class="activity-cards">
-          <div v-for="activity in activities" :key="activity._id" class="activity-card" @click="handleCardClick(activity)">
+          <div v-for="activity in bookableActivities" :key="activity._id" class="activity-card" @click="handleCardClick(activity)">
             <div class="card-content">
               <h3>{{ activity.name }}</h3>
               <p>{{ activity.description }}</p>
@@ -65,33 +69,41 @@ export default {
       children: [],
       selectedChild: '',
       selectedActivity: '',
+      selectedFilter: 'open',
     };
   },
   computed: {
-      bookableActivities() {
-        const now = new Date();
-        return this.activities.filter(activity => {
-          const signupStart = new Date(activity.signupStartDate);
-          const signupEnd = new Date(activity.signupEndDate);
-          return now >= signupStart && now <= signupEnd;
-        });
-      }
-    },
+    bookableActivities() {
+      const now = new Date();
+      return this.activities.filter(activity => {
+        const signupStart = new Date(activity.signupStartDate);
+        const signupEnd = new Date(activity.signupEndDate);
+        const isOpen = now >= signupStart && now <= signupEnd;
+        const isCurrent = now >= new Date(activity.startDate) && now <= new Date(activity.endDate);
+
+        switch (this.selectedFilter) {
+          case 'open':
+            return isOpen;
+          case 'current':
+            return isCurrent;
+          case 'all':
+            return true;
+          default:
+            return false;
+        }
+      });
+    }
+  },
   methods: {
     fetchActivities() {
-    API.get('activities')
-      .then(response => {
-        const now = new Date();
-        this.activities = response.data.filter(activity => {
-          const signupStart = new Date(activity.signupStartDate);
-          const signupEnd = new Date(activity.signupEndDate);
-          return now >= signupStart && now <= signupEnd;
+      API.get('activities')
+        .then(response => {
+          this.activities = response.data;
+        })
+        .catch(error => {
+          console.error("There was an error fetching the activities:", error);
         });
-      })
-      .catch(error => {
-        console.error("There was an error fetching the activities:", error);
-      });
-  },
+    },
     fetchChildren() {
       const parentId = localStorage.getItem('parent-id');
       if (!parentId) {
@@ -168,6 +180,28 @@ export default {
   border: none;
   cursor: pointer;
   outline: none;
+}
+
+.filter-buttons {
+  margin-block-end: 20px;
+  text-align: center;
+}
+
+.filter-buttons button {
+  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  background-color: #f2f2f2;
+  color: #333;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  margin: 0 4px;
+}
+
+.filter-buttons button.active {
+  background-color: #4CAF50;
+  color: white;
 }
 
 .activities {

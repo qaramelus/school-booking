@@ -2,8 +2,8 @@ const { defineConfig } = require('@vue/cli-service');
 
 module.exports = defineConfig({
   transpileDependencies: [
-    // Explicitly include FullCalendar packages for transpilation
-    /@fullcalendar.*$/
+    /@fullcalendar.*$/,
+    'quasar'
   ],
   devServer: {
     proxy: {
@@ -19,7 +19,11 @@ module.exports = defineConfig({
       locale: 'en',
       fallbackLocale: 'en',
       localeDir: 'locales',
-      enableInSFC: false,
+      enableInSFC: false
     },
+    quasar: {
+      importStrategy: 'kebab',
+      rtlSupport: true
+    }
   },
 });

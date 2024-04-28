@@ -9,21 +9,28 @@
       <li><router-link to="/admin-calendar" @click="closeNav">Calendar View</router-link></li>
     </ul>
     <div class="user-dropdown" @click="toggleDropdown">
-      <span class="user-initials">{{ getUserInitials }}</span>
+      <q-avatar color="primary" text-color="white">
+        {{ getUserInitials }}
+      </q-avatar>
       <div class="dropdown-menu" v-if="dropdownOpen">
         <a href="#" @click.prevent="performLogout">Logout</a>
         <a href="#" @click.prevent="goToSettings">Settings</a>
       </div>
-    </div>
+</div>
+
   </nav>
 </template>
 
 <script>
+import { QAvatar } from 'quasar';
 import axios from 'axios';
 import { logout } from '@/services/logout';
 
 export default {
   name: 'AdminNavbar',
+  components: {
+    QAvatar
+  },
   props: {
     userId: {
       type: String,
@@ -39,36 +46,34 @@ export default {
   },
   computed: {
     getUserInitials() {
-      if (this.user) {
-        const nameParts = this.user.name.split(' ');
-        return nameParts.map(part => part.charAt(0).toUpperCase()).join('');
-      }
-      return '';
+      return this.user ? this.user.initials : '';
     }
   },
   created() {
-    console.log('Component created with userId:', this.userId);
     this.fetchUserDetails();
   },
   methods: {
     fetchUserDetails() {
-      if (!this.userId) {
+      const userId = localStorage.getItem('user-id');
+      if (!userId) {
         console.error('User ID is undefined.');
         return;
       }
-      axios.get(`/api/users/${this.userId}`)
+      axios.get(`http://localhost:5005/api/users/${userId}/initials`)
         .then(response => {
-          this.user = response.data;
+          this.user = {
+            ...this.user,
+            initials: response.data.initials
+          };
         })
         .catch(error => {
-          console.error('Error fetching user details:', error);
+          console.error('Error fetching user initials:', error);
         });
     },
     performLogout() {
       logout(this.$router);
     },
     goToSettings() {
-      // Implement the logic to navigate to the settings page
       this.$router.push('/settings');
     },
     toggleNav() {
@@ -132,13 +137,19 @@ export default {
   position: relative;
   display: inline-block;
   cursor: pointer;
+  align-items: center; /* Ensure alignment of all items */
 }
 
-.user-initials {
-  background-color: #f2f2f2;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-weight: bold;
+.q-avatar {
+  margin-right: 8px; /* Space between avatar and dropdown icon */
+  background-color: #E0F7FA; /* Light blue background */
+  color: #333; /* Text color */
+  border-radius: 50%; /* Makes the avatar circular */
+  width: 40px; /* Sets the width of the avatar */
+  height: 40px; /* Sets the height of the avatar */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .dropdown-menu {

@@ -8,70 +8,35 @@
       <li><router-link to="/parent-booked-overview" @click="closeNav">Booked Activities</router-link></li>
       <li><router-link to="/parents-calendar" @click="closeNav">Calendar View</router-link></li>
     </ul>
-    <div class="user-dropdown" @click="toggleDropdown">
-      <span class="user-initials">{{ getUserInitials }}</span>
-      <div class="dropdown-menu" v-if="dropdownOpen">
-        <a href="#" @click.prevent="performLogout">Logout</a>
-        <a href="#" @click.prevent="goToSettings">Settings</a>
-      </div>
-    </div>
+    <user-avatar :userId="userId"></user-avatar>
   </nav>
 </template>
 
 <script>
-import { logout } from '@/services/logout';
-import axios from 'axios';
+import UserAvatar from '@/components/UserAvatar';
 
 export default {
   name: 'ParentNavbar',
+  components: {
+    UserAvatar
+  },
+  props: {
+    userId: {
+      type: String,
+      required: true
+    }
+  },
   data() {
     return {
-      navOpen: false,
-      dropdownOpen: false,
-      user: null
+      navOpen: false
     };
   },
-  computed: {
-    getUserInitials() {
-    return this.user && this.user.initials ? this.user.initials : '';
-  }
-  },
-  created() {
-    this.fetchUserDetails();
-  },
   methods: {
-    fetchUserDetails() {
-      const userId = localStorage.getItem('user-id');
-      if (!userId) {
-        console.error('User ID is undefined.');
-        return;
-      }
-      axios.get(`http://localhost:5005/api/users/${userId}/initials`)
-        .then(response => {
-          this.user = {
-            ...this.user,
-            initials: response.data.initials
-          };
-        })
-        .catch(error => {
-          console.error('Error fetching user initials:', error);
-        });
-    },
-    performLogout() {
-      logout(this.$router);
-    },
-    goToSettings() {
-      // Implement the logic to navigate to the settings page
-      this.$router.push('/settings');
-    },
     toggleNav() {
       this.navOpen = !this.navOpen;
     },
     closeNav() {
       this.navOpen = false;
-    },
-    toggleDropdown() {
-      this.dropdownOpen = !this.dropdownOpen;
     }
   }
 };
@@ -113,21 +78,9 @@ export default {
   color: #1a252f;
 }
 
+
 .parent-nav a:hover:not(.router-link-active) {
   background-color: #f2f2f2;
-}
-
-.user-dropdown {
-  position: relative;
-  display: inline-block;
-  cursor: pointer;
-}
-
-.user-initials {
-  background-color: #f2f2f2;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-weight: bold;
 }
 
 .burger {
@@ -157,12 +110,6 @@ export default {
 
   .parent-nav .nav-active {
     display: flex; /* Show when active */
-  }
-
-  .user-dropdown {
-    position: absolute;
-    inset-block-start: 18px;
-    inset-inline-end: 2rem;
   }
 }
 </style>

@@ -12,6 +12,15 @@
     </form>
     <p v-if="errorMessage" class="error-message">{{ $t("invalidCredentials") }}</p>
   </div>
+  <div v-if="isAdmin">
+      <h2>{{ $t("createAdmin") }}</h2>
+      <form @submit.prevent="createAdmin">
+        <input-component v-model="newAdmin.username" placeholder="Username"></input-component>
+        <input-component v-model="newAdmin.email" type="email" placeholder="Email"></input-component>
+        <input-component v-model="newAdmin.password" type="password" placeholder="Password"></input-component>
+        <button-component btn-type="secondary">{{ $t("create") }}</button-component>
+      </form>
+    </div>
 </template>
 
 <script>

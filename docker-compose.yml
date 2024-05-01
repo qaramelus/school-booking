@@ -3,7 +3,7 @@ services:
   backend:
     build: ./backend
     ports:
-      - "5000:3000"  # Maps port 3000 inside the container to port 5000 on the host
+      - "5005:3000"  
     env_file:
       - .env.docker
     depends_on:
@@ -29,6 +29,6 @@ volumes:
   mongo-data:
     driver: local
     driver_opts:
-      type: none
-      device: ~/Documents/mongo_data
-      o: bind
+      type: "none"
+      device: "/home/alexanderakbik/Documents/mongo_data"  # Adjust this path if needed
+      o: "bind"

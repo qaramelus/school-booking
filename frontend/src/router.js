@@ -183,37 +183,35 @@ const router = createRouter({
 
 // Navigation Guard
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/login'];
-  const authRequired = !publicPages.includes(to.path);
   const loggedIn = localStorage.getItem('user-token');
-  // Use a fallback value for role to ensure it's always a string
   const role = (localStorage.getItem('user-role') || '').trim();
+  
+  // Define role-based redirect mapping
+  const roleRedirects = {
+    parent: '/parent-overview',
+    child: '/child-overview',
+    teacher: '/teacher-overview',
+    admin: '/admin-overview'
+  };
 
-  // Redirect to login page if not logged in and trying to access a restricted page
-  if (authRequired && !loggedIn) {
-    next('/login');
-    return;
-  }
-
-  // Redirect based on role if already logged in and trying to access the login page
-  if (loggedIn && to.path === '/login') {
-    switch (role) {
-      case 'parent':
-        next('/parent-overview');
-        break;
-      case 'child':
-        next('/child-overview');
-        break;
-      case 'teacher':
-        next('/teacher-overview');
-        break;
-      default:
-        next('/login');
-        break;
+  if (to.path === '/login') {
+    if (loggedIn) {
+      // Redirect logged-in users away from login page to appropriate dashboard
+      const redirectTo = roleRedirects[role] || '/login';
+      next(redirectTo);
+      return;
     }
   } else {
-    next();
+    // For any other route
+    if (!loggedIn) {
+      // Redirect to login if not logged in and trying to access a protected page
+      next('/login');
+      return;
+    }
+    // Specific role checks can be handled by individual route guards
   }
+  next();
 });
+
 
 export default router;

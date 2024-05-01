@@ -243,3 +243,23 @@ exports.fetchUserInitials = async (req, res) => {
         res.status(500).send({ message: "Error fetching user initials", error: error.message });
     }
 };
+
+exports.createAdminUser = async (req, res) => {
+    try {
+        const adminUserInfo = req.body;
+
+        // Generate a username if not provided
+        const username = adminUserInfo.username || generateUsername(adminUserInfo.email);
+
+        const adminUser = new User({
+            ...adminUserInfo,
+            username,
+            role: 'admin' // Ensure the role is set to 'admin'
+        });
+
+        await adminUser.save();
+        res.status(201).send({ message: "Admin user created successfully", user: adminUser });
+    } catch (error) {
+        res.status(500).send({ message: "Error creating admin user", error: error.message });
+    }
+};

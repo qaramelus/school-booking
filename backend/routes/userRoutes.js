@@ -22,6 +22,9 @@ router.post('/parents', isAdmin, userController.createParentUser);
 // Route for updating a parent user
 router.put('/parents/:parentId', isAdminOrParent, userController.updateParentUser);
 
+// Route for creating an admin user
+router.post('/admins', userController.createAdminUser);
+
 // Update an admin user - typically, only an Admin should have this right
 router.put('/admins/:adminId', isAdmin, userController.updateAdminUser);
 

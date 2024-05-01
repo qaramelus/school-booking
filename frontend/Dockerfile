@@ -1,10 +1,10 @@
-# Use the official Node.js image as a base
+# Build stage
 FROM node:20-alpine as build-stage
 
 # Set working directory inside the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copy package files
 COPY package*.json ./
 
 # Install dependencies
@@ -16,13 +16,13 @@ COPY . .
 # Build Vue.js application
 RUN npm run build
 
-# Use Nginx as a lightweight server for the production build
+# Production stage
 FROM nginx:alpine
 
-# Copy the built Vue.js application from the build-stage container to the Nginx server
+# Copy the built Vue.js application from the build-stage to the Nginx server
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 
-# Expose port 80
+# Expose port 80 for the service
 EXPOSE 80
 
 # Command to run Nginx in the foreground

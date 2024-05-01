@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -12,10 +11,14 @@ const bookingRoutes = require('./routes/bookingRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const locationRoutes = require('./routes/locationRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
-const notificationRoutes = require('./routes/notificationRoutes'); // Import notification routes
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
-dotenv.config();
+const path = require('path');
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
+
+console.log("MongoDB URI: ", process.env.MONGODB_URI);  // Debug: Log the MongoDB URI
 
 app.use(cors());
 app.use(express.json());
@@ -32,14 +35,16 @@ app.use('/api/booking', bookingRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/sessions', sessionRoutes);
-app.use('/api/notifications', notificationRoutes); // Apply notification routes
+app.use('/api/notifications', notificationRoutes);
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 }).then(() => {
-    console.log("MongoDB connected");
-}).catch(err => console.log(err));
+    console.log("MongoDB connected successfully.");
+}).catch(err => {
+    console.error("MongoDB connection error:", err);
+});
 
 const PORT = process.env.PORT || 5005;
 app.listen(PORT, () => {

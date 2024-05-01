@@ -1,20 +1,20 @@
-# Use the official Node.js image as a base
-FROM node:20-alpine as build-stage
+# Use the official Node.js 20 image from Alpine
+FROM node:20-alpine
 
-# Set working directory inside the container
+# Set working directory in the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copy both package.json and package-lock.json
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install production dependencies only
+RUN npm install --only=production
 
 # Copy the rest of the application code
 COPY . .
 
-# Expose port 3000
+# Expose the port the API server will run on
 EXPOSE 3000
 
 # Command to run the Node.js server
-CMD ["npm", "start"]
+CMD ["node", "server.js"]  # assuming your entry point is named server.js

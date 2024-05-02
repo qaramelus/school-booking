@@ -1,29 +1,21 @@
+# Frontend/Dockerfile
 # Build stage
 FROM node:20-alpine as build-stage
 
-# Set working directory inside the container
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
-
-# Copy the rest of the application code
 COPY . .
 
-# Build Vue.js application
-RUN npm run build
+# Accept `VUE_APP_API_BASE_URL` from build-args
+ARG VUE_APP_API_BASE_URL
+ENV VUE_APP_API_BASE_URL=$VUE_APP_API_BASE_URL
+RUN echo "VUE_APP_API_BASE_URL=$VUE_APP_API_BASE_URL"
+
+RUN npm run build -- --mode production
 
 # Production stage
 FROM nginx:alpine
-
-# Copy the built Vue.js application from the build-stage to the Nginx server
 COPY --from=build-stage /app/dist /usr/share/nginx/html
-
-# Expose port 80 for the service
 EXPOSE 80
-
-# Command to run Nginx in the foreground
 CMD ["nginx", "-g", "daemon off;"]

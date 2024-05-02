@@ -263,3 +263,40 @@ exports.createAdminUser = async (req, res) => {
         res.status(500).send({ message: "Error creating admin user", error: error.message });
     }
 };
+
+exports.createUser = async (req, res) => {
+    const { userType } = req.body; // Assuming 'userType' specifies the type of user to create
+    const userInfo = req.body;
+
+    try {
+        let userRole;
+        switch (userType) {
+            case 'admin':
+                userRole = 'admin';
+                break;
+            case 'parent':
+                userRole = 'parent';
+                break;
+            case 'teacher':
+                userRole = 'teacher';
+                break;
+            default:
+                return res.status(400).send({ message: "Invalid user type" });
+        }
+
+        // Generate username based on email
+        const username = userInfo.email.split('@')[0]; // Take the part before the '@' symbol
+
+        const user = new User({
+            ...userInfo,
+            role: userRole,
+            username: username // Set the username field
+        });
+
+        await user.save();
+
+        res.status(201).send({ message: "User created successfully", user });
+    } catch (error) {
+        res.status(500).send({ message: "Error creating user", error: error.message });
+    }
+};

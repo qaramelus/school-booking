@@ -1,5 +1,5 @@
-# Use the official Node.js 20 image from Alpine
-FROM node:20-alpine
+# Use the official Node.js image with a version that supports your application
+FROM node:16-alpine
 
 # Set working directory in the container
 WORKDIR /app

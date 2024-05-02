@@ -1,34 +1,44 @@
-version: '3.8'
 services:
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
-      - "5005:3000"  
+      - "5005:3000"
     env_file:
       - .env.docker
     depends_on:
       - mongo
     environment:
       NODE_ENV: production
-      MONGODB_URI: mongodb://mongo:27017/school-booking  # Connection URI to MongoDB
+      MONGODB_URI: mongodb://mongo:27017/school-booking
+    networks:
+      - backend-net
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VUE_APP_API_BASE_URL=http://localhost:5005/api  # Update this based on your environment needs
     ports:
-      - "80:80"  # Maps port 80 inside the container to port 80 on the host
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - frontend-net
 
   mongo:
     image: mongo:latest
-    command: ["mongod", "--bind_ip_all"]  # Ensures MongoDB listens on all network interfaces
-    ports:
-      - "27017:27017"  # Maps port 27017 inside the container to port 27017 on the host
+    command: ["mongod", "--bind_ip_all"]
     volumes:
-      - ~/Documents/mongo_data:/data/db  # Maps the local directory to the MongoDB data directory inside the container
+      - mongo-data:/data/db
+    networks:
+      - backend-net
+
+networks:
+  backend-net:
+  frontend-net:
 
 volumes:
   mongo-data:
-    driver: local
-    driver_opts:
-      type: "none"
-      device: "/home/alexanderakbik/Documents/mongo_data"  # Adjust this path if needed
-      o: "bind"

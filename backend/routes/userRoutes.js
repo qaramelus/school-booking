@@ -7,6 +7,9 @@ const userController = require('../controllers/userController');
 // Fetch all users - Admins only
 router.get('/', isAdmin, userController.fetchAllUsers);
 
+// Route for creating a user
+router.post('/create', userController.createUser);
+
 // Fetch teachers
 router.get('/teachers', authMiddleware, userController.fetchTeachers);
 

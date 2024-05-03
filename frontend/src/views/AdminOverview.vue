@@ -66,31 +66,32 @@ export default {
       editingActivity: null,
       trashIcon,
       editIcon,
-      locations: [] 
+      locations: [],
+      currentUserId: ''  
     };
   },
   methods: {
     fetchActivities(type = 'all') {
-    let endpoint = '/activities/'; 
-    if (type === 'current') {
-      endpoint = '/activities/current/';
-    } else if (type === 'future') {
-      endpoint = '/activities/future/';
-    }
+      let endpoint = '/activities/'; 
+      if (type === 'current') {
+        endpoint = '/activities/current/';
+      } else if (type === 'future') {
+        endpoint = '/activities/future/';
+      }
 
-    API.get(endpoint)
-      .then(response => {
-        this.activities = response.data.map(activity => ({
-          ...activity,
-          startDate: activity.startDate || new Date(),
-          endDate: activity.endDate || new Date(),
-          timeSlots: activity.timeSlots || []
-        }));
-      })
-      .catch(error => {
-        console.error(`There was an error fetching the ${type} activities:`, error);
-      });
-  },
+      API.get(endpoint)
+        .then(response => {
+          this.activities = response.data.map(activity => ({
+            ...activity,
+            startDate: activity.startDate || new Date(),
+            endDate: activity.endDate || new Date(),
+            timeSlots: activity.timeSlots || []
+          }));
+        })
+        .catch(error => {
+          console.error(`There was an error fetching the ${type} activities:`, error);
+        });
+    },
     handleActivityAdded() {
       this.fetchActivities();
       this.showModal = false;
@@ -139,6 +140,10 @@ export default {
           console.error('Error fetching locations:', error);
         });
     },
+    // Define handleActivityUpdated method if needed
+    handleActivityUpdated() {
+      // Implementation for handleActivityUpdated method
+    }
   },
   created() {
     this.fetchActivities();
@@ -146,6 +151,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .admin-overview {

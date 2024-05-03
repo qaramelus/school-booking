@@ -38,7 +38,10 @@ export default {
       email: '',
       password: '',
       errorMessage: '',
-      languages: ['en', 'de', 'lv']
+      languages: ['en', 'de', 'lv'],
+      // Define currentLang and initialize it with the initial locale
+      currentLang: this.$i18n.locale,
+      isAdmin: false // Initialize isAdmin property
     };
   },
   methods: {
@@ -67,6 +70,8 @@ export default {
     },
     changeLanguage(lang) {
       this.$i18n.locale = lang;
+      // Update currentLang when the language changes
+      this.currentLang = lang;
     }
   }
 };

@@ -4,6 +4,7 @@ const Activity = require('../models/Activity');
 const Booking = require('../models/Booking');
 const moment = require('moment'); 
 
+
 // Calculate sessions for an activity
 exports.calculateSessionsPerActivity = async (req, res) => {
     try {

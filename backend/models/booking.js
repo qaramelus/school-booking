@@ -24,3 +24,4 @@ const bookingSchema = new Schema({
 });
 
 module.exports = mongoose.models.Booking || mongoose.model('Booking', bookingSchema);
+

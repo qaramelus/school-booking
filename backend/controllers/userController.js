@@ -1,4 +1,6 @@
+
 const User = require('../models/User');
+const bcrypt = require('bcrypt'); // Import bcrypt module
 const { generateUsername } = require('../middlewares/userMiddleware');
 
 exports.fetchAllUsers = async (req, res) => {
@@ -30,10 +32,15 @@ exports.createChildUser = async (req, res) => {
     const childUserInfo = req.body;
 
     try {
+        // Encrypt user password
+        const encryptedPassword = await bcrypt.hash(childUserInfo.password, 10);
+
+        // Create a new instance of the User model with encrypted password
         const childUser = new User({
             ...childUserInfo,
             parent: parentId,
-            role: 'child'
+            role: 'child',
+            password: encryptedPassword // Set the encrypted password
         });
 
         await childUser.save();
@@ -49,18 +56,36 @@ exports.createTeacherUser = async (req, res) => {
     const teacherUserInfo = req.body;
 
     try {
+        console.log("Request Body:", teacherUserInfo); // Log request body
+
+        if (!teacherUserInfo.role || teacherUserInfo.role !== 'teacher') {
+            return res.status(400).send({ message: "Role must be specified as 'teacher'." });
+        }
+
+        // Assuming the middleware has correctly set the username
+        if (!teacherUserInfo.username) {
+            return res.status(400).send({ message: "Username could not be generated." });
+        }
+
+        // Encrypt user password
+        const encryptedPassword = await bcrypt.hash(teacherUserInfo.password, 10);
+
+        // Create a new instance of the User model with encrypted password
         const teacherUser = new User({
             ...teacherUserInfo,
-            role: 'teacher'
+            username: teacherUserInfo.username, // Ensure username is taken from the modified request body
+            password: encryptedPassword, // Set the encrypted password
         });
 
         await teacherUser.save();
 
         res.status(201).send({ message: "Teacher user created successfully", teacherUser });
     } catch (error) {
+        console.error("Error in createTeacherUser:", error);
         res.status(500).send({ message: "Error creating teacher user", error: error.message });
     }
 };
+
 
 exports.fetchChildrenForParent = async (req, res) => {
     try {
@@ -82,29 +107,24 @@ exports.fetchTeachers = async (req, res) => {
 };
 
 exports.createParentUser = async (req, res) => {
-    console.log("Received body for parent creation:", req.body);
     const parentUserInfo = {
         ...req.body,
         role: 'parent'
     };
 
-    // Create a new instance of the User model with the parentUserInfo
-    const parentUser = new User(parentUserInfo);
-
-    // Execute the middleware manually before saving the parentUser
     try {
-        await generateUsername.call(parentUser, async function(err) {
-            if (err) {
-                console.log("Error in middleware:", err.message);
-                return res.status(400).send({ message: "Error generating username", error: err.message });
-            }
-            console.log("User instance after middleware execution:", parentUser);
-            // Save the parentUser after the middleware has been executed
-            await parentUser.save();
-            res.status(201).send({ message: "Parent user created successfully", parentUser });
+        // Encrypt user password
+        const encryptedPassword = await bcrypt.hash(parentUserInfo.password, 10);
+
+        // Create a new instance of the User model with encrypted password
+        const parentUser = new User({
+            ...parentUserInfo,
+            password: encryptedPassword // Set the encrypted password
         });
+
+        await parentUser.save();
+        res.status(201).send({ message: "Parent user created successfully", parentUser });
     } catch (error) {
-        console.log("Error during user save:", error);  // More detailed error logging
         res.status(500).send({ message: "Error creating parent user", error: error.message });
     }
 };
@@ -241,62 +261,5 @@ exports.fetchUserInitials = async (req, res) => {
         res.send({ initials });
     } catch (error) {
         res.status(500).send({ message: "Error fetching user initials", error: error.message });
-    }
-};
-
-exports.createAdminUser = async (req, res) => {
-    try {
-        const adminUserInfo = req.body;
-
-        // Generate a username if not provided
-        const username = adminUserInfo.username || generateUsername(adminUserInfo.email);
-
-        const adminUser = new User({
-            ...adminUserInfo,
-            username,
-            role: 'admin' // Ensure the role is set to 'admin'
-        });
-
-        await adminUser.save();
-        res.status(201).send({ message: "Admin user created successfully", user: adminUser });
-    } catch (error) {
-        res.status(500).send({ message: "Error creating admin user", error: error.message });
-    }
-};
-
-exports.createUser = async (req, res) => {
-    const { userType } = req.body; // Assuming 'userType' specifies the type of user to create
-    const userInfo = req.body;
-
-    try {
-        let userRole;
-        switch (userType) {
-            case 'admin':
-                userRole = 'admin';
-                break;
-            case 'parent':
-                userRole = 'parent';
-                break;
-            case 'teacher':
-                userRole = 'teacher';
-                break;
-            default:
-                return res.status(400).send({ message: "Invalid user type" });
-        }
-
-        // Generate username based on email
-        const username = userInfo.email.split('@')[0]; // Take the part before the '@' symbol
-
-        const user = new User({
-            ...userInfo,
-            role: userRole,
-            username: username // Set the username field
-        });
-
-        await user.save();
-
-        res.status(201).send({ message: "User created successfully", user });
-    } catch (error) {
-        res.status(500).send({ message: "Error creating user", error: error.message });
     }
 };

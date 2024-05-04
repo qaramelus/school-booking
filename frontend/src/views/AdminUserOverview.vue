@@ -232,11 +232,18 @@ export default {
         password: '',
         role: 'parent'
       },
-      teacher: {
+      teacher: {   
         firstName: '',
         lastName: '',
+        address: {
+          street: '',  
+          city: '',    
+          zipCode: ''  
+        },
+        phone: '',
         email: '',
-        password: ''
+        password: '',
+        role: 'teacher'  
       },
       filterRole: '',
       editedParent: {},
@@ -247,7 +254,7 @@ export default {
       showAddParentModal: false,
       showAddTeacherModal: false,
       showEditModal: false,
-      isAdmin: false // Assuming a way to set this based on user role
+      isAdmin: false
     };
   },
 
@@ -310,6 +317,9 @@ export default {
     },
     async addTeacher() {
       try {
+        // Ensure that the role is set to 'teacher' in the teacher object
+        this.teacher.role = 'teacher';
+
         const response = await API.post('users/teachers', this.teacher);
         console.log('New teacher added:', response.data);
         this.users.push(response.data);

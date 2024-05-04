@@ -2,19 +2,18 @@
 const express = require('express');
 const router = express.Router();
 const { authMiddleware, isAdmin, isAdminOrParent } = require('../middlewares/authMiddleware');
+const userMiddleware = require('../middlewares/userMiddleware');
 const userController = require('../controllers/userController');
+const { createTeacherUser } = require('../controllers/userController');
 
 // Fetch all users - Admins only
 router.get('/', isAdmin, userController.fetchAllUsers);
-
-// Route for creating a user
-router.post('/create', userController.createUser);
 
 // Fetch teachers
 router.get('/teachers', authMiddleware, userController.fetchTeachers);
 
 // Route for creating a teacher user
-router.post('/teachers', isAdmin, userController.createTeacherUser);
+router.post('/teachers', userMiddleware.generateUsername, createTeacherUser);
 
 // Route for updating a teacher user
 router.put('/teachers/:teacherId', isAdminOrParent, userController.updateTeacherUser);
@@ -24,9 +23,6 @@ router.post('/parents', isAdmin, userController.createParentUser);
 
 // Route for updating a parent user
 router.put('/parents/:parentId', isAdminOrParent, userController.updateParentUser);
-
-// Route for creating an admin user
-router.post('/admins', userController.createAdminUser);
 
 // Update an admin user - typically, only an Admin should have this right
 router.put('/admins/:adminId', isAdmin, userController.updateAdminUser);
@@ -49,4 +45,4 @@ router.put('/:parentId/children/:childId', isAdminOrParent, userController.updat
 // Fetch children for a parent user - Accessible by Admins and Parents
 router.get('/:parentId/children', isAdminOrParent, userController.fetchChildrenForParent);
 
-module.exports = router
+module.exports = router;

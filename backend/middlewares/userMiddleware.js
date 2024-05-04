@@ -1,19 +1,19 @@
 // userMiddleware.js
 
-const generateUsername = function(next) {
-    console.log("Middleware activated for role:", this.role);
-    if (this.role === 'parent' && !this.username) {
-        if (!this.firstName || !this.lastName || !this.address || !this.address.zipCode) {
-            const err = new Error('Missing fields for generating username');
-            console.log("Middleware error: Missing necessary fields");
-            return next(err);
-        }
-        this.username = `${this.firstName.toLowerCase()}${this.lastName.toLowerCase()}${this.address.zipCode}`;
-        console.log("Generated username:", this.username);  // Confirm the username output
-    } else {
-        console.log("Middleware skipped: not a parent or username already set");
+const generateUsername = function(req, res, next) {
+    if (!req.body.username && req.body.firstName && req.body.lastName) {
+        req.body.username = `${req.body.firstName.toLowerCase()}${req.body.lastName.toLowerCase()}`;
+        console.log("Generated username:", req.body.username);
+    } else if (!req.body.username) {
+        console.log("Middleware error: Missing firstName or lastName for generating username");
+        return next(new Error('Missing firstName or lastName for generating username'));
     }
     next();
 };
 
-module.exports = { generateUsername };
+
+const generateUsernameFromEmail = (email) => {
+    return email.split('@')[0]; // Simply extracts the part before the '@' symbol as username
+};
+
+module.exports = { generateUsername, generateUsernameFromEmail };

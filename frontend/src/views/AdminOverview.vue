@@ -1,6 +1,6 @@
 <template>
+  <admin-navbar :userId="currentUserId" />
   <div class="admin-overview">
-    <admin-navbar :userId="currentUserId" />
     <div class="button-container">
       <button @click="fetchActivities('all')">All Activities</button>
       <button @click="fetchActivities('current')">Current Activities</button>
@@ -44,7 +44,6 @@
     </div>
   </div>
 </template>
-
 
 <script>
 import API from '@/services/api';
@@ -140,9 +139,8 @@ export default {
           console.error('Error fetching locations:', error);
         });
     },
-    // Define handleActivityUpdated method if needed
     handleActivityUpdated() {
-      // Implementation for handleActivityUpdated method
+      this.fetchActivities();
     }
   },
   created() {
@@ -152,10 +150,12 @@ export default {
 };
 </script>
 
-
 <style scoped>
 .admin-overview {
   margin: 0 auto;
+  text-align: center;
+  max-inline-size: 90%;
+  padding: 20px;
 }
 
 .button-container {

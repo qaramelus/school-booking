@@ -4,6 +4,7 @@ import ParentOverview from './views/ParentOverview.vue';
 import ChildOverview from './views/ChildOverview.vue';
 import AdminOverview from './views/AdminOverview.vue';
 import AdminUserOverview from './views/AdminUserOverview.vue';
+import AdminLocationOverview from './views/AdminLocationOverview.vue';  
 import ActivityDetail from './views/ActivityDetail.vue';
 import ParentBookedOverview from './views/ParentBookedOverview.vue';
 import ParentsCalendar from './views/ParentsCalendar.vue';
@@ -99,6 +100,19 @@ const routes = [
         next();
       } else {
         next('/login'); 
+      }
+    }
+  },
+  {
+    path: '/admin-location-overview',
+    name: 'AdminLocationOverview',
+    component: AdminLocationOverview,
+    beforeEnter: (to, from, next) => {
+      const role = localStorage.getItem('user-role');
+      if (role === 'admin') {
+        next();
+      } else {
+        next('/login');
       }
     }
   },

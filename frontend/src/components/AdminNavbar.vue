@@ -6,6 +6,7 @@
     <ul :class="{ 'nav-active': navOpen }">
       <li><router-link to="/admin-overview" @click="closeNav">All Activities</router-link></li>
       <li><router-link to="/admin-user-overview" @click="closeNav">User Management</router-link></li>
+      <li><router-link to="/admin-location-overview" @click="closeNav">Location Management</router-link></li>
       <li><router-link to="/admin-calendar" @click="closeNav">Calendar View</router-link></li>
     </ul>
     <user-avatar :userId="userId"></user-avatar>
@@ -41,6 +42,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .admin-nav {

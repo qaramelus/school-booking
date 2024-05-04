@@ -1,6 +1,6 @@
 
 const User = require('../models/User');
-const bcrypt = require('bcrypt'); // Import bcrypt module
+const bcrypt = require('bcryptjs');
 const { generateUsername } = require('../middlewares/userMiddleware');
 
 exports.fetchAllUsers = async (req, res) => {

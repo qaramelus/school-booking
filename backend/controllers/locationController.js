@@ -1,11 +1,11 @@
 // locationController.js
 const Location = require('../models/Location');
 
-// Controller method to create a new location
+// Create a new location
 exports.createLocation = async (req, res) => {
   try {
-    const { name, address } = req.body;
-    const location = new Location({ name, address });
+    const { name, address, capacity } = req.body;
+    const location = new Location({ name, address, capacity });
     const savedLocation = await location.save();
     res.status(201).json(savedLocation);
   } catch (error) {
@@ -23,12 +23,16 @@ exports.getAllLocations = async (req, res) => {
   }
 };
 
-// Controller method to update an existing location
+// Update an existing location
 exports.updateLocation = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, address } = req.body;
-    const updatedLocation = await Location.findByIdAndUpdate(id, { name, address }, { new: true });
+    const { name, address, capacity } = req.body;
+    const updatedLocation = await Location.findByIdAndUpdate(
+      id, 
+      { name, address, capacity }, 
+      { new: true }
+    );
     if (!updatedLocation) {
       return res.status(404).json({ message: 'Location not found' });
     }

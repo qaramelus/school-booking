@@ -7,21 +7,25 @@
   
         <!-- Add Location Modal -->
         <div v-if="showAddLocationModal" class="modal">
-          <div class="modal-content">
+        <div class="modal-content">
             <span class="close" @click="showAddLocationModal = false">&times;</span>
             <h2>Add Location</h2>
             <form @submit.prevent="addLocation">
-              <div class="form-group">
+            <div class="form-group">
                 <label for="name">Name</label>
                 <input type="text" id="name" v-model="newLocation.name" required>
-              </div>
-              <div class="form-group">
+            </div>
+            <div class="form-group">
                 <label for="address">Address</label>
                 <input type="text" id="address" v-model="newLocation.address" required>
-              </div>
-              <button type="submit" class="submit-btn">Add Location</button>
+            </div>
+            <div class="form-group">
+                <label for="capacity">Capacity</label>
+                <input type="number" id="capacity" v-model="newLocation.capacity" required>
+            </div>
+            <button type="submit" class="submit-btn">Add Location</button>
             </form>
-          </div>
+        </div>
         </div>
       </div>
   
@@ -30,6 +34,7 @@
           <tr>
             <th>Name</th>
             <th>Address</th>
+            <th>Capacity</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -37,6 +42,7 @@
           <tr v-for="location in locations" :key="location._id">
             <td>{{ location.name }}</td>
             <td>{{ location.address }}</td>
+            <td>{{ location.capacity }}</td>
             <td>
               <q-icon name="edit" @click.stop="openEditLocationModal(location)" class="edit-icon"></q-icon>
               <q-icon name="delete" @click.stop="deleteLocation(location._id)" class="delete-icon"></q-icon>
@@ -48,21 +54,25 @@
   
     <!-- Edit Location Modal -->
     <div v-if="showEditLocationModal" class="modal">
-      <div class="modal-content">
+    <div class="modal-content">
         <span class="close" @click="showEditLocationModal = false">&times;</span>
         <h2>Edit Location</h2>
         <form @submit.prevent="updateLocation">
-          <div class="form-group">
+        <div class="form-group">
             <label for="name">Name</label>
             <input type="text" id="name" v-model="editedLocation.name" required>
-          </div>
-          <div class="form-group">
+        </div>
+        <div class="form-group">
             <label for="address">Address</label>
             <input type="text" id="address" v-model="editedLocation.address" required>
-          </div>
-          <button type="submit" class="submit-btn">Update Location</button>
+        </div>
+        <div class="form-group">
+            <label for="capacity">Capacity</label>
+            <input type="number" id="capacity" v-model="editedLocation.capacity" required>
+        </div>
+        <button type="submit" class="submit-btn">Update Location</button>
         </form>
-      </div>
+    </div>
     </div>
   </template>
   

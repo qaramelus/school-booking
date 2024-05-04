@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const locationSchema = new Schema({
   name: { type: String, required: true },
   address: { type: String, required: true },
-  // You can add more fields like coordinates, contact information, etc. if needed
+  capacity: { type: Number, required: true }  // Adding capacity field
 });
 
 module.exports = mongoose.model('Location', locationSchema);

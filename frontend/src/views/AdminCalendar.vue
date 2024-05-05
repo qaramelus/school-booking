@@ -1,6 +1,6 @@
 <template>
     <div>
-      <AdminNavbar />
+      <admin-navbar :userId="currentUserId" />
       <div class="calendar-container">
         <div class="controls">
           <select v-model="currentView">
@@ -28,6 +28,14 @@
     components: {
       AdminNavbar,
     },
+    data() {
+    return {
+      currentUserId: '',
+    };
+  },
+  created() {
+    this.currentUserId = localStorage.getItem('user-id');  
+  },
     setup() {
       const calendarEl = ref(null);
       const currentView = ref('dayGridMonth');

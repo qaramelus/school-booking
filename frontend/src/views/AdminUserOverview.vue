@@ -1,5 +1,5 @@
 <template>
-      <admin-navbar />
+      <admin-navbar :userId="currentUserId" />
 <div class="admin-user-overview">
     <h1>User Administration</h1>
     <div class="controls">
@@ -218,6 +218,7 @@ export default {
   },
   data() {
     return {
+      currentUserId: '',
       users: [],
       parent: {
         firstName: '',
@@ -257,7 +258,9 @@ export default {
       isAdmin: false
     };
   },
-
+  created() {
+    this.currentUserId = localStorage.getItem('user-id');  
+  },
   computed: {
     filteredUsers() {
       if (!this.filterRole) {

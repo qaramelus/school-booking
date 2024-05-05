@@ -38,6 +38,7 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
+
 const isAdmin = [authMiddleware, (req, res, next) => {
     if (req.user.role !== 'admin') {
         return res.status(401).send("Access denied. Only admins can perform this.");

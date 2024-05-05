@@ -1,5 +1,5 @@
 <template>
-    <admin-navbar />
+      <admin-navbar :userId="currentUserId" />
     <div class="admin-location-overview">
       <h1>Location Administration</h1>
       <div class="controls">
@@ -89,6 +89,7 @@ export default {
   },
   data() {
     return {
+      currentUserId: '',
       locations: [],
       newLocation: {
         name: '',
@@ -102,7 +103,9 @@ export default {
       currentSortDir: 'asc'
     };
   },
-
+  created() {
+    this.currentUserId = localStorage.getItem('user-id');  
+  },
   mounted() {
     this.fetchLocations();
   },

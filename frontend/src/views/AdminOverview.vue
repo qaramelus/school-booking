@@ -144,9 +144,10 @@ export default {
     }
   },
   created() {
-    this.fetchActivities();
-    this.fetchLocations(); // Fetch locations when the component is created
-  }
+  this.fetchActivities();
+  this.fetchLocations(); 
+  this.currentUserId = localStorage.getItem('user-id');  
+}
 };
 </script>
 

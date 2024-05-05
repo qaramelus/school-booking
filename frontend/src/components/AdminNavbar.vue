@@ -23,8 +23,7 @@ export default {
   },
   props: {
     userId: {
-      type: String,
-      required: true
+      type: String
     }
   },
   data() {

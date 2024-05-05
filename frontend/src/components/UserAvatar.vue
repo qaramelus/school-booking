@@ -22,8 +22,7 @@
     },
     props: {
       userId: {
-        type: String,
-        required: true
+        type: String
       }
     },
     data() {
@@ -41,23 +40,28 @@
       this.fetchUserDetails();
     },
     methods: {
-      fetchUserDetails() {
-        const userId = localStorage.getItem('user-id');
-        if (!userId) {
-          console.error('User ID is undefined.');
-          return;
-        }
-        axios.get(`http://localhost:5005/api/users/${userId}/initials`)
-          .then(response => {
-            this.user = {
-              ...this.user,
-              initials: response.data.initials
-            };
-          })
-          .catch(error => {
-            console.error('Error fetching user initials:', error);
-          });
-      },
+  fetchUserDetails() {
+    const token = localStorage.getItem('user-token');
+    if (!this.userId || !token) {
+      console.error('User ID or token is undefined.');
+      return;
+    }
+
+    axios.get(`http://localhost:5005/api/users/${this.userId}/initials`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    .then(response => {
+      this.user = {
+        ...this.user,
+        initials: response.data.initials
+      };
+    })
+    .catch(error => {
+      console.error('Error fetching user initials:', error.response ? error.response.data.message : error.message);
+    });
+  },
       performLogout() {
         logout(this.$router);
       },

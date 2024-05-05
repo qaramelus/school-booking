@@ -14,18 +14,19 @@ exports.fetchAllUsers = async (req, res) => {
 
 exports.fetchUserDetails = async (req, res) => {
     try {
-        const userId = req.params.userId;
-        const user = await User.findById(userId)
-                               .populate('parent', 'username email role')
-                               .populate('children', 'username email role');
-        if (!user) {
-            return res.status(404).send({ message: "User not found" });
-        }
-        res.json(user);
+      const userId = req.params.userId;
+      const user = await User.findById(userId)
+        .populate('parent', 'username email role', null, { strictPopulate: false })
+        .populate('children', 'username email role', null, { strictPopulate: false });
+      if (!user) {
+        return res.status(404).send({ message: "User not found" });
+      }
+      res.json(user);
     } catch (error) {
-        res.status(500).send({ message: "Error fetching user details", error: error.message });
+      res.status(500).send({ message: "Error fetching user details", error: error.message });
     }
-};
+  };
+
 
 exports.createChildUser = async (req, res) => {
     const { parentId } = req.params;

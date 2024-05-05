@@ -1,5 +1,5 @@
 <template>
-      <admin-navbar />
+       <admin-navbar :userId="currentUserId" />
   <div class="user-detail-page">
     <div class="user-detail">
       <h1>User Detail</h1>
@@ -57,6 +57,7 @@ export default {
   },
   data() {
     return {
+      currentUserId: '',
       user: {},
       newChild: {
         username: '',
@@ -68,6 +69,7 @@ export default {
   },
   async created() {
     this.fetchUserDetails();
+    this.currentUserId = localStorage.getItem('user-id'); 
   },
   methods: {
     async fetchUserDetails() {

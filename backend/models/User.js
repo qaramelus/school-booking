@@ -15,7 +15,9 @@ const userSchema = new Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, required: true, enum: ['admin', 'parent', 'teacher', 'child'] },
-    username: { type: String, required: true, unique: true }
+    username: { type: String, required: true, unique: true },
+    parent: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    children: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 
 module.exports = mongoose.model('User', userSchema);

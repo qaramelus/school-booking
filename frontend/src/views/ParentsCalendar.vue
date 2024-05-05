@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ParentNavbar />
+    <parent-navbar :userId="currentUserId"></parent-navbar>
     <div class="calendar-container">
       <div class="controls">
         <select v-model="selectedChildId" @change="fetchNonCancelledSessions">
@@ -29,6 +29,14 @@ export default {
   name: 'ParentsCalendar',
   components: {
     ParentNavbar,
+  },
+  data() {
+    return {
+      currentUserId: '',
+    };
+  },
+  created() {
+    this.currentUserId = localStorage.getItem('user-id');  
   },
   setup() {
     const selectedChildId = ref('');

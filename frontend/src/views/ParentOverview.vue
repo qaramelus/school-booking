@@ -1,6 +1,6 @@
 <template>
   <div>
-    <parent-navbar></parent-navbar>
+    <parent-navbar :userId="currentUserId"></parent-navbar>
     <div class="parent-overview">
       <div class="filter-buttons">
         <button @click="selectedFilter = 'open'" :class="{ active: selectedFilter === 'open' }">Open</button>
@@ -68,6 +68,7 @@ export default {
   },
   data() {
     return {
+      currentUserId: '',
       activities: [],
       showBookingModal: false,
       children: [],
@@ -161,6 +162,7 @@ export default {
     },
   },
   created() {
+    this.currentUserId = localStorage.getItem('user-id');
     this.fetchActivities();
     this.fetchChildren();
   }

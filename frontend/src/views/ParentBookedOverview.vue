@@ -1,7 +1,7 @@
 // ParentsBookedOverview.vue
 <template>
   <div>
-    <parent-navbar></parent-navbar>
+    <parent-navbar :userId="currentUserId"></parent-navbar>
     <h2>Booked Activities</h2>
     <div v-for="booking in bookingsGroupedByChild" :key="booking.childId" class="child-activities-section">
       <button class="accordion" @click="toggleAccordion(booking.childId)">
@@ -41,6 +41,7 @@ export default {
   },
   data() {
     return {
+      currentUserId: '',
       bookingsGroupedByChild: [],
       openPanels: [],
     };
@@ -122,6 +123,7 @@ export default {
   },
   created() {
     this.fetchBookings();
+    this.currentUserId = localStorage.getItem('user-id');  
   }
 };
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <parent-navbar :userId="currentUserId"></parent-navbar>
-    <div class="parent-overview">
+    <div class="overview-section">
       <div class="filter-buttons">
         <button @click="selectedFilter = 'open'" :class="{ active: selectedFilter === 'open' }">Open</button>
         <button @click="selectedFilter = 'current'" :class="{ active: selectedFilter === 'current' }">Current</button>
@@ -38,19 +38,19 @@
         <div class="modal-content">
           <span @click="showBookingModal = false" class="close">&times;</span>
           <h3>Book an Activity</h3>
-          <select v-model="selectedActivity">
+          <select v-model="selectedActivity" class="select-style">
             <option disabled value="">Select Activity</option>
             <option v-for="activity in bookableActivities" :value="activity._id" :key="activity._id">
               {{ activity.name }}
             </option>
           </select>
-          <select v-model="selectedChild">
+          <select v-model="selectedChild" class="select-style">
             <option disabled value="">Select Child</option>
             <option v-for="child in children" :value="child.id" :key="child.id">
               {{ child.name }}
             </option>
           </select>
-          <button @click="bookActivity">Book Activity</button>
+          <button @click="bookActivity" class="book-modal-button">Book Activity</button>
         </div>
       </div>
     </div>
@@ -60,6 +60,7 @@
 <script>
 import API from '@/services/api';
 import ParentNavbar from '@/components/ParentNavbar.vue';
+import '@/styles/overview-style.css';
 
 export default {
   name: "ParentOverview",
@@ -169,111 +170,4 @@ export default {
 };
 </script>
 
-<style scoped>
-.parent-overview {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  inline-size: 100%;
-}
 
-.filter-buttons {
-  margin-block-end: 20px;
-  text-align: center;
-}
-
-.filter-buttons button {
-  font-size: 14px;
-  padding: 8px 16px;
-  border-radius: 4px;
-  background-color: #f2f2f2;
-  color: #333;
-  border: none;
-  cursor: pointer;
-  outline: none;
-  margin: 0 4px;
-}
-
-.filter-buttons button.active {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.activities {
-  inline-size: 100%;
-}
-
-.activity-cards {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.activity-card {
-  flex-basis: calc(50% - 20px);
-  margin: 10px;
-  padding: 20px;
-  box-sizing: border-box;
-  position: relative;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  cursor: pointer;
-  transition: box-shadow 0.3s;
-}
-
-.activity-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.card-content {
-  padding: 16px;
-}
-
-.book-activity-button {
-  font-size: 14px;
-  padding: 8px 16px;
-  border-radius: 4px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
-  outline: none;
-  margin-top: 10px;
-}
-
-.modal {
-  display: block; 
-  position: fixed; 
-  z-index: 1; 
-  inset-inline-start: 0;
-  inset-block-start: 0;
-  inline-size: 100%; 
-  block-size: 100%; 
-  overflow: auto; 
-  background-color: rgb(0,0,0); 
-  background-color: rgba(0,0,0,0.4); 
-}
-
-.modal-content {
-  background-color: #fefefe;
-  margin: 15% auto; 
-  padding: 20px;
-  border: 1px solid #888;
-  inline-size: 80%; 
-}
-
-.close {
-  color: #aaa;
-  float: inline-end;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
-}
-</style>

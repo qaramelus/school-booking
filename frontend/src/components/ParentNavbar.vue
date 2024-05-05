@@ -14,7 +14,7 @@
 
 <script>
 import UserAvatar from '@/components/UserAvatar';
-import '@/styles/navbar-styles.css';  // Import the CSS file here
+import '@/styles/navbar-styles.css'; // Ensure this path is correct
 
 export default {
   name: 'ParentNavbar',
@@ -37,10 +37,13 @@ export default {
       this.navOpen = !this.navOpen;
     },
     closeNav() {
-      this.navOpen = false;
+      if (this.navOpen) {
+        this.navOpen = false;
+      }
     }
   }
 };
 </script>
+
 
 

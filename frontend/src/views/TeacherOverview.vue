@@ -1,6 +1,6 @@
 <template>
+  <teacher-navbar></teacher-navbar>
   <div class="teacher-overview">
-    <teacher-navbar></teacher-navbar>
     <h1>Your Activities</h1>
     <div class="activity-cards">
       <div v-for="activity in activities" :key="activity._id" class="activity-card" @click="goToActivityDetail(activity._id)">

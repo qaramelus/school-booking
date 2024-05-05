@@ -8,15 +8,28 @@
       <li><router-link to="/teacher-calendar" @click="closeNav">My Calendar</router-link></li>
       <!-- Additional links can be added here -->
     </ul>
-    <button @click="performLogout" class="logout-button">Logout</button>
+    <div class="avatar-container">
+      <user-avatar :userId="userId"></user-avatar>
+    </div>
   </nav>
 </template>
-  
+
+ 
 <script>
 import { logout } from '@/services/logout';
+import UserAvatar from '@/components/UserAvatar';
 
 export default {
   name: 'TeacherNavbar',
+  components: {
+    UserAvatar
+  },
+  props: {
+    userId: {
+      type: String,
+      required: true
+    }
+  },
   data() {
     return {
       navOpen: false
@@ -38,14 +51,12 @@ export default {
   
 <style scoped>
 .teacher-nav {
-  background-color: #34495e;
-  padding: 1rem 0; /* Remove horizontal padding */
-  inline-size: 100%; /* Ensure the nav is full-width */
-  margin: 0; /* Remove any default margin */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-sizing: border-box; /* Include padding and border in the element's total width */
+  padding: 1rem 2rem;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .teacher-nav ul {
@@ -61,46 +72,39 @@ export default {
 }
 
 .teacher-nav a {
-  color: #ffffff;
+  color: #333;
   text-decoration: none;
   font-size: 1.2rem;
+  font-weight: bold;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
 }
 
-.teacher-nav a:hover, .router-link-active {
-  color: #95a5a6;
-}
-
-.logout-button {
-  background-color: transparent;
-  border: none;
-  color: #ffffff;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.logout-button:hover {
-  color: #e74c3c;
+.teacher-nav a:hover {
+  background-color: #f2f2f2;
 }
 
 .burger {
   display: none;
   cursor: pointer;
   font-size: 2rem;
-  color: #bdc3c7;
+  color: #333;
 }
 
-@media (max-inline-size: 768px) {
+@media (max-width: 768px) {
   .burger {
     display: block;
   }
 
   .teacher-nav ul {
     flex-direction: column;
-    inline-size: 100%;
+    width: 100%;
     position: absolute;
-    inset-block-start: 58px;
-    inset-inline-start: 0;
-    background-color: #34495e;
+    top: 58px;
+    left: 0;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 1rem;
     align-items: center;
     display: none; /* Initially hidden */
@@ -110,10 +114,25 @@ export default {
     display: flex; /* Show when active */
   }
 
-  .logout-button {
+  .avatar-container {
     position: absolute;
-    inset-block-start: 18px;
-    inset-inline-end: 2rem;
+    top: 18px;
+    right: 1rem;
+  }
+
+  .logout-button {
+    display: none; /* Hide logout button on mobile if needed */
   }
 }
+
+.avatar-container {
+  display: flex;
+  align-items: center;
+}
+
+.logout-button {
+  margin-left: 1rem;
+}
 </style>
+
+

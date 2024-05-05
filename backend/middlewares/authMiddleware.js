@@ -1,3 +1,21 @@
+const bcrypt = require('bcryptjs');
+
+// Middleware to encrypt password
+const encryptPassword = async (req, res, next) => {
+    try {
+        const { password } = req.body;
+        if (password) {
+            req.body.encryptedPassword = await bcrypt.hash(password, 10);
+            next();
+        } else {
+            res.status(400).send("Password is required");
+        }
+    } catch (err) {
+        console.error(`Encryption error: ${err}`);
+        res.status(500).send("Failed to encrypt password");
+    }
+};
+
 const jwt = require('jsonwebtoken');
 const User = require('../models/User'); 
 
@@ -27,7 +45,6 @@ const isAdmin = [authMiddleware, (req, res, next) => {
     next();
 }];
 
-// In authMiddleware.js
 const isAdminOrParent = [authMiddleware, (req, res, next) => {
   console.log("User role:", req.user.role); 
   if (req.user.role !== 'admin' && req.user.role !== 'parent') {
@@ -36,5 +53,4 @@ const isAdminOrParent = [authMiddleware, (req, res, next) => {
   next();
 }];
 
-
-module.exports = { authMiddleware, isAdmin, isAdminOrParent };
+module.exports = { authMiddleware, isAdmin, isAdminOrParent, encryptPassword };

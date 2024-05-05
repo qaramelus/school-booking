@@ -1,7 +1,7 @@
 
 const User = require('../models/User');
-const bcrypt = require('bcryptjs');
-const { generateUsername } = require('../middlewares/userMiddleware');
+const { encryptPassword } = require('../middlewares/authMiddleware'); 
+
 
 exports.fetchAllUsers = async (req, res) => {
     try {
@@ -32,15 +32,12 @@ exports.createChildUser = async (req, res) => {
     const childUserInfo = req.body;
 
     try {
-        // Encrypt user password
-        const encryptedPassword = await bcrypt.hash(childUserInfo.password, 10);
-
         // Create a new instance of the User model with encrypted password
         const childUser = new User({
             ...childUserInfo,
             parent: parentId,
             role: 'child',
-            password: encryptedPassword // Set the encrypted password
+            password: req.body.encryptedPassword 
         });
 
         await childUser.save();
@@ -51,6 +48,7 @@ exports.createChildUser = async (req, res) => {
         res.status(500).send({ message: "Error creating child user", error: error.message });
     }
 };
+
 
 exports.createTeacherUser = async (req, res) => {
     const teacherUserInfo = req.body;
@@ -67,14 +65,11 @@ exports.createTeacherUser = async (req, res) => {
             return res.status(400).send({ message: "Username could not be generated." });
         }
 
-        // Encrypt user password
-        const encryptedPassword = await bcrypt.hash(teacherUserInfo.password, 10);
-
         // Create a new instance of the User model with encrypted password
         const teacherUser = new User({
             ...teacherUserInfo,
-            username: teacherUserInfo.username, // Ensure username is taken from the modified request body
-            password: encryptedPassword, // Set the encrypted password
+            username: teacherUserInfo.username, 
+            password: req.body.encryptedPassword , 
         });
 
         await teacherUser.save();
@@ -113,13 +108,10 @@ exports.createParentUser = async (req, res) => {
     };
 
     try {
-        // Encrypt user password
-        const encryptedPassword = await bcrypt.hash(parentUserInfo.password, 10);
-
         // Create a new instance of the User model with encrypted password
         const parentUser = new User({
             ...parentUserInfo,
-            password: encryptedPassword // Set the encrypted password
+            password: req.body.encryptedPassword  
         });
 
         await parentUser.save();
@@ -173,8 +165,10 @@ exports.updateParentUser = async (req, res) => {
       user.firstName = updatedTeacherInfo.firstName || user.firstName;
       user.lastName = updatedTeacherInfo.lastName || user.lastName;
       user.email = updatedTeacherInfo.email || user.email;
-      user.password = updatedTeacherInfo.password || user.password;
-
+      if (req.body.encryptedPassword) { // Only update password if it's been re-encrypted
+        user.password = req.body.encryptedPassword;
+      }
+  
       await user.save();
   
       res.status(200).send({ message: "User updated successfully", user });

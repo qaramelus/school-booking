@@ -290,7 +290,7 @@ export default {
     },
     async addParent() {
       try {
-        const response = await API.post('users/parent', this.parent);
+        const response = await API.post('users/parents', this.parent);
         console.log('New parent added:', response.data);
         this.users.push(response.data);
         this.resetParentForm();
@@ -366,7 +366,7 @@ export default {
     },
     async updateParent() {
       try {
-        const response = await API.put(`users/parent/${this.editedParent._id}`, this.editedParent);
+        const response = await API.put(`users/parents/${this.editedParent._id}`, this.editedParent);
         console.log('Parent updated:', response.data);
         this.showEditModal = false;
         this.fetchUsers();

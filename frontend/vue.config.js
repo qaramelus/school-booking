@@ -1,10 +1,14 @@
+const { defineConfig } = require('@vue/cli-service');
 const webpack = require('webpack');
 
-module.exports = {
+module.exports = defineConfig({
+  outputDir: 'dist',  // Ensure this matches the Dockerfile COPY source directory
+
   transpileDependencies: [
     /@fullcalendar.*$/,
     'quasar'
   ],
+
   devServer: {
     proxy: {
       '/api': {
@@ -14,6 +18,7 @@ module.exports = {
       },
     },
   },
+
   pluginOptions: {
     i18n: {
       locale: 'en',
@@ -26,6 +31,7 @@ module.exports = {
       rtlSupport: true
     }
   },
+
   configureWebpack: {
     plugins: [
       new webpack.DefinePlugin({
@@ -33,4 +39,4 @@ module.exports = {
       })
     ]
   }
-};
+});

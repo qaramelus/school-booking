@@ -209,6 +209,7 @@
 import AdminNavbar from '@/components/AdminNavbar.vue';
 import { QIcon } from 'quasar'; 
 import API from '@/services/api';
+import '@/styles/MainColorSchema.css'
 
 export default {
   name: "AdminUserOverview",
@@ -415,152 +416,65 @@ export default {
 };
 </script>
 
-
 <style scoped>
-
-.add-btn {
-  background-color: #2c3e50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-inline-end: 10px;
+.admin-login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
-.add-btn:hover {
-  background-color: #1a252f;
+.login-container {
+  background-color: var(--background-light);
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
-.admin-user-overview {
-  margin: 0 auto;
+.logo {
   text-align: center;
-  max-inline-size: 90%;
-  padding: 20px;
+  margin-bottom: 20px;
 }
 
-.controls {
-  display: flex;
-  justify-content: start;
-  align-items: center;
-  margin-block-end: 20px;
-}
-
-.filter-section {
-  margin-inline-start: auto;
-  display: flex;
-  align-items: center;
-}
-
-.filter-section select {
-  padding: 8px 15px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  background-color: white;
-  cursor: pointer;
-}
-
-table {
-  inline-size: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  padding: 12px;
-  text-align: start;
-  border-block-end: 1px solid #ddd;
-}
-
-tr:hover {
-  background-color: #f5f5f5;
-}
-
-th {
-  background-color: #2c3e50;
-  color: white;
-}
-
-.modal {
-  display: block;
-  position: fixed;
-  z-index: 1;
-  inset-inline-start: 0;
-  inset-block-start: 0;
-  inline-size: 100%;
-  block-size: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
-}
-
-.modal-content {
-  background-color: #fefefe;
-  margin: 10% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  inline-size: 80%;
-  max-inline-size: 500px;
-  border-radius: 5px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-}
-
-.close {
-  color: #aaa;
-  float: inline-end;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
+.logo img {
+  max-width: 100px;
 }
 
 .form-group {
-  margin-block-end: 20px;
+  margin-bottom: 20px;
 }
 
-label {
+.form-group label {
   display: block;
-  margin-block-end: 5px;
+  margin-bottom: 5px;
+  color: var(--text-primary);
 }
 
-input[type="text"],
-input[type="email"],
-input[type="password"],
-select {
-  inline-size: 100%;
-  padding: 8px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
 }
 
 .submit-btn {
-  background-color: #4CAF50;
-  color: white;
-  padding: 12px 20px;
-  margin: 8px 0;
+  width: 100%;
+  padding: 10px;
+  background-color: var(--primary-color);
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
+  color: var(--button-text-color);
   cursor: pointer;
-  inline-size: 100%;
+  transition: background-color 0.3s ease;
 }
 
 .submit-btn:hover {
-  background-color: #45a049;
+  background-color: var(--hover-dark);
 }
 
-.edit-icon, .delete-icon {
-  inline-size: 16px;  /* Sets the icon width to 16 pixels */
-  block-size: 16px; /* Sets the icon height to 16 pixels */
-  margin-inline-start: 10px;
-  cursor: pointer;
-  vertical-align: middle;
+.error-message {
+  color: red;
+  margin-top: 10px;
 }
-
-
 </style>
+

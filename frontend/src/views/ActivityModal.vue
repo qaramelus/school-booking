@@ -109,6 +109,7 @@
 import API from '@/services/api';
 import CKEditor from '@ckeditor/ckeditor5-vue';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import '@/styles/MainColorSchema.css'
 
 export default {
   name: "ActivityModal",
@@ -249,6 +250,7 @@ export default {
   }
 };
 </script>
+
 <style scoped>
 .modal-overlay {
   position: fixed;
@@ -262,7 +264,7 @@ export default {
 }
 
 .modal-content {
-  background-color: white;
+  background-color: var(--background-light);
   padding: 40px;
   border-radius: 10px;
   display: flex;
@@ -306,7 +308,7 @@ export default {
   padding: 10px;
   margin-block-start: 5px;
   box-sizing: border-box;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
 }
 
@@ -314,7 +316,7 @@ export default {
   max-block-size: 300px; 
   overflow-y: auto; 
   margin-block-end: 20px;
-  border: 1px solid #ccc; 
+  border: 1px solid var(--border-color); 
   padding: 10px; 
 }
 
@@ -326,8 +328,8 @@ export default {
 
 .add-time-slot-button,
 .submit-button {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--button-text-color);
   padding: 12px 20px;
   border: none;
   border-radius: 5px;
@@ -336,11 +338,11 @@ export default {
 
 .add-time-slot-button:hover,
 .submit-button:hover {
-  background-color: #0056b3;
+  background-color: var(--hover-color);
 }
 
 .submit-button {
-  background-color: #4CAF50;
+  background-color: var(--success-color);
   padding: 16px 24px;
   margin-block-start: 10px;
   align-self: flex-start;

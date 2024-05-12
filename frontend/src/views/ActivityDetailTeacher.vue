@@ -60,6 +60,7 @@
 <script>
 import API from '@/services/api';
 import TeacherNavbar from '@/components/TeacherNavbar.vue';
+import '@/styles/MainColorSchema.css'
 
 export default {
   name: 'ActivityDetailTeacher',
@@ -179,8 +180,6 @@ export default {
 };
 </script>
 
-
-
 <style scoped>
 .activity-detail-container {
   display: flex;
@@ -199,8 +198,8 @@ export default {
 }
 
 .activity-detail-tabs .tab-button {
-  background-color: #e7e7e7;
-  color: black;
+  background-color: var(--hover-light);
+  color: var(--text-primary);
   border: none;
   padding: 15px 30px; /* Increased size for easier interaction */
   margin: 0 10px;
@@ -210,19 +209,19 @@ export default {
 }
 
 .activity-detail-tabs .tab-button:hover {
-  background-color: #ddd; /* Subtle hover effect */
+  background-color: var(--hover-color); /* Subtle hover effect */
 }
 
 .activity-detail-tabs .tab-button.active-tab {
-  background-color: #007BFF;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--button-text-color);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Added shadow for active state */
 }
 
 .tab-content {
   flex-grow: 1; /* Allow the content area to take up the rest of the space */
   padding: 20px;
-  border-block-start: 1px solid #ccc;
+  border-block-start: 1px solid var(--border-color);
 }
 
 .session-list, .participant-list {
@@ -232,8 +231,8 @@ export default {
 
 .session-header, .participant-item {
   padding: 10px;
-  background-color: #f7f7f7;
-  border: 1px solid #ccc;
+  background-color: var(--background-light);
+  border: 1px solid var(--border-color);
   margin-block-end: 5px;
 }
 
@@ -244,8 +243,8 @@ export default {
 }
 
 .mark-attendance-btn, .reschedule-btn {
-  background-color: #4CAF50;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--button-text-color);
   padding: 5px 10px;
   border: none;
   border-radius: 4px;
@@ -259,7 +258,7 @@ export default {
   inset-block-start: 0;
   inline-size: 100%;
   block-size: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: var(--modal-background);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -268,7 +267,7 @@ export default {
 }
 
 .modal-content {
-  background: white;
+  background: var(--modal-content-bg);
   padding: 30px;
   border-radius: 8px;
   inline-size: 90%;
@@ -297,13 +296,13 @@ input[type="date"],
 input[type="time"] {
   inline-size: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
 }
 
 .submit-btn {
-  background-color: #4CAF50;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--button-text-color);
   padding: 10px 20px;
   border: none;
   inline-size: 100%;
@@ -321,3 +320,4 @@ input[type="time"] {
   to { transform: translateY(0); opacity: 1; }
 }
 </style>
+

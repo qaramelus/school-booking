@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import '@/styles/MainColorSchema.css'
 export default {
   props: {
     type: String,
@@ -25,7 +26,8 @@ export default {
   inline-size: 100%;
   padding: 10px;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   margin: 5px 0;
 }
 </style>
+

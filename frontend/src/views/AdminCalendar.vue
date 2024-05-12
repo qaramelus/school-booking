@@ -21,6 +21,7 @@
   import API from '@/services/api';
   import AdminNavbar from '@/components/AdminNavbar.vue';
   import { useRouter } from 'vue-router';
+  import '@/styles/MainColorSchema.css'
 
   
   export default {

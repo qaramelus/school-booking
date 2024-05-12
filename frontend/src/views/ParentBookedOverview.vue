@@ -32,6 +32,7 @@
 import API from '@/services/api';
 import ParentNavbar from '@/components/ParentNavbar.vue';
 import CardComponent from '@/components/CardComponent.vue';
+import '@/styles/MainColorSchema.css'
 
 export default {
   name: "ParentBookedOverview",
@@ -128,18 +129,17 @@ export default {
 };
 </script>
 
-  
-  <style scoped>
-  /* Add your styles here, ensuring consistency with ParentOverview.vue for the card elements */
-  .activity-cards {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-  
-  .accordion {
-  background-color: #eee;
-  color: #444;
+<style scoped>
+/* Add your styles here, ensuring consistency with ParentOverview.vue for the card elements */
+.activity-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.accordion {
+  background-color: var(--background-light);
+  color: var(--text-primary);
   cursor: pointer;
   padding: 18px;
   inline-size: 100%;
@@ -151,28 +151,22 @@ export default {
   margin-block-start: 10px;
 }
 
-.active, .accordion:hover {
-  background-color: #ccc; 
+.active,
+.accordion:hover {
+  background-color: var(--hover-light);
 }
 
 .panel {
   padding: 0 18px;
-  background-color: white;
+  background-color: var(--background-light);
   max-block-size: 0;
   overflow: hidden;
   transition: max-height 0.2s ease-out;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-block-start: none;
 }
 
 .child-activities-section {
   margin-block-end: 10px;
 }
-
-.activity-cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-  </style>
-  
+</style>

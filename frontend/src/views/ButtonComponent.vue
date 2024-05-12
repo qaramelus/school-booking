@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import '@/styles/MainColorSchema.css'
 export default {
   props: {
     type: {
@@ -31,9 +32,10 @@ export default {
 }
 
 .btn-primary {
-  background-color: #4CAF50;
-  color: #4CAF50;
+  background-color: var(--primary-color);
+  color: var(--button-text-color);
 }
 
 /* Add more button styles as needed */
 </style>
+

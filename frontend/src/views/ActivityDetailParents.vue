@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import '@/styles/MainColorSchema.css'
 import API from '@/services/api';
 import ParentNavbar from '@/components/ParentNavbar.vue';
 
@@ -117,37 +118,37 @@ export default {
 };
 </script>
 
-
-
 <style scoped>
 .activity-detail-wrapper {
   display: flex;
   flex-direction: column;
+  background-color: var(--background-light); /* Applied global background color */
 }
 
 .activity-tabs {
   display: flex;
   justify-content: space-around;
-  background-color: #f5f5f5;
+  background-color: var(--background-light);
   padding: 10px 0;
+  border-block-end: 1px solid var(--border-color); /* Added subtle border */
 }
 
 .about-section, .schedule-section, .teachers-section, .loading {
-  color: #333;
+  color: var(--text-primary);
   padding: 15px;
-  background: #fff;
+  background: var(--background-light);
   border-radius: 8px;
   margin: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for depth */
 }
 
 ul {
-  list-style-type: none;
+  list-style-type: none; /* Removing list style */
   padding: 0;
 }
 
 li.session-item {
-  background: #e9ecef;
+  background: var(--hover-light);
   margin: 5px 0;
   padding: 10px;
   border-radius: 5px;
@@ -157,28 +158,29 @@ li.session-item {
 }
 
 .absent-button, .present-button {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--button-text-color);
   border: none;
   padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s ease; /* Smooth transition effect */
 }
 
 .absent-button:hover {
-  background-color: #0056b3;
+  background-color: var(--hover-dark); /* Darker blue for hover */
 }
 
 .present-button {
-  background-color: #28a745;
+  background-color: var(--button-active-bg); /* Using salmon color for presence indication */
 }
 
 .present-button:hover {
-  background-color: #218838;
+  background-color: var(--hover-color); /* Lighter green for hover */
 }
 
 .active {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--button-text-color);
 }
 </style>

@@ -1,85 +1,86 @@
 <template>
-      <admin-navbar :userId="currentUserId" />
-    <div class="admin-location-overview">
-      <h1>Location Administration</h1>
-      <div class="controls">
-        <button class="add-btn" @click="showAddLocationModal = true">Add Location</button>
-  
-        <!-- Add Location Modal -->
-        <div v-if="showAddLocationModal" class="modal">
-          <div class="modal-content">
-            <span class="close" @click="showAddLocationModal = false">&times;</span>
-            <h2>Add Location</h2>
-            <form @submit.prevent="addLocation">
-              <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" id="name" v-model="newLocation.name" required>
-              </div>
-              <div class="form-group">
-                <label for="address">Address</label>
-                <input type="text" id="address" v-model="newLocation.address" required>
-              </div>
-              <div class="form-group">
-                <label for="capacity">Capacity</label>
-                <input type="number" id="capacity" v-model="newLocation.capacity" required>
-              </div>
-              <button type="submit" class="submit-btn">Add Location</button>
-            </form>
-          </div>
+  <admin-navbar :userId="currentUserId" />
+  <div class="admin-location-overview">
+    <h1>Location Administration</h1>
+    <div class="controls">
+      <button class="add-btn" @click="showAddLocationModal = true">Add Location</button>
+
+      <!-- Add Location Modal -->
+      <div v-if="showAddLocationModal" class="modal">
+        <div class="modal-content">
+          <span class="close" @click="showAddLocationModal = false">&times;</span>
+          <h2>Add Location</h2>
+          <form @submit.prevent="addLocation">
+            <div class="form-group">
+              <label for="name">Name</label>
+              <input type="text" id="name" v-model="newLocation.name" required>
+            </div>
+            <div class="form-group">
+              <label for="address">Address</label>
+              <input type="text" id="address" v-model="newLocation.address" required>
+            </div>
+            <div class="form-group">
+              <label for="capacity">Capacity</label>
+              <input type="number" id="capacity" v-model="newLocation.capacity" required>
+            </div>
+            <button type="submit" class="submit-btn">Add Location</button>
+          </form>
         </div>
       </div>
-  
-      <table>
-        <thead>
-          <tr>
-            <th @click="sort('name')">Name {{ currentSort === 'name' && currentSortDir === 'asc' ? '▲' : '▼' }}</th>
-            <th @click="sort('address')">Address {{ currentSort === 'address' && currentSortDir === 'asc' ? '▲' : '▼' }}</th>
-            <th @click="sort('capacity')">Capacity {{ currentSort === 'capacity' && currentSortDir === 'asc' ? '▲' : '▼' }}</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="location in locations" :key="location._id">
-            <td>{{ location.name }}</td>
-            <td>{{ location.address }}</td>
-            <td>{{ location.capacity }}</td>
-            <td>
-              <q-icon name="edit" @click.stop="openEditLocationModal(location)" class="edit-icon"></q-icon>
-              <q-icon name="delete" @click.stop="deleteLocation(location._id)" class="delete-icon"></q-icon>
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  
-    <!-- Edit Location Modal -->
-    <div v-if="showEditLocationModal" class="modal">
-      <div class="modal-content">
-        <span class="close" @click="showEditLocationModal = false">&times;</span>
-        <h2>Edit Location</h2>
-        <form @submit.prevent="updateLocation">
-          <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" id="name" v-model="editedLocation.name" required>
-          </div>
-          <div class="form-group">
-            <label for="address">Address</label>
-            <input type="text" id="address" v-model="editedLocation.address" required>
-          </div>
-          <div class="form-group">
-            <label for="capacity">Capacity</label>
-            <input type="number" id="capacity" v-model="editedLocation.capacity" required>
-          </div>
-          <button type="submit" class="submit-btn">Update Location</button>
-        </form>
-      </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th @click="sort('name')">Name {{ currentSort === 'name' && currentSortDir === 'asc' ? '▲' : '▼' }}</th>
+          <th @click="sort('address')">Address {{ currentSort === 'address' && currentSortDir === 'asc' ? '▲' : '▼' }}</th>
+          <th @click="sort('capacity')">Capacity {{ currentSort === 'capacity' && currentSortDir === 'asc' ? '▲' : '▼' }}</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="location in locations" :key="location._id">
+          <td>{{ location.name }}</td>
+          <td>{{ location.address }}</td>
+          <td>{{ location.capacity }}</td>
+          <td>
+            <q-icon name="edit" @click.stop="openEditLocationModal(location)" class="edit-icon"></q-icon>
+            <q-icon name="delete" @click.stop="deleteLocation(location._id)" class="delete-icon"></q-icon>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Edit Location Modal -->
+  <div v-if="showEditLocationModal" class="modal">
+    <div class="modal-content">
+      <span class="close" @click="showEditLocationModal = false">&times;</span>
+      <h2>Edit Location</h2>
+      <form @submit.prevent="updateLocation">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" v-model="editedLocation.name" required>
+        </div>
+        <div class="form-group">
+          <label for="address">Address</label>
+          <input type="text" id="address" v-model="editedLocation.address" required>
+        </div>
+        <div class="form-group">
+          <label for="capacity">Capacity</label>
+          <input type="number" id="capacity" v-model="editedLocation.capacity" required>
+        </div>
+        <button type="submit" class="submit-btn">Update Location</button>
+      </form>
     </div>
+  </div>
 </template>
 
 <script>
 import AdminNavbar from '@/components/AdminNavbar.vue';
 import { QIcon } from 'quasar';
 import API from '@/services/api';
+import '@/styles/MainColorSchema.css'
 
 export default {
   name: "AdminLocationOverview",
@@ -176,8 +177,8 @@ export default {
 
 <style scoped>
 .add-btn {
-  background-color: #2c3e50;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--background-light);
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
@@ -185,7 +186,7 @@ export default {
   margin-inline-end: 10px;
 }
 .add-btn:hover {
-  background-color: #1a252f;
+  background-color: var(--hover-dark);
 }
 .admin-location-overview {
   margin: 0 auto;
@@ -206,14 +207,14 @@ table {
 th, td {
   padding: 12px;
   text-align: start;
-  border-block-end: 1px solid #ddd;
+  border-block-end: 1px solid var(--border-color);
 }
 tr:hover {
-  background-color: #f5f5f5;
+  background-color: var(--hover-color);
 }
 th {
-  background-color: #2c3e50;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--background-light);
   cursor: pointer;
 }
 .modal {
@@ -225,13 +226,13 @@ th {
   inline-size: 100%;
   block-size: 100%;
   overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: var(--modal-background);
 }
 .modal-content {
-  background-color: #fefefe;
+  background-color: var(--modal-content-bg);
   margin: 10% auto;
   padding: 20px;
-  border: 1px solid #888;
+  border: 1px solid var(--border-color);
   inline-size: 80%;
   max-inline-size: 500px;
   border-radius: 5px;
@@ -245,7 +246,7 @@ th {
 }
 .close:hover,
 .close:focus {
-  color: black;
+  color: var(--text-primary);
   text-decoration: none;
   cursor: pointer;
 }
@@ -266,8 +267,8 @@ input[type="text"], input[type="email"], input[type="password"], input[type="num
   box-sizing: border-box;
 }
 .submit-btn {
-  background-color: #4CAF50;
-  color: white;
+  background-color: var(--button-active-bg);
+  color: var(--button-text-color);
   padding: 12px 20px;
   margin: 8px 0;
   border: none;
@@ -276,7 +277,7 @@ input[type="text"], input[type="email"], input[type="password"], input[type="num
   inline-size: 100%;
 }
 .submit-btn:hover {
-  background-color: #45a049;
+  background-color: var(--hover-dark);
 }
 .edit-icon, .delete-icon {
   inline-size: 16px;

@@ -48,6 +48,7 @@
 import API from '@/services/api';
 import AdminNavbar from '@/components/AdminNavbar.vue';
 import ChildUserUpdateForm from '@/components/ChildUserUpdateForm.vue';
+import '@/styles/MainColorSchema.css'
 
 export default {
   name: "UserDetail",
@@ -111,7 +112,7 @@ export default {
 
 .user-detail {
   margin-block-start: 40px;
-  background-color: #fff;
+  background-color: var(--background-light);
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 30px;
@@ -138,7 +139,7 @@ ul {
 }
 
 ul li {
-  background-color: #f5f5f5;
+  background-color: var(--hover-light);
   border-radius: 4px;
   margin-block-end: 10px;
   padding: 15px;
@@ -154,14 +155,14 @@ form input[type="text"], form input[type="email"], form input[type="password"] {
   inline-size: 100%;
   max-inline-size: 300px;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   margin-block-end: 15px;
 }
 
 form button[type="submit"] {
-  background-color: #007bff;
-  color: #fff;
+  background-color: var(--primary-color);
+  color: var(--button-text-color);
   border: none;
   border-radius: 4px;
   padding: 10px 20px;
@@ -169,6 +170,6 @@ form button[type="submit"] {
 }
 
 form button[type="submit"]:hover {
-  background-color: #0056b3;
+  background-color: var(--hover-dark);
 }
 </style>

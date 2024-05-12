@@ -90,6 +90,7 @@
 
 <script>
 import API from '@/services/api';
+import '@/styles/MainColorSchema.css'
 import AdminNavbar from '@/components/AdminNavbar.vue';
 import ParentNavbar from '@/components/ParentNavbar.vue';
 
@@ -274,8 +275,8 @@ export default {
   font-size: 16px;
   padding: 12px 24px;
   border-radius: 8px;
-  background-color: #4CAF50;
-  color: white;
+  background-color: var(--button-active-bg);
+  color: var(--button-text-color);
   border: none;
   cursor: pointer;
   outline: none;
@@ -285,50 +286,50 @@ export default {
 }
 
 .cancel-button, .waitlisted-status {
-  background-color: #FFA07A; /* Light salmon for cancel/waitlist */
+  background-color: var(--button-active-bg); /* Using variable for active button background */
 }
 
 .book-activity-button:hover, .cancel-button:hover {
-  background-color: #367c39; /* Darker shade for hover state */
+  background-color: var(--hover-dark); /* Darker shade for hover state */
 }
 
 .activity-detail-container {
   display: flex;
   flex-direction: column;
-  max-block-size: 90vh; /* Adjusted for better responsive behavior */
+  max-block-size: 90vh;
   padding: 20px;
-  background: #ffffff; /* Better contrast */
-  border: 1px solid #dddddd; /* Subtle borders for depth */
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Soft shadow for pop */
+  background: var(--background-light);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .activity-detail-tabs {
   display: flex;
   justify-content: space-around;
-  background-color: #f5f5f5;
+  background-color: var(--background-light);
   padding: 10px 0;
   position: sticky;
   inset-block-start: 0;
   z-index: 1000;
-  border-block-end: 2px solid #cccccc; /* Adds a line to distinguish from content */
+  border-block-end: 2px solid var(--border-color);
 }
 
 .activity-detail h1, .activity-detail h2, .activity-detail h3, .loading {
-  color: #333;
+  color: var(--text-primary);
 }
 ul {
   list-style-type: none;
   padding: 0;
 }
 li {
-  background: #e9ecef;
+  background: var(--hover-light);
   margin: 5px 0;
   padding: 10px;
   border-radius: 5px;
 }
 .remove-button {
-  background-color: #ff4d4d;
-  color: white;
+  background-color: var(--hover-dark);
+  color: var(--button-text-color);
   border: none;
   padding: 5px 10px;
   border-radius: 4px;
@@ -336,7 +337,7 @@ li {
   margin-inline-start: auto;
 }
 .remove-button:hover {
-  background-color: #ff3333;
+  background-color: var(--hover-dark);
 }
 .tab-content {
   overflow-y: auto;
@@ -349,8 +350,8 @@ li {
   align-items: center;
 }
 .active-tab {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--button-text-color);
 }
 .tab-content {
   margin-block-start: 20px;
@@ -361,7 +362,7 @@ li {
   inset-block-start: 0;
   inline-size: 100%;
   block-size: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--modal-background);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -369,7 +370,7 @@ li {
 }
 
 .modal-content {
-  background: white;
+  background: var(--modal-content-bg);
   padding: 20px;
   border-radius: 8px;
   inline-size: 90%;
@@ -388,7 +389,7 @@ li {
 
 h3 {
   margin-block-start: 0;
-  color: #333;
+  color: var(--text-primary);
   font-size: 22px;
 }
 
@@ -397,15 +398,15 @@ h3 {
   padding: 8px;
   margin-block-start: 20px;
   margin-block-end: 20px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
-  background-color: white;
+  background-color: var(--background-light);
 }
 
 .book-button {
   inline-size: 100%;
-  background-color: #4CAF50;
-  color: white;
+  background-color: var(--button-active-bg);
+  color: var(--button-text-color);
   border: none;
   padding: 10px;
   font-size: 16px;
@@ -415,7 +416,7 @@ h3 {
 }
 
 .book-button:hover {
-  background-color: #367C39;
+  background-color: var(--hover-dark);
 }
 
 @keyframes fadeIn {
@@ -424,4 +425,5 @@ h3 {
 }
 
 </style>
+
 

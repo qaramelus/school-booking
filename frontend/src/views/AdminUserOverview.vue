@@ -417,64 +417,72 @@ export default {
 </script>
 
 <style scoped>
-.admin-login {
+.admin-user-overview {
+  max-inline-size: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: bold;
+  margin-block-end: 20px;
+}
+
+.controls {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  height: 100vh;
+  margin-block-end: 20px;
 }
 
-.login-container {
-  background-color: var(--background-light);
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-}
-
-.logo {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.logo img {
-  max-width: 100px;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  color: var(--text-primary);
-}
-
-.form-group input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-}
-
-.submit-btn {
-  width: 100%;
-  padding: 10px;
+.add-btn {
   background-color: var(--primary-color);
-  border: none;
-  border-radius: 5px;
   color: var(--button-text-color);
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.submit-btn:hover {
+.add-btn:hover {
   background-color: var(--hover-dark);
 }
 
-.error-message {
-  color: red;
-  margin-top: 10px;
+.filter-section select {
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  background-color: var(--primary-color);
+  color: var(--button-text-color);
+  padding: 10px;
+  text-align: left;
+}
+
+tbody tr:nth-child(even) {
+  background-color: var(--hover-light);
+}
+
+tbody tr:hover {
+  background-color: var(--hover-dark);
+}
+
+td, th {
+  padding: 10px;
+}
+
+.edit-icon, .delete-icon {
+  cursor: pointer;
+  margin-right: 5px;
 }
 </style>
+
 

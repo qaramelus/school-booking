@@ -27,6 +27,7 @@
 import InputComponent from './InputComponent.vue';
 import ButtonComponent from './ButtonComponent.vue';
 import AuthService from '../services/authService';
+import '@/styles/MainColorSchema.css'
 
 export default {
   components: {
@@ -39,9 +40,8 @@ export default {
       password: '',
       errorMessage: '',
       languages: ['en', 'de', 'lv'],
-      // Define currentLang and initialize it with the initial locale
       currentLang: this.$i18n.locale,
-      isAdmin: false // Initialize isAdmin property
+      isAdmin: false 
     };
   },
   methods: {
@@ -87,8 +87,8 @@ export default {
   margin: 5% auto;
   padding: 20px;
   border-radius: 10px;
-  background-color: #ffffff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: var(--background-light);
+  box-shadow: 0 4px 6px var(--hover-dark);
 }
 
 .language-switcher {
@@ -98,8 +98,9 @@ export default {
 }
 
 .language-switcher button {
-  background-color: #ffffff;
-  border: 2px solid #d1d1d1;
+  background-color: var(--background-light);
+  color: var(--button-text); /* Updated for better readability */
+  border: 2px solid var(--border-color);
   border-radius: 20px;
   padding: 5px 15px;
   margin: 0 10px;
@@ -108,13 +109,14 @@ export default {
 }
 
 .language-switcher button:hover {
-  background-color: #f0f0f0;
+  background-color: var(--hover-color); /* Updated to a more distinct hover color */
+  color: var(--button-text-color); /* Ensuring text stays readable on hover */
   transform: translateY(-2px);
 }
 
 input-component, button-component {
   margin: 10px 0;
-  width: 200%;
+  width: 100%;
 }
 
 .error-message {
@@ -122,8 +124,9 @@ input-component, button-component {
 }
 
 h1 {
-  color: #333;
+  color: var(--text-primary);
   font-size: 24px;
   margin-bottom: 20px;
 }
 </style>
+

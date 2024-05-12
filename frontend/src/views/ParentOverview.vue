@@ -61,6 +61,7 @@
 import API from '@/services/api';
 import ParentNavbar from '@/components/ParentNavbar.vue';
 import '@/styles/overview-style.css';
+import '@/styles/MainColorSchema.css'
 
 export default {
   name: "ParentOverview",

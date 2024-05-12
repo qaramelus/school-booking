@@ -1,0 +1,36 @@
+/* MainColorSchema.css */
+
+:root {
+    --primary-color: #5C67F2; /* A modern shade of soft blue */
+    --text-primary: #363636; /* Darker gray for better readability */
+    --background-light: #ffffff; /* Pure white background for a clean, modern look */
+    --border-color: #cccccc; /* Lighter gray for subtle borders */
+    --hover-light: rgba(100, 100, 255, 0.1); /* Soft light blue hover effect for subtlety */
+    --modal-background: rgba(50, 50, 50, 0.8); /* Darker for better focus on modal content */
+    --button-active-bg: #FFA07A; /* A light salmon color for active buttons */
+    --button-text-color: #ffffff; /* White for contrast on buttons */
+    --hover-color: #d2e1e3; /* Powder blue for distinct hover states */
+    --modal-content-bg: #fafafa; /* Off-white for modal backgrounds, softer than pure white */
+    --hover-dark: rgba(50, 50, 50, 0.2); /* Darker and less intense hover effect */
+    --link-hover-bg: #ddd; /* Light gray for link hover, less intrusive */
+    --button-text: #4A4A4A; /* Dark grey for better readability on light backgrounds */
+}
+
+body {
+    color: var(--text-primary);
+    background-color: var(--background-light);
+}
+
+button {
+    background-color: var(--button-active-bg);
+    color: var(--button-text-color);
+    border-radius: 5px; /* Adding border-radius for a more modern button look */
+    padding: 10px 20px; /* Standard padding for better button sizing */
+    font-weight: 500; /* Medium font weight for clearer button text */
+    transition: background-color 0.3s ease; /* Smooth transition for hover effects */
+}
+
+a:hover {
+    background-color: var(--link-hover-bg);
+    transition: background-color 0.3s ease; /* Ensures smooth color transition on hover */
+}

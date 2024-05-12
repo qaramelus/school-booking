@@ -1,5 +1,5 @@
 # Use a base image that is compatible with your architecture (ARM for M1)
-FROM node:14-alpine
+FROM node:18-alpine
 
 # Create app directory
 WORKDIR /usr/src/app

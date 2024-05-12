@@ -1,0 +1,25 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5001:5005"  
+    volumes:
+      - ./backend:/usr/src/app 
+    environment:
+      - NODE_ENV=production
+
+  frontend:
+    build: 
+      context: ./frontend
+      args:
+        - VUE_APP_API_BASE_URL
+    ports:
+      - "80:80"
+    environment:
+      - VUE_APP_API_BASE_URL=${VUE_APP_API_BASE_URL}
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/nginx.conf.template:/etc/nginx/conf.d/nginx.conf.template  
+      - ./frontend/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh  
+

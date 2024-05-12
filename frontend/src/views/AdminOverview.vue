@@ -171,8 +171,8 @@ export default {
   font-size: 16px;
   padding: 10px 20px;
   border-radius: 8px;
-  background-color: var(--button-active-bg); /* Use color variable */
-  color: var(--button-text-color); /* Use color variable */
+  background-color: var(--button-active-bg); 
+  color: var(--button-text-color); 
   border: none;
   cursor: pointer;
   outline: none;
@@ -190,15 +190,15 @@ export default {
   padding: 20px;
   box-sizing: border-box;
   position: relative;
-  border: 1px solid var(--border-color); /* Use color variable */
+  border: 1px solid var(--border-color); 
   border-radius: 8px;
-  background-color: var(--background-light); /* Use color variable */
+  background-color: var(--background-light); 
   cursor: pointer;
   transition: box-shadow 0.3s;
 }
 
 .activity-card:hover {
-  box-shadow: 0 2px 8px var(--hover-dark); /* Use color variable */
+  box-shadow: 0 2px 8px var(--hover-dark); 
 }
 
 .card-content {

@@ -1,7 +1,7 @@
-const { defineConfig } = require('@vue/cli-service');
+/* eslint-disable */
 const webpack = require('webpack');
 
-module.exports = defineConfig({
+module.exports = {
   outputDir: 'dist',  // Ensure this matches the Dockerfile COPY source directory
 
   transpileDependencies: [
@@ -39,4 +39,4 @@ module.exports = defineConfig({
       })
     ]
   }
-});
+};

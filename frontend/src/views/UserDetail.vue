@@ -30,16 +30,18 @@
       </div>
 
       <!-- Form to add a child -->
-      <div v-if="user.role === 'parent'">
-        <h2>Add Child</h2>
-        <form @submit.prevent="addChild">
-          <input type="text" v-model="newChild.username" placeholder="Username" required>
-          <input type="email" v-model="newChild.email" placeholder="Email" required>
-          <input type="password" v-model="newChild.password" placeholder="Password" required>
-          <input type="hidden" v-model="newChild.role" value="child">
-          <button type="submit">Add Child</button>
-        </form>
-      </div>
+        <div v-if="user.role === 'parent'">
+          <h2>Add Child</h2>
+          <form @submit.prevent="addChild">
+            <input type="text" v-model="newChild.firstName" placeholder="First Name" required>
+            <input type="text" v-model="newChild.lastName" placeholder="Last Name" required>
+            <input type="text" v-model="newChild.username" placeholder="Username" required>
+            <input type="email" v-model="newChild.email" placeholder="Email" required>
+            <input type="password" v-model="newChild.password" placeholder="Password" required>
+            <input type="hidden" v-model="newChild.role" value="child">
+            <button type="submit">Add Child</button>
+          </form>
+        </div>
     </div>
   </div>
 </template>
@@ -61,6 +63,8 @@ export default {
       currentUserId: '',
       user: {},
       newChild: {
+        firstName: '',
+        lastName: '',
         username: '',
         email: '',
         password: '',

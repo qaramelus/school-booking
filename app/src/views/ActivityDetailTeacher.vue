@@ -103,7 +103,7 @@ export default {
     },
     fetchSessionInfo() {
       const activityId = this.$route.params.activityId;
-      API.get(`http://localhost:5005/api/sessions/${activityId}/sessions-with-participants`)
+      API.get(`/sessions/${activityId}/sessions-with-participants`)
         .then(response => {
           this.sessionInfo = response.data.map(session => ({
             ...session,
@@ -130,7 +130,7 @@ export default {
         attended: status
       };
       const sessionId = session.sessionId;
-      API.post(`http://localhost:5005/api/attendance/${sessionId}/${childId}`, payload)
+      API.post(`/attendance/${sessionId}/${childId}`, payload)
         .then(() => {
           const participantIndex = this.sessionInfo[index].participants.findIndex(p => p.participantId === childId);
           if (participantIndex !== -1) {
@@ -165,7 +165,7 @@ export default {
         newEndTime
       };
 
-      API.patch(`http://localhost:5005/api/sessions/reschedule/${session.sessionId}`, payload)
+      API.patch(`/sessions/reschedule/${session.sessionId}`, payload)
         .then(() => {
           alert('Session rescheduled successfully.');
           this.showRescheduleModal = false;

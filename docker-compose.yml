@@ -1,25 +1,23 @@
+version: '3.8'
+
 services:
   backend:
-    build: ./backend
+    build: ./api
     ports:
-      - "5001:5005"  
+      - "5002:5005"  # Changed the host port to 5002
     volumes:
-      - ./backend:/usr/src/app 
+      - ./api:/usr/src/app
     environment:
       - NODE_ENV=production
 
   frontend:
     build: 
-      context: ./frontend
+      context: ./app
       args:
         - VUE_APP_API_BASE_URL
     ports:
       - "80:80"
     environment:
-      - VUE_APP_API_BASE_URL=${VUE_APP_API_BASE_URL}
+      - VUE_APP_API_BASE_URL=http://backend:5002
     depends_on:
       - backend
-    volumes:
-      - ./frontend/nginx.conf.template:/etc/nginx/conf.d/nginx.conf.template  
-      - ./frontend/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh  
-

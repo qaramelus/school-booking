@@ -47,7 +47,7 @@
       return;
     }
 
-    axios.get(`http://localhost:5005/api/users/${this.userId}/initials`, {
+    axios.get(`/users/${this.userId}/initials`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }

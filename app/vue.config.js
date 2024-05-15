@@ -2,7 +2,7 @@
 const webpack = require('webpack');
 
 module.exports = {
-  outputDir: 'dist',  // Ensure this matches the Dockerfile COPY source directory
+  outputDir: 'dist',
 
   transpileDependencies: [
     /@fullcalendar.*$/,
@@ -12,7 +12,7 @@ module.exports = {
   devServer: {
     proxy: {
       '/api': {
-        target: process.env.VUE_APP_API_BASE_URL || 'http://localhost:5005',  // Default local API URL
+        target: process.env.VUE_APP_API_BASE_URL || 'http://localhost:5005', 
         changeOrigin: true,
         pathRewrite: { '^/api': '' },
       },
@@ -29,6 +29,14 @@ module.exports = {
     quasar: {
       importStrategy: 'kebab',
       rtlSupport: true
+    }
+  },
+
+  css: {
+    loaderOptions: {
+      sass: {
+        additionalData: `@import "@/assets/styles/global.scss";`
+      }
     }
   },
 

@@ -1,4 +1,3 @@
-/* eslint-disable */
 const webpack = require('webpack');
 
 module.exports = {
@@ -12,7 +11,7 @@ module.exports = {
   devServer: {
     proxy: {
       '/api': {
-        target: process.env.VUE_APP_API_BASE_URL || 'http://localhost:5005', 
+        target: process.env.VUE_APP_API_BASE_URL || 'http://localhost:5005',
         changeOrigin: true,
         pathRewrite: { '^/api': '' },
       },
@@ -35,7 +34,7 @@ module.exports = {
   css: {
     loaderOptions: {
       sass: {
-        additionalData: `@import "@/assets/styles/global.scss";`
+        additionalData: `@import "@/styles/global.scss";`
       }
     }
   },
@@ -46,5 +45,7 @@ module.exports = {
         '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': JSON.stringify(true)
       })
     ]
-  }
+  },
+
+  publicPath: './'
 };

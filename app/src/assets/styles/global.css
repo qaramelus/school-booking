@@ -1,7 +1,7 @@
 /* Global styles */
 body {
     font-family: 'Arial', sans-serif;
-    margin: 0;
+    margin: 10;
     padding: 0;
     box-sizing: border-box;
   }
@@ -12,7 +12,7 @@ body {
   }
   
   .mt-20 {
-    margin-top: 20px;
+    margin-top: 60px;
   }
   
   /* Add more global styles and utility classes as needed */

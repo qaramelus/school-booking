@@ -1,20 +1,14 @@
-FROM node:lts-alpine AS build
-
-ENV NODE_ENV=production
+# Stage 1: Building the application
+FROM node:14 as build-stage
 WORKDIR /app
 COPY package*.json ./
-
-RUN apk update && \
-    apk upgrade --no-cache && \
-    apk add --no-cache git curl bash tar unzip && \
-    npm install
+RUN npm install
 COPY . .
 RUN npm run build
 
-# Production Stage
-FROM nginx:stable-alpine
-RUN rm -rf /etc/nginx/conf.d/*
+# Stage 2: Setting up the server
+FROM nginx:stable as production-stage
+COPY --from=build-stage /app/dist /usr/share/nginx/html
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
-COPY --from=build /app/dist /var/www/html/
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

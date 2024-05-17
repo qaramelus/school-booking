@@ -9,6 +9,7 @@ module.exports = {
   ],
 
   devServer: {
+    historyApiFallback: true,  // This is important for history mode routing
     proxy: {
       '/api': {
         target: process.env.VUE_APP_API_BASE_URL || 'http://localhost:5005',

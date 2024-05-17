@@ -79,16 +79,16 @@
     position: relative;
     display: inline-block;
     cursor: pointer;
-    align-items: center; /* Ensure alignment of all items */
+    align-items: center; 
   }
   
   .q-avatar {
-    margin-right: 8px; /* Space between avatar and dropdown icon */
-    background-color: #E0F7FA; /* Light blue background */
-    color: #333; /* Text color */
-    border-radius: 50%; /* Makes the avatar circular */
-    width: 40px; /* Sets the width of the avatar */
-    height: 40px; /* Sets the height of the avatar */
+    margin-inline-end: 8px;
+    background-color: #E0F7FA;
+    color: #333; 
+    border-radius: 50%; 
+    inline-size: 40px; 
+    block-size: 40px; 
     display: flex;
     justify-content: center;
     align-items: center;

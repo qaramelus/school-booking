@@ -257,7 +257,7 @@ export default {
 
 <style scoped>
 .admin-overview {
-  max-width: 800px;
+  max-inline-size: 800px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -265,7 +265,7 @@ export default {
 h1 {
   font-size: 28px;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-block-end: 20px;
   text-align: center;
 }
 
@@ -273,7 +273,7 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-block-end: 20px;
 }
 
 .add-btn {
@@ -296,7 +296,7 @@ h1 {
 }
 
 table {
-  width: 100%;
+  inline-size: 100%;
   border-collapse: collapse;
 }
 
@@ -321,6 +321,6 @@ td, th {
 
 .edit-icon, .delete-icon {
   cursor: pointer;
-  margin-right: 5px;
+  margin-inline-end: 5px;
 }
 </style>

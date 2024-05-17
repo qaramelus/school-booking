@@ -364,7 +364,7 @@ export default {
   padding: 16px 24px;
   align-self: flex-start;
   position: sticky;
-  bottom: 10px;
+  inset-block-end: 10px;
 }
 
 .close {

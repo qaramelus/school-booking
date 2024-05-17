@@ -3,20 +3,20 @@
     <div class="login-left">
       <img :src="loginImage" alt="Login Image" class="login-image" />
       <div class="login-info">
-        <h2>Find the right activity</h2>
-        <p>Book from a wide range of activities.</p>
+        <h2>{{ $t("findActivity") }}</h2>
+        <p>{{ $t("bookActivity") }}</p>
       </div>
     </div>
     <div class="login-right">
       <div class="language-switcher">
         <button v-for="lang in languages" :key="lang" @click="changeLanguage(lang)">{{ lang }}</button>
       </div>
-      <h1>Welcome to your booking portal</h1>
+      <h1>{{ $t("welcome") }}</h1>
       <form @submit.prevent="login" class="login-form">
-        <input-component :key="currentLang" v-model="email" type="email" placeholder="User name or Email"></input-component>
-        <input-component :key="currentLang" v-model="password" type="password" placeholder="Password"></input-component>
+        <input-component :key="currentLang" v-model="email" type="email" :placeholder="$t('userNameEmail')"></input-component>
+        <input-component :key="currentLang" v-model="password" type="password" :placeholder="$t('password')"></input-component>
         <div class="login-actions">
-          <button-component type="submit" btn-type="primary">Sign in</button-component>
+          <button-component type="submit" btn-type="primary">{{ $t("signIn") }}</button-component>
         </div>
       </form>
       <p v-if="errorMessage" class="error-message">{{ $t("invalidCredentials") }}</p>
@@ -25,9 +25,9 @@
   <div v-if="isAdmin" class="admin-section">
     <h2>{{ $t("createAdmin") }}</h2>
     <form @submit.prevent="createAdmin" class="admin-form">
-      <input-component v-model="newAdmin.username" placeholder="Username"></input-component>
-      <input-component v-model="newAdmin.email" type="email" placeholder="Email"></input-component>
-      <input-component v-model="newAdmin.password" type="password" placeholder="Password"></input-component>
+      <input-component v-model="newAdmin.username" :placeholder="$t('username')"></input-component>
+      <input-component v-model="newAdmin.email" type="email" :placeholder="$t('email')"></input-component>
+      <input-component v-model="newAdmin.password" type="password" :placeholder="$t('password')"></input-component>
       <button-component btn-type="secondary">{{ $t("create") }}</button-component>
     </form>
   </div>
@@ -92,7 +92,7 @@ export default {
 <style scoped>
 .login-container {
   display: flex;
-  max-width: 800px;
+  max-inline-size: 800px;
   margin: 5% auto;
   border-radius: 15px;
   overflow: hidden;
@@ -110,18 +110,20 @@ export default {
 }
 
 .login-image {
-  max-width: 100%;
+  max-inline-size: 100%;
   border-radius: 10px;
 }
 
 .login-info {
   text-align: center;
-  margin-top: 20px;
+  margin-block-start: 20px;
 }
 
 .login-info h2 {
   font-size: 20px;
   color: #333;
+  margin-block-end: 5px; /* Reduce the margin-bottom */
+  line-height: 1.2; /* Adjust the line height */
 }
 
 .login-info p {
@@ -141,7 +143,7 @@ export default {
 .language-switcher {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 20px;
+  margin-block-end: 20px;
 }
 
 .language-switcher button {
@@ -165,12 +167,18 @@ export default {
 h1 {
   color: var(--text-primary);
   font-size: 24px;
-  margin-bottom: 20px;
+  margin-block-end: 10px; /* Reduce the margin-bottom */
+  line-height: 1.2; /* Adjust the line height to make the lines closer together */
   text-align: center;
 }
 
+h2 {
+  margin-block-start: 0; /* Reduce the margin-top */
+  line-height: 1.2; /* Adjust the line height for h2 as well, if needed */
+}
+
 .login-form {
-  width: 100%;
+  inline-size: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -178,21 +186,21 @@ h1 {
 
 input-component, button-component {
   margin: 10px 0;
-  width: 100%;
+  inline-size: 100%;
 }
 
 button-component {
-  max-width: 150px;
+  max-inline-size: 150px;
 }
 
 .error-message {
   color: #ff6b6b;
-  margin-top: 10px;
+  margin-block-start: 10px;
 }
 
 .admin-section {
-  margin-top: 40px;
-  width: 100%;
+  margin-block-start: 40px;
+  inline-size: 100%;
 }
 
 .admin-form {

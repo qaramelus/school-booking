@@ -9,7 +9,7 @@
           dense
           :options="filterOptions"
           v-model="selectedFilter"
-          @change="handleFilterChange"
+          @update:model-value="handleFilterChange"
           label="Filter Activities"
         />
       </div>
@@ -23,27 +23,28 @@
     />
     <div class="activities">
       <div class="activity-cards">
-        <div
+        <CardComponent
           v-for="activity in activities"
           :key="activity._id"
-          class="activity-card"
           @click="goToActivityDetail(activity._id)"
         >
-          <div class="card-content">
-            <h3>{{ activity.name }}</h3>
-            <p v-html="activity.description"></p>
-            <p><strong>Start Date:</strong> {{ new Date(activity.startDate).toLocaleDateString() }}</p>
-            <p><strong>End Date:</strong> {{ new Date(activity.endDate).toLocaleDateString() }}</p>
-            <div v-for="(slot, index) in activity.timeSlots" :key="index">
-              <p><strong>{{ slot.dayOfWeek }}:</strong> {{ slot.startTime }} - {{ slot.endTime }}</p>
-              <p><strong>Location:</strong> {{ getLocationName(slot.location) }}</p>
+          <template v-slot>
+            <div class="card-content">
+              <h3>{{ activity.name }}</h3>
+              <p v-html="activity.description"></p>
+              <p><strong>Start Date:</strong> {{ new Date(activity.startDate).toLocaleDateString() }}</p>
+              <p><strong>End Date:</strong> {{ new Date(activity.endDate).toLocaleDateString() }}</p>
+              <div v-for="(slot, index) in activity.timeSlots" :key="index">
+                <p><strong>{{ slot.dayOfWeek }}:</strong> {{ slot.startTime }} - {{ slot.endTime }}</p>
+                <p><strong>Location:</strong> {{ getLocationName(slot.location) }}</p>
+              </div>
             </div>
-          </div>
-          <div class="card-icons">
+          </template>
+          <template v-slot:icons>
             <q-icon name="delete" class="delete-icon" @click.stop="confirmDelete(activity._id)" />
             <q-icon name="edit" class="edit-icon" @click.stop="editActivity(activity)" />
-          </div>
-        </div>
+          </template>
+        </CardComponent>
       </div>
     </div>
     <q-btn
@@ -64,6 +65,7 @@ import '@/styles/overview-style.css';
 import API from '@/services/api';
 import ActivityModal from '@/components/ActivityModal.vue';
 import AdminNavbar from '@/components/AdminNavbar.vue';
+import CardComponent from '@/components/CardComponent.vue';
 
 export default {
   name: "AdminOverview",
@@ -72,7 +74,8 @@ export default {
     ActivityModal,
     QIcon,
     QBtn,
-    QSelect
+    QSelect,
+    CardComponent
   },
   data() {
     return {
@@ -89,33 +92,39 @@ export default {
       ]
     };
   },
+  watch: {
+    selectedFilter(newFilter) {
+      this.fetchActivities(newFilter);
+    }
+  },
   methods: {
-    fetchActivities(type = 'all') {
-      let endpoint = '/activities/';
+    async fetchActivities(type = 'all') {
+      console.log("Fetching activities with filter:", type); // Debugging statement
+      let endpoint = '/activities';
       if (type === 'current') {
-        endpoint = '/activities/current/';
+        endpoint = '/activities/current';
       } else if (type === 'future') {
-        endpoint = '/activities/future/';
+        endpoint = '/activities/future';
       }
 
-      API.get(endpoint)
-        .then(response => {
-          this.activities = response.data.map(activity => ({
-            ...activity,
-            startDate: activity.startDate || new Date(),
-            endDate: activity.endDate || new Date(),
-            timeSlots: activity.timeSlots || []
-          }));
-        })
-        .catch(error => {
-          console.error(`There was an error fetching the ${type} activities:`, error);
-        });
+      try {
+        const response = await API.get(endpoint);
+        this.activities = response.data.map(activity => ({
+          ...activity,
+          startDate: activity.startDate || new Date(),
+          endDate: activity.endDate || new Date(),
+          timeSlots: activity.timeSlots || []
+        }));
+      } catch (error) {
+        console.error(`There was an error fetching the ${type} activities:`, error);
+      }
     },
-    handleFilterChange(event) {
-      this.fetchActivities(event);
+    handleFilterChange() {
+      console.log("Filter changed to:", this.selectedFilter); // Debugging statement
+      this.fetchActivities(this.selectedFilter);
     },
     handleActivityAdded() {
-      this.fetchActivities();
+      this.fetchActivities(this.selectedFilter);
       this.showModal = false;
       this.editingActivity = null;
     },
@@ -128,15 +137,14 @@ export default {
         this.deleteActivity(activityId);
       }
     },
-    deleteActivity(activityId) {
-      API.delete(`/activities/${activityId}`)
-        .then(() => {
-          this.activities = this.activities.filter(activity => activity._id !== activityId);
-          alert("Activity deleted successfully.");
-        })
-        .catch(error => {
-          console.error("There was an error deleting the activity:", error);
-        });
+    async deleteActivity(activityId) {
+      try {
+        await API.delete(`/activities/${activityId}`);
+        this.activities = this.activities.filter(activity => activity._id !== activityId);
+        alert("Activity deleted successfully.");
+      } catch (error) {
+        console.error("There was an error deleting the activity:", error);
+      }
     },
     editActivity(activity) {
       this.editingActivity = activity;
@@ -153,90 +161,73 @@ export default {
       const location = this.locations.find(loc => loc._id === locationId);
       return location ? location.name : 'Unknown'; // Return 'Unknown' if location not found
     },
-    fetchLocations() {
-      API.get('/locations')
-        .then(response => {
-          this.locations = response.data;
-        })
-        .catch(error => {
-          console.error('Error fetching locations:', error);
-        });
+    async fetchLocations() {
+      try {
+        const response = await API.get('/locations');
+        this.locations = response.data;
+      } catch (error) {
+        console.error('Error fetching locations:', error);
+      }
     },
     handleActivityUpdated() {
-      this.fetchActivities();
+      this.fetchActivities(this.selectedFilter);
     }
   },
-  created() {
-    this.fetchActivities();
-    this.fetchLocations();
+  async created() {
     this.currentUserId = localStorage.getItem('user-id');
+    await this.fetchActivities(this.selectedFilter);
+    await this.fetchLocations();
   }
 };
 </script>
 
 <style scoped>
 .admin-overview {
-    margin: 0 auto;
-    text-align: center;
-    max-inline-size: 90%;
-    padding: 20px;
+  margin: 0 auto;
+  text-align: center;
+  max-inline-size: 90%;
+  padding: 20px;
 }
 
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-bottom: 20px;
 }
 
 .button-container {
-    text-align: right;
+  text-align: right;
+}
+
+.activities {
+  inline-size: 100%;
 }
 
 .activity-cards {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  justify-content: center;
+  padding: 0 20px;
 }
 
-.activity-card {
-    flex-basis: calc(50% - 20px);
-    margin: 10px;
-    padding: 20px;
-    box-sizing: border-box;
-    position: relative;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background-color: var(--background-light);
-    cursor: pointer;
-    transition: box-shadow 0.3s;
+@media (min-width: 768px) {
+  .activity-cards {
+    grid-template-columns: repeat(2, 1fr); /* Two cards side by side */
+  }
 }
 
-.activity-card:hover {
-    box-shadow: 0 2px 8px var(--hover-dark);
-}
-
-.card-content {
-    padding: 16px;
-}
-
-.card-icons {
-    position: absolute;
-    inset-block-start: 10px;
-    inset-inline-end: 10px;
-    display: flex;
-    gap: 10px;
-}
-
-.delete-icon, .edit-icon {
-    inline-size: 20px;
-    block-size: 20px;
-    cursor: pointer;
+@media (min-width: 1200px) {
+  .activity-cards {
+    grid-template-columns: repeat(3, 1fr); /* Three cards side by side */
+  }
 }
 
 .add-activity-button {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
 }
 </style>

@@ -11,8 +11,8 @@
 .filter-dropdown {
   display: flex;
   justify-content: flex-end; /* Align to the right */
-  width: 100%;
-  margin-bottom: 20px; /* Add spacing below filter dropdown */
+  inline-size: 100%;
+  margin-block-end: 20px; /* Add spacing below filter dropdown */
 }
 
 .filter-dropdown select {
@@ -39,13 +39,13 @@
   padding: 0 20px;
 }
 
-@media (min-width: 768px) {
+@media (min-inline-size: 768px) {
   .activity-cards {
       grid-template-columns: repeat(2, 1fr); /* Two cards side by side */
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-inline-size: 1200px) {
   .activity-cards {
       grid-template-columns: repeat(3, 1fr); /* Three cards side by side */
   }
@@ -128,8 +128,8 @@
 
 .add-activity-button {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  inset-block-end: 20px;
+  inset-inline-end: 20px;
   font-size: 16px;
   padding: 15px 30px;
   border-radius: 50px;

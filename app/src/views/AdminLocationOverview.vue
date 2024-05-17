@@ -177,7 +177,7 @@ export default {
 
 <style scoped>
 .admin-overview {
-  max-width: 800px;
+  max-inline-size: 800px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -185,7 +185,7 @@ export default {
 h1 {
   font-size: 28px;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-block-end: 20px;
   text-align: center;
 }
 
@@ -193,7 +193,7 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-block-end: 20px;
 }
 
 .add-btn {
@@ -210,7 +210,7 @@ h1 {
 }
 
 table {
-  width: 100%;
+  inline-size: 100%;
   border-collapse: collapse;
 }
 
@@ -235,17 +235,17 @@ td, th {
 
 .edit-icon, .delete-icon {
   cursor: pointer;
-  margin-right: 5px;
+  margin-inline-end: 5px;
 }
 
 .modal {
   display: block;
   position: fixed;
   z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  inset-inline-start: 0;
+  inset-block-start: 0;
+  inline-size: 100%;
+  block-size: 100%;
   overflow: auto;
   background-color: var(--modal-background);
 }
@@ -255,15 +255,15 @@ td, th {
   margin: 10% auto;
   padding: 20px;
   border: 1px solid var(--border-color);
-  width: 80%;
-  max-width: 500px;
+  inline-size: 80%;
+  max-inline-size: 500px;
   border-radius: 5px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .close {
   color: #aaa;
-  float: right;
+  float: inline-end;
   font-size: 28px;
   font-weight: bold;
 }
@@ -276,16 +276,16 @@ td, th {
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-block-end: 20px;
 }
 
 label {
   display: block;
-  margin-bottom: 5px;
+  margin-block-end: 5px;
 }
 
 input[type="text"], input[type="number"] {
-  width: 100%;
+  inline-size: 100%;
   padding: 8px;
   margin: 8px 0;
   display: inline-block;
@@ -302,7 +302,7 @@ input[type="text"], input[type="number"] {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  width: 100%;
+  inline-size: 100%;
 }
 
 .submit-btn:hover {
@@ -310,9 +310,9 @@ input[type="text"], input[type="number"] {
 }
 
 .edit-icon, .delete-icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 10px;
+  inline-size: 16px;
+  block-size: 16px;
+  margin-inline-end: 10px;
   cursor: pointer;
   vertical-align: middle;
 }

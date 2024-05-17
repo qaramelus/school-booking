@@ -1,4 +1,3 @@
-// ActicityBasicOperationsController.js
 const activityService = require('../services/activityService');
 
 exports.createActivity = async (req, res, next) => {

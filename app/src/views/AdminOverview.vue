@@ -4,11 +4,14 @@
     <div class="header">
       <h2>Activities</h2>
       <div class="button-container filter-dropdown">
-        <select @change="handleFilterChange">
-          <option value="all">All Activities</option>
-          <option value="current">Current Activities</option>
-          <option value="future">Upcoming Activities</option>
-        </select>
+        <q-select
+          outlined
+          dense
+          :options="filterOptions"
+          v-model="selectedFilter"
+          @change="handleFilterChange"
+          label="Filter Activities"
+        />
       </div>
     </div>
     <ActivityModal
@@ -43,11 +46,19 @@
         </div>
       </div>
     </div>
-    <button class="add-activity-button" @click="prepareNewActivity">Add Activity</button>
+    <q-btn
+      label="Add Activity"
+      color="primary"
+      class="add-activity-button"
+      @click="prepareNewActivity"
+      icon="add"
+      push
+    />
   </div>
 </template>
 
 <script>
+import { QIcon, QBtn, QSelect } from 'quasar';
 import '@/styles/MainColorSchema.css';
 import '@/styles/overview-style.css';
 import API from '@/services/api';
@@ -58,7 +69,10 @@ export default {
   name: "AdminOverview",
   components: {
     AdminNavbar,
-    ActivityModal
+    ActivityModal,
+    QIcon,
+    QBtn,
+    QSelect
   },
   data() {
     return {
@@ -66,12 +80,18 @@ export default {
       showModal: false,
       editingActivity: null,
       locations: [],
-      currentUserId: ''  
+      currentUserId: '',
+      selectedFilter: 'all',
+      filterOptions: [
+        { label: 'All Activities', value: 'all' },
+        { label: 'Current Activities', value: 'current' },
+        { label: 'Upcoming Activities', value: 'future' }
+      ]
     };
   },
   methods: {
     fetchActivities(type = 'all') {
-      let endpoint = '/activities/'; 
+      let endpoint = '/activities/';
       if (type === 'current') {
         endpoint = '/activities/current/';
       } else if (type === 'future') {
@@ -92,7 +112,7 @@ export default {
         });
     },
     handleFilterChange(event) {
-      this.fetchActivities(event.target.value);
+      this.fetchActivities(event);
     },
     handleActivityAdded() {
       this.fetchActivities();
@@ -173,27 +193,6 @@ export default {
     text-align: right;
 }
 
-.add-activity-button {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    font-size: 16px;
-    padding: 15px 30px;
-    border-radius: 50px;
-    background-color: var(--primary-color);
-    color: var(--button-text-color);
-    border: none;
-    cursor: pointer;
-    outline: none;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s, transform 0.3s;
-}
-
-.add-activity-button:hover {
-    background-color: var(--primary-color-dark); /* Add a darker primary color for hover state */
-    transform: scale(1.05);
-}
-
 .activity-cards {
     display: flex;
     flex-wrap: wrap;
@@ -233,5 +232,11 @@ export default {
     inline-size: 20px;
     block-size: 20px;
     cursor: pointer;
+}
+
+.add-activity-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
 }
 </style>

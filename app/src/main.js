@@ -2,8 +2,11 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
 import { createI18n } from 'vue-i18n';
-import './assets/styles/global.css';
-import { Quasar, QChip } from 'quasar';
+import { Quasar } from 'quasar';
+import '@quasar/extras/material-icons/material-icons.css'; 
+import 'quasar/dist/quasar.css';
+import './styles/quasar.scss'; // Import your custom Quasar styles
+import quasarUserOptions from './quasar-user-options';
 
 import en from '@/locales/en.json';
 import de from '@/locales/de.json';
@@ -11,8 +14,8 @@ import lv from '@/locales/lv.json';
 
 const i18n = createI18n({
   legacy: false,
-  locale: 'en', 
-  fallbackLocale: 'en', 
+  locale: 'en',
+  fallbackLocale: 'en',
   messages: {
     en,
     de,
@@ -21,14 +24,7 @@ const i18n = createI18n({
 });
 
 const app = createApp(App);
-
 app.use(router);
 app.use(i18n);
-
-app.use(Quasar, {
-  components: {
-    QChip
-  }
-});
-
+app.use(Quasar, quasarUserOptions);
 app.mount('#app');

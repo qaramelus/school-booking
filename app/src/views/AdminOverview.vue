@@ -1,4 +1,3 @@
-// adminOverview.vue
 <template>
   <admin-navbar :userId="currentUserId" />
   <div class="admin-overview">
@@ -38,8 +37,8 @@
             </div>
           </div>
           <div class="card-icons">
-            <img :src="trashIcon" class="delete-icon" @click.stop="confirmDelete(activity._id)">
-            <img :src="editIcon" class="edit-icon" @click.stop="editActivity(activity)">
+            <q-icon name="delete" class="delete-icon" @click.stop="confirmDelete(activity._id)" />
+            <q-icon name="edit" class="edit-icon" @click.stop="editActivity(activity)" />
           </div>
         </div>
       </div>
@@ -53,8 +52,6 @@ import '@/styles/MainColorSchema.css';
 import '@/styles/overview-style.css';
 import API from '@/services/api';
 import ActivityModal from '@/components/ActivityModal.vue';
-import trashIcon from '@/assets/trashicon.jpeg';
-import editIcon from '@/assets/editicon.png';
 import AdminNavbar from '@/components/AdminNavbar.vue';
 
 export default {
@@ -68,8 +65,6 @@ export default {
       activities: [],
       showModal: false,
       editingActivity: null,
-      trashIcon,
-      editIcon,
       locations: [],
       currentUserId: ''  
     };
@@ -230,15 +225,13 @@ export default {
     position: absolute;
     inset-block-start: 10px;
     inset-inline-end: 10px;
+    display: flex;
+    gap: 10px;
 }
 
 .delete-icon, .edit-icon {
     inline-size: 20px;
     block-size: 20px;
     cursor: pointer;
-}
-
-.edit-icon {
-    inset-inline-end: 40px;
 }
 </style>

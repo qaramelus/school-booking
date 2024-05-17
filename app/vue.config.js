@@ -28,7 +28,7 @@ module.exports = {
     },
     quasar: {
       importStrategy: 'kebab',
-      rtlSupport: true
+      rtlSupport: false
     }
   },
 

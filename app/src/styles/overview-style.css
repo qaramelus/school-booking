@@ -8,32 +8,23 @@
   box-sizing: border-box;
 }
 
-.filter-buttons {
+.filter-dropdown {
   display: flex;
-  justify-content: center;
-  position: sticky;
-  inset-block-start: 0;
-  background-color: var(--background-light); 
-  padding: 10px 0;
-  inline-size: 100%;
-  border-block-end: 1px solid var(--border-color); 
-  box-shadow: 0 2px 4px var(--hover-light); 
+  justify-content: flex-end; /* Align to the right */
+  width: 100%;
+  margin-bottom: 20px; /* Add spacing below filter dropdown */
 }
 
-.filter-buttons button {
+.filter-dropdown select {
   font-size: 16px;
   padding: 10px 20px;
-  border-radius: 20px;
-  background-color: var(--button-active-bg); 
-  color: var(--button-text-color); 
-  border: none;
+  border: 1px solid var(--primary-color); /* Primary color border */
+  background-color: var(--background-light); /* White background */
+  color: var(--text-primary);
+  border-radius: 0; /* Non-rounded corners */
   cursor: pointer;
+  outline: none;
   transition: background-color 0.3s, color 0.3s;
-}
-
-.filter-buttons button.active {
-  background-color: var(--primary-color); 
-  color: var(--button-text-color); 
 }
 
 .activities {
@@ -48,11 +39,23 @@
   padding: 0 20px;
 }
 
+@media (min-width: 768px) {
+  .activity-cards {
+      grid-template-columns: repeat(2, 1fr); /* Two cards side by side */
+  }
+}
+
+@media (min-width: 1200px) {
+  .activity-cards {
+      grid-template-columns: repeat(3, 1fr); /* Three cards side by side */
+  }
+}
+
 .activity-card {
   padding: 20px;
-  border: 1px solid var(--border-color); /* Updated */
+  border: 1px solid var(--border-color);
   border-radius: 10px;
-  background-color: var(--hover-color); /* Updated */
+  background-color: var(--hover-color);
   cursor: pointer;
   transition: box-shadow 0.3s, transform 0.2s;
   display: flex;
@@ -61,7 +64,7 @@
 }
 
 .activity-card:hover {
-  box-shadow: 0 4px 12px var(--hover-dark); /* Updated */
+  box-shadow: 0 4px 12px var(--hover-dark);
   transform: translateY(-5px);
 }
 
@@ -74,8 +77,8 @@
   font-size: 16px;
   padding: 10px 20px;
   border-radius: 20px;
-  background-color: var(--button-active-bg); /* Updated */
-  color: var(--button-text-color); /* Updated */
+  background-color: var(--button-active-bg);
+  color: var(--button-text-color);
   border: none;
   cursor: pointer;
   align-self: flex-end;
@@ -91,11 +94,11 @@
   inline-size: 100%;
   block-size: 100%;
   overflow: auto;
-  background-color: var(--modal-background); /* Updated */
+  background-color: var(--modal-background);
 }
 
 .modal-content {
-  background-color: var(--modal-content-bg); /* Updated */
+  background-color: var(--modal-content-bg);
   padding: 20px;
   border-radius: 8px;
   inline-size: 90%;
@@ -121,4 +124,25 @@
   padding: 10px;
   border-radius: 8px;
   margin-block-end: 20px;
+}
+
+.add-activity-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  font-size: 16px;
+  padding: 15px 30px;
+  border-radius: 50px;
+  background-color: var(--primary-color);
+  color: var(--button-text-color);
+  border: none;
+  cursor: pointer;
+  outline: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.add-activity-button:hover {
+  background-color: var(--primary-color-dark); /* Add a darker primary color for hover state */
+  transform: scale(1.05);
 }

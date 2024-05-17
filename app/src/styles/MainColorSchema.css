@@ -1,13 +1,14 @@
-/* MainColorSchema.css */
-
 :root {
-    --primary-color: #5C67F2; /* A modern shade of soft blue */
+    --primary-color: #353ebd; /* A modern shade of soft blue */
+    --primary-color-dark: #2d36a3; /* A darker shade of the primary color for hover state */
+    --secondary-color: #f28d35; /* A contrasting secondary color */
     --text-primary: #363636; /* Darker gray for better readability */
     --background-light: #ffffff; /* Pure white background for a clean, modern look */
     --border-color: #cccccc; /* Lighter gray for subtle borders */
     --hover-light: rgba(100, 100, 255, 0.1); /* Soft light blue hover effect for subtlety */
     --modal-background: rgba(50, 50, 50, 0.8); /* Darker for better focus on modal content */
-    --button-active-bg: #FFA07A; /* A light salmon color for active buttons */
+    --button-active-bg: #353ebd; /* Button background color using primary color */
+    --button-secondary-bg: #f28d35; /* Button background color using secondary color */
     --button-text-color: #ffffff; /* White for contrast on buttons */
     --hover-color: #d2e1e3; /* Powder blue for distinct hover states */
     --modal-content-bg: #fafafa; /* Off-white for modal backgrounds, softer than pure white */
@@ -15,24 +16,35 @@
     --link-hover-bg: #ddd; /* Light gray for link hover, less intrusive */
     --button-text: #4A4A4A; /* Dark grey for better readability on light backgrounds */
     --success-color: #28a745; /* Green color for success state buttons */
-  }
-  
-  body {
+}
+
+body {
     color: var(--text-primary);
     background-color: var(--background-light);
-  }
-  
-  button {
+}
+
+button {
     background-color: var(--button-active-bg);
     color: var(--button-text-color);
     border-radius: 5px; /* Adding border-radius for a more modern button look */
     padding: 10px 20px; /* Standard padding for better button sizing */
     font-weight: 500; /* Medium font weight for clearer button text */
     transition: background-color 0.3s ease; /* Smooth transition for hover effects */
-  }
-  
-  a:hover {
+}
+
+button.secondary {
+    background-color: var(--button-secondary-bg); /* Secondary button background */
+}
+
+button:hover {
+    background-color: var(--hover-color); /* Ensure hover color is distinct for buttons */
+}
+
+button.secondary:hover {
+    background-color: var(--hover-dark); /* Darker shade for secondary button hover state */
+}
+
+a:hover {
     background-color: var(--link-hover-bg);
     transition: background-color 0.3s ease; /* Ensures smooth color transition on hover */
-  }
-  
+}

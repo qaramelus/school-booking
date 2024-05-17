@@ -22,7 +22,6 @@ const i18n = createI18n({
 
 const app = createApp(App);
 
-// Use the router and i18n instances
 app.use(router);
 app.use(i18n);
 
@@ -32,5 +31,4 @@ app.use(Quasar, {
   }
 });
 
-// Mount the app
 app.mount('#app');

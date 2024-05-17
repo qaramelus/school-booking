@@ -1,8 +1,8 @@
 <template>
   <div>
     <!-- Conditional rendering of Navbars -->
-    <AdminNavbar v-if="isAdmin" />
-    <ParentNavbar v-else />
+    <AdminNavbar v-if="isAdmin" :userId="currentUserId" />
+    <ParentNavbar v-else :userId="currentUserId" />
 
     <div v-if="activity" class="activity-detail-container">
       <div class="activity-detail-tabs">
@@ -90,7 +90,7 @@
 
 <script>
 import API from '@/services/api';
-import '@/styles/MainColorSchema.css'
+import '@/styles/MainColorSchema.css';
 import AdminNavbar from '@/components/AdminNavbar.vue';
 import ParentNavbar from '@/components/ParentNavbar.vue';
 
@@ -111,10 +111,12 @@ export default {
       currentTab: 'about',
       allChildrenBooked: false,
       confirmedParticipants: [],
-      waitlistedParticipants: []
+      waitlistedParticipants: [],
+      currentUserId: ''
     };
   },
   created() {
+    this.currentUserId = localStorage.getItem('user-id');
     this.isAdmin = localStorage.getItem('user-role') === 'admin';
     this.fetchActivity()
       .then(() => {
@@ -425,5 +427,3 @@ h3 {
 }
 
 </style>
-
-

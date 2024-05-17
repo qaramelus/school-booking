@@ -1,6 +1,6 @@
 <template>
   <admin-navbar :userId="currentUserId" />
-  <div class="admin-location-overview">
+  <div class="admin-overview">
     <h1>Location Administration</h1>
     <div class="controls">
       <button class="add-btn" @click="showAddLocationModal = true">Add Location</button>
@@ -176,89 +176,116 @@ export default {
 </script>
 
 <style scoped>
+.admin-overview {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 .add-btn {
   background-color: var(--primary-color);
-  color: var(--background-light);
-  padding: 10px 20px;
+  color: var(--button-text-color);
   border: none;
   border-radius: 4px;
+  padding: 10px 20px;
   cursor: pointer;
-  margin-inline-end: 10px;
 }
+
 .add-btn:hover {
   background-color: var(--hover-dark);
 }
-.admin-location-overview {
-  margin: 0 auto;
-  text-align: center;
-  max-inline-size: 90%;
-  padding: 20px;
-}
-.controls {
-  display: flex;
-  justify-content: start;
-  align-items: center;
-  margin-block-end: 20px;
-}
+
 table {
-  inline-size: 100%;
+  width: 100%;
   border-collapse: collapse;
 }
-th, td {
-  padding: 12px;
-  text-align: start;
-  border-block-end: 1px solid var(--border-color);
-}
-tr:hover {
-  background-color: var(--hover-color);
-}
-th {
+
+thead th {
   background-color: var(--primary-color);
-  color: var(--background-light);
-  cursor: pointer;
+  color: var(--button-text-color);
+  padding: 10px;
+  text-align: start;
 }
+
+tbody tr:nth-child(even) {
+  background-color: var(--hover-light);
+}
+
+tbody tr:hover {
+  background-color: var(--hover-dark);
+}
+
+td, th {
+  padding: 10px;
+}
+
+.edit-icon, .delete-icon {
+  cursor: pointer;
+  margin-right: 5px;
+}
+
 .modal {
   display: block;
   position: fixed;
   z-index: 1;
-  inset-inline-start: 0;
-  inset-block-start: 0;
-  inline-size: 100%;
-  block-size: 100%;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
   overflow: auto;
   background-color: var(--modal-background);
 }
+
 .modal-content {
   background-color: var(--modal-content-bg);
   margin: 10% auto;
   padding: 20px;
   border: 1px solid var(--border-color);
-  inline-size: 80%;
-  max-inline-size: 500px;
+  width: 80%;
+  max-width: 500px;
   border-radius: 5px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
+
 .close {
   color: #aaa;
-  float: inline-end;
+  float: right;
   font-size: 28px;
   font-weight: bold;
 }
+
 .close:hover,
 .close:focus {
   color: var(--text-primary);
   text-decoration: none;
   cursor: pointer;
 }
+
 .form-group {
-  margin-block-end: 20px;
+  margin-bottom: 20px;
 }
+
 label {
-  display:block;
-  margin-block-end: 5px;
+  display: block;
+  margin-bottom: 5px;
 }
-input[type="text"], input[type="email"], input[type="password"], input[type="number"], select {
-  inline-size: 100%;
+
+input[type="text"], input[type="number"] {
+  width: 100%;
   padding: 8px;
   margin: 8px 0;
   display: inline-block;
@@ -266,6 +293,7 @@ input[type="text"], input[type="email"], input[type="password"], input[type="num
   border-radius: 4px;
   box-sizing: border-box;
 }
+
 .submit-btn {
   background-color: var(--button-active-bg);
   color: var(--button-text-color);
@@ -274,15 +302,17 @@ input[type="text"], input[type="email"], input[type="password"], input[type="num
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  inline-size: 100%;
+  width: 100%;
 }
+
 .submit-btn:hover {
   background-color: var(--hover-dark);
 }
+
 .edit-icon, .delete-icon {
-  inline-size: 16px;
-  block-size: 16px;
-  margin-inline-start: 10px;
+  width: 16px;
+  height: 16px;
+  margin-right: 10px;
   cursor: pointer;
   vertical-align: middle;
 }

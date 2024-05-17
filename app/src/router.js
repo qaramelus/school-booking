@@ -118,7 +118,7 @@ const routes = [
 
 // Create router instance
 const router = createRouter({
-  history: createWebHistory('/'),
+  history: createWebHistory(process.env.BASE_URL),  // Use environment variable for base URL
   routes,
 });
 

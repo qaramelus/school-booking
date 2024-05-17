@@ -1,6 +1,6 @@
 <template>
   <admin-navbar :userId="currentUserId" />
-  <div class="admin-user-overview">
+  <div class="admin-overview">
     <h1>User Administration</h1>
     <div class="controls">
       <button class="add-btn" @click="showAddParentModal = true">Add Parent</button>
@@ -256,8 +256,8 @@ export default {
 </script>
 
 <style scoped>
-.admin-user-overview {
-  max-inline-size: 800px;
+.admin-overview {
+  max-width: 800px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -265,14 +265,15 @@ export default {
 h1 {
   font-size: 28px;
   font-weight: bold;
-  margin-block-end: 20px;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-block-end: 20px;
+  margin-bottom: 20px;
 }
 
 .add-btn {
@@ -295,7 +296,7 @@ h1 {
 }
 
 table {
-  inline-size: 100%;
+  width: 100%;
   border-collapse: collapse;
 }
 
@@ -320,6 +321,6 @@ td, th {
 
 .edit-icon, .delete-icon {
   cursor: pointer;
-  margin-inline-end: 5px;
+  margin-right: 5px;
 }
 </style>

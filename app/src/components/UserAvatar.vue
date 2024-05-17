@@ -11,8 +11,8 @@
   </template>
   
   <script>
+  import API from '@/services/api';
   import { QAvatar } from 'quasar';
-  import axios from 'axios';
   import { logout } from '@/services/logout';
   
   export default {
@@ -46,8 +46,7 @@
       console.error('User ID or token is undefined.');
       return;
     }
-
-    axios.get(`/users/${this.userId}/initials`, {
+    return API.get(`/users/${this.userId}/initials`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }

@@ -2,5 +2,9 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "sass": "^1.77.1",
+    "sass-loader": "^14.2.1"
   }
 }

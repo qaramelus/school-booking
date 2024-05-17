@@ -1,206 +1,71 @@
-// ActivitBasicOperationsController.js
-const mongoose = require('mongoose');
-const Activity = require('../models/Activity');
-const Session = require('../models/Session');
-const User = require('../models/User');
-const Location = require('../models/Location');  // Ensure the Location model is imported
-const { calculateSessionsPerTimeslot } = require('../utils/sessionCalculator');
+// ActicityBasicOperationsController.js
+const activityService = require('../services/activityService');
 
-// Function to create an Activity with scheduling
-exports.createActivity = async (req, res) => {
+exports.createActivity = async (req, res, next) => {
     try {
-        const {
-            name,
-            description,
-            startDate,
-            endDate,
-            signupStartDate,
-            signupEndDate,
-            timeSlots,
-            createdBy,
-            teachers,
-            maxParticipants
-        } = req.body;
-
-        // Validate teachers
-        const teacherChecks = teachers.map(teacherId =>
-            mongoose.Types.ObjectId.isValid(teacherId) ? User.findById(teacherId) : null
-        );
-        const allTeachersExist = (await Promise.all(teacherChecks)).every(user => user);
-
-        // Validate locations
-        const locationChecks = timeSlots.map(slot =>
-            mongoose.Types.ObjectId.isValid(slot.location) ? Location.findById(slot.location) : null
-        );
-        const allLocationsExist = (await Promise.all(locationChecks)).every(location => location);
-
-        if (!allTeachersExist || !allLocationsExist) {
-            return res.status(400).json({ message: 'One or more teachers or locations do not exist.' });
-        }
-
-        // Create the activity with the new fields for signup dates
-        const newActivity = await Activity.create({
-            name,
-            description,
-            startDate,
-            endDate,
-            signupStartDate,
-            signupEndDate,
-            timeSlots,
-            createdBy,
-            teachers,
-            maxParticipants,
-            currentParticipants: 0,
-            waitlistCount: 0
-        });
-
-        // After creating the activity, create sessions for each time slot
-        await Promise.all(timeSlots.map(slot => {
-            const sessions = calculateSessionsPerTimeslot(slot, startDate, endDate);
-            return Promise.all(sessions.map(session => Session.create({
-                activityId: newActivity._id,
-                locationId: slot.location,
-                date: session.date,
-                startTime: session.startTime,
-                endTime: session.endTime,
-                teachers,  // Assuming all sessions have the same teachers
-                status: 'scheduled'
-            })));
-        }));
-
+        const newActivity = await activityService.createActivity(req.body);
         res.status(201).json(newActivity);
     } catch (error) {
-        res.status(400).json({ message: 'Failed to create activity', error: error.message });
+        next(error);
     }
 };
 
-
-// Function to fetch all activities
-exports.fetchActivities = async (req, res) => {
+exports.fetchActivities = async (req, res, next) => {
     try {
-        const activities = await Activity.find({}); 
+        const activities = await activityService.fetchActivities();
         res.json(activities);
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching activities', error: error.message });
+        next(error);
     }
 };
 
-// Function to delete an activity
-exports.deleteActivity = async (req, res) => {
+exports.deleteActivity = async (req, res, next) => {
     try {
-      const activityId = req.params.id;
-      await Activity.findByIdAndDelete(activityId);
-      // Also delete associated sessions
-      await Session.deleteMany({ activityId });
-      res.status(200).send({ message: 'Activity and related sessions deleted successfully' });
+        await activityService.deleteActivity(req.params.id);
+        res.status(200).send({ message: 'Activity and related sessions deleted successfully' });
     } catch (error) {
-      res.status(500).send({ message: 'Failed to delete activity', error: error.toString() });
+        next(error);
     }
-  };
+};
 
-// Function to update an activity
-exports.updateActivity = async (req, res) => {
+exports.updateActivity = async (req, res, next) => {
     try {
-        const activityId = req.params.id;
-        const { startDate, endDate, signupStartDate, signupEndDate, timeSlots, teachers } = req.body;
-        const activity = await Activity.findById(activityId);
-
-        if (!activity) {
-            return res.status(404).json({ message: 'Activity not found' });
-        }
-
-        // Validate teachers and locations
-        const teacherChecks = teachers ? teachers.map(teacherId =>
-            mongoose.Types.ObjectId.isValid(teacherId) ? User.findById(teacherId) : null
-        ) : [];
-        const allTeachersExist = (await Promise.all(teacherChecks)).every(user => user);
-
-        const locationChecks = timeSlots ? timeSlots.map(slot =>
-            mongoose.Types.ObjectId.isValid(slot.location) ? Location.findById(slot.location) : null
-        ) : [];
-        const allLocationsExist = (await Promise.all(locationChecks)).every(location => location);
-
-        if (!allTeachersExist || !allLocationsExist) {
-            return res.status(400).json({ message: 'One or more teachers or locations do not exist.' });
-        }
-
-        const updatedActivity = await Activity.findByIdAndUpdate(activityId, {
-            ...req.body,
-            startDate: startDate || activity.startDate,
-            endDate: endDate || activity.endDate,
-            signupStartDate: signupStartDate || activity.signupStartDate,
-            signupEndDate: signupEndDate || activity.signupEndDate
-        }, { new: true });
-
-        // Recreate sessions
-        await Session.deleteMany({ activityId }); // Remove old sessions
-        await Promise.all((timeSlots || activity.timeSlots).map(slot => {
-            const sessions = calculateSessionsPerTimeslot(slot, startDate || activity.startDate, endDate || activity.endDate);
-            return Promise.all(sessions.map(session => Session.create({
-                activityId,
-                locationId: slot.location,
-                date: session.date,
-                startTime: session.startTime,
-                endTime: session.endTime,
-                teachers,  // Assuming all sessions have the same teachers
-                status: 'scheduled'
-            })));
-        }));
-
+        const updatedActivity = await activityService.updateActivity(req.params.id, req.body);
         res.status(200).json(updatedActivity);
     } catch (error) {
-        res.status(500).send({ message: 'Failed to update activity', error: error.toString() });
+        next(error);
     }
 };
 
-
-// Function to fetch a single Activity by ID
-exports.getActivityById = async (req, res) => {
+exports.getActivityById = async (req, res, next) => {
     try {
-      const activity = await Activity.findById(req.params.id)
-        .populate('teachers', 'username')
-        .exec();
-  
-      if (!activity) {
-        return res.status(404).json({ message: 'Activity not found' });
-      }
-      activity.timeSlots = activity.timeSlots.map(slot => ({
-        ...slot,
-        sessions: calculateSessionsPerTimeslot(slot, activity.startDate, activity.endDate)
-      }));
-      res.json(activity);
+        const activity = await activityService.getActivityById(req.params.id);
+        res.json(activity);
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching activity', error: error.message });
+        next(error);
     }
-  };
+};
 
-  // Function to fetch current activities
-exports.fetchCurrentActivities = async (req, res) => {
+exports.fetchCurrentActivities = async (req, res, next) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);  // Normalize today's date to start of day
+    today.setHours(0, 0, 0, 0);
 
     try {
-        const currentActivities = await Activity.find({
-            startDate: { $lte: today },
-            endDate: { $gte: today }
-        });
+        const currentActivities = await activityService.fetchCurrentActivities(today);
         res.json(currentActivities);
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching current activities', error: error.message });
+        next(error);
     }
 };
 
-// Function to fetch future activities
-exports.fetchFutureActivities = async (req, res) => {
+exports.fetchFutureActivities = async (req, res, next) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);  // Normalize today's date to start of day
+    today.setHours(0, 0, 0, 0);
 
     try {
-        const futureActivities = await Activity.find({
-            startDate: { $gt: today }
-        });
+        const futureActivities = await activityService.fetchFutureActivities(today);
         res.json(futureActivities);
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching future activities', error: error.message });
+        next(error);
     }
 };

@@ -1,21 +1,25 @@
 :root {
-    --primary-color: #353ebd; /* A modern shade of soft blue */
-    --primary-color-dark: #2d36a3; /* A darker shade of the primary color for hover state */
-    --secondary-color: #f28d35; /* A contrasting secondary color */
-    --text-primary: #363636; /* Darker gray for better readability */
+    --primary-color: #027BE3; /* Primary color */
+    --primary-color-dark: #026BB8; /* A darker shade of the primary color for hover state */
+    --secondary-color: #26A69A; /* Secondary color */
+    --accent-color: #9C27B0; /* Accent color */
+    --text-primary: #1D1D1D; /* Dark color for better readability */
     --background-light: #ffffff; /* Pure white background for a clean, modern look */
     --border-color: #cccccc; /* Lighter gray for subtle borders */
-    --hover-light: rgba(100, 100, 255, 0.1); /* Soft light blue hover effect for subtlety */
-    --modal-background: rgba(50, 50, 50, 0.8); /* Darker for better focus on modal content */
-    --button-active-bg: #353ebd; /* Button background color using primary color */
-    --button-secondary-bg: #f28d35; /* Button background color using secondary color */
+    --hover-light: rgba(2, 123, 227, 0.1); /* Soft light blue hover effect for subtlety */
+    --modal-background: rgba(29, 29, 29, 0.8); /* Darker for better focus on modal content */
+    --button-active-bg: #027BE3; /* Button background color using primary color */
+    --button-secondary-bg: #26A69A; /* Button background color using secondary color */
     --button-text-color: #ffffff; /* White for contrast on buttons */
     --hover-color: #d2e1e3; /* Powder blue for distinct hover states */
     --modal-content-bg: #fafafa; /* Off-white for modal backgrounds, softer than pure white */
-    --hover-dark: rgba(50, 50, 50, 0.2); /* Darker and less intense hover effect */
+    --hover-dark: rgba(29, 29, 29, 0.2); /* Darker and less intense hover effect */
     --link-hover-bg: #ddd; /* Light gray for link hover, less intrusive */
     --button-text: #4A4A4A; /* Dark grey for better readability on light backgrounds */
-    --success-color: #28a745; /* Green color for success state buttons */
+    --success-color: #21BA45; /* Green color for success state buttons */
+    --error-color: #C10015; /* Red color for error state buttons */
+    --info-color: #31CCEC; /* Light blue color for info state buttons */
+    --warning-color: #F2C037; /* Yellow color for warning state buttons */
 }
 
 body {
@@ -26,7 +30,7 @@ body {
 button {
     background-color: var(--button-active-bg);
     color: var(--button-text-color);
-    border-radius: 5px; /* Adding border-radius for a more modern button look */
+    border-radius: 8px; /* Adding border-radius for a more modern button look */
     padding: 10px 20px; /* Standard padding for better button sizing */
     font-weight: 500; /* Medium font weight for clearer button text */
     transition: background-color 0.3s ease; /* Smooth transition for hover effects */
@@ -37,7 +41,7 @@ button.secondary {
 }
 
 button:hover {
-    background-color: var(--hover-color); /* Ensure hover color is distinct for buttons */
+    background-color: var(--primary-color-dark); /* Ensure hover color is distinct for buttons */
 }
 
 button.secondary:hover {

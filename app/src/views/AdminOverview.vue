@@ -193,12 +193,12 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  padding-bottom: 20px;
+  inline-size: 100%;
+  padding-block-end: 20px;
 }
 
 .button-container {
-  text-align: right;
+  text-align: end;
 }
 
 .activities {
@@ -213,13 +213,13 @@ export default {
   padding: 0 20px;
 }
 
-@media (min-width: 768px) {
+@media (min-inline-size: 768px) {
   .activity-cards {
     grid-template-columns: repeat(2, 1fr); /* Two cards side by side */
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-inline-size: 1200px) {
   .activity-cards {
     grid-template-columns: repeat(3, 1fr); /* Three cards side by side */
   }
@@ -227,7 +227,7 @@ export default {
 
 .add-activity-button {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  inset-block-end: 20px;
+  inset-inline-end: 20px;
 }
 </style>

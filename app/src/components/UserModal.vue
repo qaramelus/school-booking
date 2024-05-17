@@ -46,10 +46,10 @@
     justify-content: center;
     align-items: center;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 100%;
+    block-size: 100%;
     background-color: rgba(0, 0, 0, 0.5);
   }
   
@@ -57,30 +57,30 @@
     background: white;
     padding: 20px;
     border-radius: 5px;
-    max-width: 500px;
-    width: 100%;
+    max-inline-size: 500px;
+    inline-size: 100%;
     position: relative;
   }
   
   .close {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    inset-block-start: 10px;
+    inset-inline-end: 10px;
     font-size: 20px;
     cursor: pointer;
   }
   
   .form-group {
-    margin-bottom: 15px;
+    margin-block-end: 15px;
   }
   
   .form-group label {
     display: block;
-    margin-bottom: 5px;
+    margin-block-end: 5px;
   }
   
   .form-group input {
-    width: 100%;
+    inline-size: 100%;
     padding: 8px;
     box-sizing: border-box;
   }

@@ -1,8 +1,13 @@
 {
-  "login": "Pieteikties",
-  "emailAddress": "E-pasts",
+  "findActivity": "Atrodiet pareizo aktivitāti",
+  "bookActivity": "Rezervējiet no plaša aktivitāšu klāsta.",
+  "welcome": "Laipni lūdzam jūsu rezervācijas portālā",
+  "userNameEmail": "Lietotājvārds vai E-pasts",
   "password": "Parole",
   "signIn": "Pieteikties",
-  "invalidCredentials": "Nederīgas pieteikšanās informācijas"
+  "invalidCredentials": "Nederīgs lietotājvārds vai parole",
+  "createAdmin": "Izveidot administratoru",
+  "username": "Lietotājvārds",
+  "email": "E-pasts",
+  "create": "Izveidot"
 }
-  

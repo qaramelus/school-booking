@@ -1,7 +1,13 @@
 {
-  "login": "Login",
-  "emailAddress": "E-Mail Address",
+  "findActivity": "Find the right activity",
+  "bookActivity": "Book from a wide range of activities.",
+  "welcome": "Welcome to your booking portal",
+  "userNameEmail": "User name or Email",
   "password": "Password",
-  "signIn": "Sign In",
-  "invalidCredentials": "Invalid login credentials"
+  "signIn": "Sign in",
+  "invalidCredentials": "Invalid username or password",
+  "createAdmin": "Create Admin",
+  "username": "Username",
+  "email": "Email",
+  "create": "Create"
 }

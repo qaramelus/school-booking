@@ -1,7 +1,13 @@
 {
-  "login": "Einloggen",
-  "emailAddress": "E-Mail-Adresse",
+  "findActivity": "Finden Sie die richtige Aktivität",
+  "bookActivity": "Buchen Sie aus einer Vielzahl von Aktivitäten.",
+  "welcome": "Willkommen in Ihrem Buchungsportal",
+  "userNameEmail": "Benutzername oder E-Mail",
   "password": "Passwort",
   "signIn": "Anmelden",
-  "invalidCredentials": "Ungültige Anmeldedaten"
+  "invalidCredentials": "Ungültiger Benutzername oder Passwort",
+  "createAdmin": "Admin erstellen",
+  "username": "Benutzername",
+  "email": "E-Mail",
+  "create": "Erstellen"
 }

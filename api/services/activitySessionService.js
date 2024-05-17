@@ -1,3 +1,4 @@
+// services/activitySessionService.js
 const { calculateSessionsPerTimeslot, calculateSessionsPerTimeslotWithChanges } = require('../utils/sessionCalculator');
 const Activity = require('../models/Activity');
 const Booking = require('../models/Booking');

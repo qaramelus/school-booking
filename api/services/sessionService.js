@@ -1,3 +1,4 @@
+// services/SessionService.js
 const Attendance = require('../models/Attendance');
 const Session = require('../models/Session');
 

@@ -1,187 +1,39 @@
 <template>
-      <admin-navbar :userId="currentUserId" />
-<div class="admin-user-overview">
+  <admin-navbar :userId="currentUserId" />
+  <div class="admin-user-overview">
     <h1>User Administration</h1>
     <div class="controls">
-        <button class="add-btn" @click="showAddParentModal = true">Add Parent</button>
-        <button class="add-btn" @click="showAddTeacherModal = true">Add Teacher</button>
-
-        <div class="filter-section">
-            <select v-model="filterRole">
-                <option value="">All Roles</option>
-                <option value="admin">Admin</option>
-                <option value="parent">Parent</option>
-                <option value="teacher">Teacher</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- Add Parent Modal -->
-    <div v-if="showAddParentModal" class="modal">
-      <div class="modal-content">
-        <span class="close" @click="showAddParentModal = false">&times;</span>
-        <h2>Add Parent</h2>
-        <form @submit.prevent="addParent">
-          <div class="form-group">
-            <label for="firstName">First Name</label>
-            <input type="text" id="firstName" v-model="parent.firstName" required>
-          </div>
-          <div class="form-group">
-            <label for="lastName">Last Name</label>
-            <input type="text" id="lastName" v-model="parent.lastName" required>
-          </div>
-          <div class="form-group">
-            <label for="address.street">Street</label>
-            <input type="text" id="address.street" v-model="parent.address.street" required>
-          </div>
-          <div class="form-group">
-            <label for="address.city">City</label>
-            <input type="text" id="address.city" v-model="parent.address.city" required>
-          </div>
-          <div class="form-group">
-            <label for="address.zipCode">Zip Code</label>
-            <input type="text" id="address.zipCode" v-model="parent.address.zipCode" required>
-          </div>
-          <div class="form-group">
-            <label for="phone">Phone</label>
-            <input type="text" id="phone" v-model="parent.phone" required>
-          </div>
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" v-model="parent.email" required>
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" v-model="parent.password" required>
-          </div>
-          <button type="submit" class="submit-btn">Add Parent</button>
-        </form>
+      <button class="add-btn" @click="showAddParentModal = true">Add Parent</button>
+      <button class="add-btn" @click="showAddTeacherModal = true">Add Teacher</button>
+      <div class="filter-section">
+        <select v-model="filterRole">
+          <option value="">All Roles</option>
+          <option value="admin">Admin</option>
+          <option value="parent">Parent</option>
+          <option value="teacher">Teacher</option>
+        </select>
       </div>
     </div>
 
-    <!-- Add Teacher Modal -->
-    <div v-if="showAddTeacherModal" class="modal">
-      <div class="modal-content">
-        <span class="close" @click="showAddTeacherModal = false">&times;</span>
-        <h2>Add Teacher</h2>
-        <form @submit.prevent="addTeacher">
-          <div class="form-group">
-            <label for="firstName">First Name</label>
-            <input type="text" id="firstName" v-model="teacher.firstName" required>
-          </div>
-          <div class="form-group">
-            <label for="lastName">Last Name</label>
-            <input type="text" id="lastName" v-model="teacher.lastName" required>
-          </div>
-          <div class="form-group">
-            <label for="address.street">Street</label>
-            <input type="text" id="address.street" v-model="teacher.address.street" required>
-          </div>
-          <div class="form-group">
-            <label for="address.city">City</label>
-            <input type="text" id="address.city" v-model="teacher.address.city" required>
-          </div>
-          <div class="form-group">
-            <label for="address.zipCode">Zip Code</label>
-            <input type="text" id="address.zipCode" v-model="teacher.address.zipCode" required>
-          </div>
-          <div class="form-group">
-            <label for="phone">Phone</label>
-            <input type="text" id="phone" v-model="teacher.phone" required>
-          </div>
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" v-model="teacher.email" required>
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" v-model="teacher.password" required>
-          </div>
-          <button type="submit" class="submit-btn">Add Teacher</button>
-        </form>
-      </div>
-    </div>
+    <UserModal
+      v-if="showAddParentModal"
+      :title="'Add Parent'"
+      :fields="parentFields"
+      :form="parent"
+      :buttonText="'Add Parent'"
+      @close="showAddParentModal = false"
+      @submit="addParent"
+    />
 
-    <!-- Edit Parent Modal showEditModal-->
-    <div v-if="showEditModal" class="modal">
-      <div class="modal-content">
-        <span class="close" @click="showEditModal = false">&times;</span>
-        <h2>Edit Parent</h2>
-        <form @submit.prevent="updateParent">
-          <div class="form-group">
-            <label for="firstName">First Name</label>
-            <input type="text" id="firstName" v-model="editedParent.firstName" required>
-          </div>
-          <div class="form-group">
-            <label for="lastName">Last Name</label>
-            <input type="text" id="lastName" v-model="editedParent.lastName" required>
-          </div>
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" v-model="editedParent.email" required>
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" v-model="editedParent.password" required>
-          </div>
-          <button type="submit" class="submit-btn">Update Parent</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Edit Teacher Modal -->
-    <div v-if="showEditTeacherModal" class="modal">
-      <div class="modal-content">
-        <span class="close" @click="showEditTeacherModal = false">&times;</span>
-        <h2>Edit Teacher</h2>
-        <form @submit.prevent="updateTeacher">
-          <div class="form-group">
-            <label for="firstName">First Name</label>
-            <input type="text" id="firstName" v-model="editedTeacher.firstName" required>
-          </div>
-          <div class="form-group">
-            <label for="lastName">Last Name</label>
-            <input type="text" id="lastName" v-model="editedTeacher.lastName" required>
-          </div>
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" v-model="editedTeacher.email" required>
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" v-model="editedTeacher.password" required>
-          </div>
-          <button type="submit" class="submit-btn">Update Teacher</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Edit Admin Modal -->
-    <div v-if="showEditAdminModal" class="modal">
-      <div class="modal-content">
-        <span class="close" @click="showEditAdminModal = false">&times;</span>
-        <h2>Edit Admin</h2>
-        <form @submit.prevent="updateAdmin">
-          <div class="form-group">
-            <label for="firstName">First Name</label>
-            <input type="text" id="firstName" v-model="editedAdmin.firstName" required>
-          </div>
-          <div class="form-group">
-            <label for="lastName">Last Name</label>
-            <input type="text" id="lastName" v-model="editedAdmin.lastName" required>
-          </div>
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" v-model="editedAdmin.email" required>
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" v-model="editedAdmin.password" required>
-          </div>
-          <button type="submit" class="submit-btn">Update Admin</button>
-        </form>
-      </div>
-    </div>
+    <UserModal
+      v-if="showAddTeacherModal"
+      :title="'Add Teacher'"
+      :fields="teacherFields"
+      :form="teacher"
+      :buttonText="'Add Teacher'"
+      @close="showAddTeacherModal = false"
+      @submit="addTeacher"
+    />
 
     <table>
       <thead>
@@ -207,14 +59,16 @@
 
 <script>
 import AdminNavbar from '@/components/AdminNavbar.vue';
-import { QIcon } from 'quasar'; 
+import UserModal from '@/components/UserModal.vue';
+import { QIcon } from 'quasar';
 import API from '@/services/api';
-import '@/styles/MainColorSchema.css'
+import '@/styles/MainColorSchema.css';
 
 export default {
-  name: "AdminUserOverview",
+  name: 'AdminUserOverview',
   components: {
     AdminNavbar,
+    UserModal,
     QIcon
   },
   data() {
@@ -234,25 +88,21 @@ export default {
         password: '',
         role: 'parent'
       },
-      teacher: {   
+      teacher: {
         firstName: '',
         lastName: '',
         address: {
-          street: '',  
-          city: '',    
-          zipCode: ''  
+          street: '',
+          city: '',
+          zipCode: ''
         },
         phone: '',
         email: '',
         password: '',
-        role: 'teacher'  
+        role: 'teacher'
       },
       filterRole: '',
-      editedParent: {},
-      editedTeacher: {},
-      editedAdmin: {},
-      showEditTeacherModal: false,
-      showEditAdminModal: false,
+      editedUser: {},
       showAddParentModal: false,
       showAddTeacherModal: false,
       showEditModal: false,
@@ -260,7 +110,7 @@ export default {
     };
   },
   created() {
-    this.currentUserId = localStorage.getItem('user-id');  
+    this.currentUserId = localStorage.getItem('user-id');
   },
   computed: {
     filteredUsers() {
@@ -268,9 +118,32 @@ export default {
         return this.users;
       }
       return this.users.filter(user => user.role === this.filterRole);
+    },
+    parentFields() {
+      return [
+        { id: 'firstName', label: 'First Name', type: 'text', model: 'firstName', required: true },
+        { id: 'lastName', label: 'Last Name', type: 'text', model: 'lastName', required: true },
+        { id: 'address.street', label: 'Street', type: 'text', model: 'address.street', required: true },
+        { id: 'address.city', label: 'City', type: 'text', model: 'address.city', required: true },
+        { id: 'address.zipCode', label: 'Zip Code', type: 'text', model: 'address.zipCode', required: true },
+        { id: 'phone', label: 'Phone', type: 'text', model: 'phone', required: true },
+        { id: 'email', label: 'Email', type: 'email', model: 'email', required: true },
+        { id: 'password', label: 'Password', type: 'password', model: 'password', required: true }
+      ];
+    },
+    teacherFields() {
+      return [
+        { id: 'firstName', label: 'First Name', type: 'text', model: 'firstName', required: true },
+        { id: 'lastName', label: 'Last Name', type: 'text', model: 'lastName', required: true },
+        { id: 'address.street', label: 'Street', type: 'text', model: 'address.street', required: true },
+        { id: 'address.city', label: 'City', type: 'text', model: 'address.city', required: true },
+        { id: 'address.zipCode', label: 'Zip Code', type: 'text', model: 'address.zipCode', required: true },
+        { id: 'phone', label: 'Phone', type: 'text', model: 'phone', required: true },
+        { id: 'email', label: 'Email', type: 'email', model: 'email', required: true },
+        { id: 'password', label: 'Password', type: 'password', model: 'password', required: true }
+      ];
     }
   },
-
   mounted() {
     this.fetchUsers();
     this.checkAdminStatus();
@@ -281,12 +154,10 @@ export default {
         const response = await API.get('users');
         this.users = response.data;
       } catch (error) {
-        console.error("There was an error fetching the users:", error.message);
+        console.error('There was an error fetching the users:', error.message);
       }
     },
     checkAdminStatus() {
-      // You would typically check this based on user authentication status
-      // For example, using Vuex or a global auth state
       this.isAdmin = true; // Placeholder for actual admin check
     },
     navigateToUser(userId) {
@@ -301,7 +172,7 @@ export default {
         this.showAddParentModal = false;
         this.fetchUsers();
       } catch (error) {
-        console.error("Error adding parent:", error.message);
+        console.error('Error adding parent:', error.message);
       }
     },
     resetParentForm() {
@@ -321,9 +192,7 @@ export default {
     },
     async addTeacher() {
       try {
-        // Ensure that the role is set to 'teacher' in the teacher object
         this.teacher.role = 'teacher';
-
         const response = await API.post('users/teachers', this.teacher);
         console.log('New teacher added:', response.data);
         this.users.push(response.data);
@@ -331,86 +200,56 @@ export default {
         this.showAddTeacherModal = false;
         this.fetchUsers();
       } catch (error) {
-        console.error("Error adding teacher:", error.message);
+        console.error('Error adding teacher:', error.message);
       }
     },
     resetTeacherForm() {
       this.teacher = {
         firstName: '',
         lastName: '',
+        address: {
+          street: '',
+          city: '',
+          zipCode: ''
+        },
+        phone: '',
         email: '',
-        password: ''
+        password: '',
+        role: 'teacher'
       };
     },
     openEditModal(user) {
-      switch(user.role) {
-        case 'parent':
-          this.editedParent = { ...user };
-          this.showEditModal = true;
-          break;
-        case 'teacher':
-          this.editedTeacher = { ...user };
-          this.showEditTeacherModal = true;
-          break;
-        case 'admin':
-          this.editedAdmin = { ...user };
-          this.showEditAdminModal = true;
-          break;
-      }
+      this.editedUser = { ...user };
+      this.showEditModal = true;
     },
-    async updateAdmin() {
+    async updateUser() {
       try {
-        const response = await API.put(`users/admins/${this.editedAdmin._id}`, this.editedAdmin);
-        console.log('Admin updated:', response.data);
-        this.showEditAdminModal = false;
-        this.fetchUsers();
-      } catch (error) {
-        console.error("Error updating admin:", error.message);
-      }
-    },
-    async updateParent() {
-      try {
-        const response = await API.put(`users/parents/${this.editedParent._id}`, this.editedParent);
-        console.log('Parent updated:', response.data);
+        const response = await API.put(`users/${this.editedUser.role}s/${this.editedUser._id}`, this.editedUser);
+        console.log('User updated:', response.data);
         this.showEditModal = false;
         this.fetchUsers();
       } catch (error) {
-        console.error("Error updating parent:", error.message);
-      }
-    },
-    async updateTeacher() {
-      try {
-        const response = await API.put(`users/teachers/${this.editedTeacher._id}`, this.editedTeacher);
-        console.log('Teacher updated:', response.data);
-        this.showEditTeacherModal = false;
-        this.fetchUsers();
-      } catch (error) {
-        console.error("Error updating teacher:", error.message);
+        console.error('Error updating user:', error.message);
       }
     },
     async deleteUser(userId) {
-    // Assuming this.isAdmin reflects the current user's admin status
-        if (!this.isAdmin) {
-            alert('You are not authorized to delete users.');
-            return;
-        }
+      if (!this.isAdmin) {
+        alert('You are not authorized to delete users.');
+        return;
+      }
 
-        if (!confirm("Are you sure you want to delete this user?")) {
-            return;
-        }
+      if (!confirm('Are you sure you want to delete this user?')) {
+        return;
+      }
 
-        try {
-            // Correct endpoint as per the provided Express route
-            await API.delete(`users/user/${userId}`);
-
-            // Update the local state to reflect the deletion
-            this.users = this.users.filter(user => user._id !== userId);
-
-            alert("User deleted successfully");
-        } catch (error) {
-            console.error("Error deleting user:", error.message);
-            alert("Failed to delete user.");
-        }
+      try {
+        await API.delete(`users/user/${userId}`);
+        this.users = this.users.filter(user => user._id !== userId);
+        alert('User deleted successfully');
+      } catch (error) {
+        console.error('Error deleting user:', error.message);
+        alert('Failed to delete user.');
+      }
     }
   }
 };
@@ -456,7 +295,7 @@ h1 {
 }
 
 table {
-  width: 100%;
+  inline-size: 100%;
   border-collapse: collapse;
 }
 
@@ -464,7 +303,7 @@ thead th {
   background-color: var(--primary-color);
   color: var(--button-text-color);
   padding: 10px;
-  text-align: left;
+  text-align: start;
 }
 
 tbody tr:nth-child(even) {
@@ -481,8 +320,6 @@ td, th {
 
 .edit-icon, .delete-icon {
   cursor: pointer;
-  margin-right: 5px;
+  margin-inline-end: 5px;
 }
 </style>
-
-

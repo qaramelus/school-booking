@@ -49,7 +49,7 @@
 import '@/styles/MainColorSchema.css';
 import '@/styles/overview-style.css';
 import API from '@/services/api';
-import ActivityModal from './ActivityModal.vue';
+import ActivityModal from '@/components/ActivityModal.vue';
 import trashIcon from '@/assets/trashicon.jpeg';
 import editIcon from '@/assets/editicon.png';
 import AdminNavbar from '@/components/AdminNavbar.vue';

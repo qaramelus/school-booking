@@ -14,23 +14,25 @@
     --hover-dark: rgba(50, 50, 50, 0.2); /* Darker and less intense hover effect */
     --link-hover-bg: #ddd; /* Light gray for link hover, less intrusive */
     --button-text: #4A4A4A; /* Dark grey for better readability on light backgrounds */
-}
-
-body {
+    --success-color: #28a745; /* Green color for success state buttons */
+  }
+  
+  body {
     color: var(--text-primary);
     background-color: var(--background-light);
-}
-
-button {
+  }
+  
+  button {
     background-color: var(--button-active-bg);
     color: var(--button-text-color);
     border-radius: 5px; /* Adding border-radius for a more modern button look */
     padding: 10px 20px; /* Standard padding for better button sizing */
     font-weight: 500; /* Medium font weight for clearer button text */
     transition: background-color 0.3s ease; /* Smooth transition for hover effects */
-}
-
-a:hover {
+  }
+  
+  a:hover {
     background-color: var(--link-hover-bg);
     transition: background-color 0.3s ease; /* Ensures smooth color transition on hover */
-}
+  }
+  

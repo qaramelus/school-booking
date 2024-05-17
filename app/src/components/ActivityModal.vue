@@ -3,63 +3,59 @@
     <div class="modal-content">
       <span class="close" @click="closeModal">&times;</span>
       <h2>{{ editingActivity ? 'Edit Activity' : 'Add New Activity' }}</h2>
+      <div class="tabs">
+        <button :class="{ active: activeTab === 'general' }" @click="activeTab = 'general'">General Info</button>
+        <button :class="{ active: activeTab === 'details' }" @click="activeTab = 'details'">Details</button>
+        <button :class="{ active: activeTab === 'timeSlots' }" @click="activeTab = 'timeSlots'">Time Slots</button>
+      </div>
       <form @submit.prevent="submitActivity" class="activity-form">
-        <!-- Title field -->
-        <div class="form-group">
-          <label for="activity-name">Title:</label>
-          <input type="text" id="activity-name" v-model="activity.name" required>
+        <div v-show="activeTab === 'general'">
+          <!-- General Info -->
+          <div class="form-group">
+            <label for="activity-name">Title:</label>
+            <input type="text" id="activity-name" v-model="activity.name" required>
+          </div>
+          <div class="form-group">
+            <label for="activity-teachers">Teachers:</label>
+            <select id="activity-teachers" v-model="activity.teachers" multiple required>
+              <option disabled value="">Select Teachers</option>
+              <option v-for="teacher in teachers" :value="teacher._id" :key="teacher._id">
+                {{ teacher.username }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="activity-max-participants">Max Participants:</label>
+            <input type="number" id="activity-max-participants" v-model="activity.maxParticipants" required min="1">
+          </div>
         </div>
         
-        <!-- Teacher field -->
-        <div class="form-group">
-          <label for="activity-teachers">Teachers:</label>
-          <select id="activity-teachers" v-model="activity.teachers" multiple required>
-            <option disabled value="">Select Teachers</option>
-            <option v-for="teacher in teachers" :value="teacher._id" :key="teacher._id">
-              {{ teacher.username }}
-            </option>
-          </select>
+        <div v-show="activeTab === 'details'">
+          <!-- Details -->
+          <div class="form-group">
+            <label for="activity-description">Detail:</label>
+            <ckeditor :editor="editor" v-model="activity.description" :config="editorConfig"></ckeditor>
+          </div>
+          <div class="form-group">
+            <label for="activity-start-date">Start Date:</label>
+            <input type="date" id="activity-start-date" v-model="activity.startDate" required>
+          </div>
+          <div class="form-group">
+            <label for="activity-end-date">End Date:</label>
+            <input type="date" id="activity-end-date" v-model="activity.endDate" required>
+          </div>
+          <div class="form-group">
+            <label for="activity-signup-start-date">Signup Start Date:</label>
+            <input type="date" id="activity-signup-start-date" v-model="activity.signupStartDate" required>
+          </div>
+          <div class="form-group">
+            <label for="activity-signup-end-date">Signup End Date:</label>
+            <input type="date" id="activity-signup-end-date" v-model="activity.signupEndDate" required>
+          </div>
         </div>
 
-        <!-- Detail field -->
-        <div class="form-group">
-          <label for="activity-description">Detail:</label>
-          <ckeditor :editor="editor" v-model="activity.description" :config="editorConfig"></ckeditor>
-        </div>
-
-
-        <!-- Max Participants field -->
-        <div class="form-group">
-          <label for="activity-max-participants">Max Participants:</label>
-          <input type="number" id="activity-max-participants" v-model="activity.maxParticipants" required min="1">
-        </div>
-
-        <!-- Start Date field -->
-        <div class="form-group">
-          <label for="activity-start-date">Start Date:</label>
-          <input type="date" id="activity-start-date" v-model="activity.startDate" required>
-        </div>
-
-        <!-- End Date field -->
-        <div class="form-group">
-          <label for="activity-end-date">End Date:</label>
-          <input type="date" id="activity-end-date" v-model="activity.endDate" required>
-        </div>
-
-        <!-- Signup Start Date field -->
-        <div class="form-group">
-          <label for="activity-signup-start-date">Signup Start Date:</label>
-          <input type="date" id="activity-signup-start-date" v-model="activity.signupStartDate" required>
-        </div>
-
-        <!-- Signup End Date field -->
-        <div class="form-group">
-          <label for="activity-signup-end-date">Signup End Date:</label>
-          <input type="date" id="activity-signup-end-date" v-model="activity.signupEndDate" required>
-        </div>
-
-        <!-- Time Slot Section -->
-        <div class="time-slot-section">
+        <div v-show="activeTab === 'timeSlots'" class="time-slot-section">
+          <!-- Time Slots -->
           <div class="time-slot" v-for="(slot, index) in activity.timeSlots" :key="index">
             <h3>Time Slot {{ index + 1 }}</h3>
             <div class="form-group">
@@ -92,14 +88,16 @@
               <label>End Time:</label>
               <input type="time" v-model="slot.endTime" required>
             </div>
-            <button type="button" @click.prevent="removeTimeSlot(index)">Remove Time Slot</button>
+            <button type="button" @click.prevent="removeTimeSlot(index)" class="remove-time-slot-button">Remove Time Slot</button>
           </div>
           <div class="add-slot-button-container">
             <button type="button" @click="addTimeSlot" class="add-time-slot-button">Add Time Slot</button>
           </div>
         </div>
 
-        <button type="submit" class="submit-button">{{ editingActivity ? 'Update Activity' : 'Add Activity' }}</button>
+        <div class="form-actions">
+          <button type="submit" class="submit-button">{{ editingActivity ? 'Update Activity' : 'Add Activity' }}</button>
+        </div>
       </form>
     </div>
   </div>
@@ -145,7 +143,8 @@ export default {
       editorConfig: {
         toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote'],
         placeholder: 'Enter the activity details...'
-      }
+      },
+      activeTab: 'general'
     };
   },
   watch: {
@@ -170,7 +169,8 @@ export default {
     }
   },
   mounted() {
-    console.log('ClassicEditor:', ClassicEditor);
+    this.fetchTeachers();
+    this.fetchLocations();
   },
   methods: {
     addTimeSlot() {
@@ -189,7 +189,7 @@ export default {
         console.error('User ID not found. Please log in.');
         return; 
       }
-      
+
       const selectedTeacherIds = this.activity.teachers.filter(teacherId => teacherId !== null);
 
       const activityData = {
@@ -243,10 +243,6 @@ export default {
           console.error('Error fetching locations:', error);
         });
     },
-  },
-  created() {
-    this.fetchTeachers();
-    this.fetchLocations();
   }
 };
 </script>
@@ -255,7 +251,7 @@ export default {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--modal-background);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -270,10 +266,29 @@ export default {
   display: flex;
   flex-direction: column;
   inline-size: 90%;
-  max-inline-size: 600px; 
+  max-inline-size: 800px; 
   max-block-size: 80vh; 
   overflow-y: auto; 
   z-index: 2;
+}
+
+.tabs {
+  display: flex;
+  justify-content: space-around;
+  margin-block-end: 20px;
+}
+
+.tabs button {
+  background: var(--primary-color);
+  color: var(--button-text-color);
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+}
+
+.tabs button.active {
+  background: var(--success-color);
 }
 
 .activity-form {
@@ -285,12 +300,12 @@ export default {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 20px; /* Ensure there's space between columns */
+  gap: 20px; 
 }
 
 .form-group {
-  flex: 1; /* Allows form groups to expand and fill the row */
-  min-inline-size: 250px; /* Minimum width before wrapping */
+  flex: 1; 
+  min-inline-size: 250px; 
   margin-block-end: 20px;
 }
 
@@ -327,25 +342,29 @@ export default {
 }
 
 .add-time-slot-button,
-.submit-button {
+.submit-button,
+.remove-time-slot-button {
   background-color: var(--primary-color);
   color: var(--button-text-color);
   padding: 12px 20px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  margin-block-start: 10px;
 }
 
 .add-time-slot-button:hover,
-.submit-button:hover {
+.submit-button:hover,
+.remove-time-slot-button:hover {
   background-color: var(--hover-color);
 }
 
 .submit-button {
   background-color: var(--success-color);
   padding: 16px 24px;
-  margin-block-start: 10px;
   align-self: flex-start;
+  position: sticky;
+  bottom: 10px;
 }
 
 .close {

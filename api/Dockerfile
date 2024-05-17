@@ -1,16 +1,6 @@
-# Use a base image that is compatible with your architecture (ARM for M1)
-FROM node:18-alpine
-
-# Create app directory
-WORKDIR /usr/src/app
-
-# Install app dependencies
-COPY package*.json ./
-RUN npm install
-
-# Bundle app source
+FROM node:20-alpine
+WORKDIR /app
 COPY . .
-
-# Expose port and start application
+RUN npm install
 EXPOSE 5005
 CMD ["npm", "start"]
